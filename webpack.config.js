@@ -5,7 +5,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
 // Config
-module.exports = env => ({
+module.exports = {
   entry: './src/app.ts',
   mode: 'development',
   plugins: [
@@ -39,6 +39,7 @@ module.exports = env => ({
     ],
   },
   resolve: {
+    extensions: ['.ts', '.tsx', '.js'],
     alias: {
       '%assets%': path.resolve(__dirname, './src/assets/'),
       '%styles%': path.resolve(__dirname, './src/sass/'),
@@ -48,4 +49,4 @@ module.exports = env => ({
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
   },
-});
+};
