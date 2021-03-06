@@ -38,7 +38,6 @@ export default class GameRunner {
   private stopwatch: Stopwatch = new Stopwatch();
   private playerMoves: number = 0;
   private boxMoves: number = 0;
-  // TODO: Count stats!
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
@@ -118,6 +117,11 @@ export default class GameRunner {
    */
   reset(restore: boolean): void {
     Animation.reset(); // Reset all ongoing animations
+
+    this.stopwatch.reset();
+    this.boxMoves = 0;
+    this.playerMoves = 0;
+
     if (restore && this.level) this.setLayout(this.level);
   }
 
@@ -177,12 +181,15 @@ export default class GameRunner {
 
   /** Moves player towards given direction if it is possible */
   private movePlayerIfPossible(direction: Direction): void {
+    this.stopwatch.start();
+
     const position = addVectors(this.player.location, vectorFromDirection(direction));
     const object = this.objectAt(position);
 
     if (object === null || object instanceof Target) {
       // If object that was found is air or Target move the player
       this.player.move(direction);
+      this.playerMoves++;
     } else if (object instanceof Box) {
       // If object that was found is Box, check if it can be moved
       const boxPosition = addVectors(position, vectorFromDirection(direction));
@@ -192,6 +199,8 @@ export default class GameRunner {
       if (objectBehindBox === null || objectBehindBox instanceof Target) {
         object.move(direction);
         this.player.move(direction);
+        this.playerMoves++;
+        this.boxMoves++;
 
         // Stop the game if every box now lies on a target
         if (this.finished) {
@@ -200,6 +209,8 @@ export default class GameRunner {
         }
       }
     }
+
+    console.log(this.playerMoves, this.boxMoves, this.stopwatch.time);
   }
 
   /**
