@@ -7,9 +7,13 @@ import { Direction } from './models/Direction';
 import Level from './models/Level';
 import LevelLayout from './models/LevelLayout';
 import Stats from './models/Stats';
+import Vector from './models/Vector';
+import { addVectors } from './utils/vectorManipulation';
 import getGridSize from './utils/getGridSize';
 import isLayoutCompatible from './utils/isLayoutCompatible';
 import Stopwatch from './utils/Stopwatch';
+import { vectorFromDirection } from './utils/vectorManipulation';
+import Animation from './utils/Animation';
 
 export default class GameRunner {
   private static readonly MaxGridSize = 50;
@@ -34,6 +38,7 @@ export default class GameRunner {
   private stopwatch: Stopwatch = new Stopwatch();
   private playerMoves: number = 0;
   private boxMoves: number = 0;
+  // TODO: Count stats!
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
@@ -42,10 +47,7 @@ export default class GameRunner {
     this.init();
   }
 
-  /**
-   * TODO:
-   * Initializes everything that could be done outside of the constructor
-   */
+  /** Initializes everything that could be done outside of the constructor */
   private init(): void {
     // Listen for user input
     addEventListener('keydown', event => {
@@ -54,19 +56,19 @@ export default class GameRunner {
       switch (key) {
         case 'arrowup':
         case 'w':
-          this.player.move(Direction.Up);
+          this.movePlayerIfPossible(Direction.Up);
           break;
         case 'arrowdown':
         case 's':
-          this.player.move(Direction.Down);
+          this.movePlayerIfPossible(Direction.Down);
           break;
         case 'arrowleft':
         case 'a':
-          this.player.move(Direction.Left);
+          this.movePlayerIfPossible(Direction.Left);
           break;
         case 'arrowright':
         case 'd':
-          this.player.move(Direction.Right);
+          this.movePlayerIfPossible(Direction.Right);
           break;
       }
     });
@@ -85,12 +87,14 @@ export default class GameRunner {
     };
   }
 
-  /**
-   * TODO:
-   * Returns if the game is finished
-   */
+  /** Returns if the game is finished */
   get finished(): boolean {
-    return false;
+    // Check if every target is occupied
+    const everyOccupied = this.layout.targets.every(target =>
+      this.layout.boxes.some(box => box.x === target.x && box.y === target.y)
+    );
+
+    return everyOccupied;
   }
 
   /**
@@ -109,9 +113,13 @@ export default class GameRunner {
 
   /**
    * TODO:
-   * Restores default level layout
+   * Restores default level layout and resets statistics
+   * @param restore Whether the layout should be restored or not
    */
-  reset(): void {}
+  reset(restore: boolean): void {
+    Animation.reset(); // Reset all ongoing animations
+    if (restore && this.level) this.setLayout(this.level);
+  }
 
   /** Resets stats */
   private resetStats(): void {
@@ -125,7 +133,10 @@ export default class GameRunner {
    * Sets new level
    */
   setLevel(level: Level): void {
+    this.reset(false); // Do not restore level layout
+
     this.level = level;
+
     this.updateGrid();
     this.setLayout(level);
   }
@@ -164,6 +175,53 @@ export default class GameRunner {
     this.start();
   }
 
+  /** Moves player towards given direction if it is possible */
+  private movePlayerIfPossible(direction: Direction): void {
+    const position = addVectors(this.player.location, vectorFromDirection(direction));
+    const object = this.objectAt(position);
+
+    if (object === null || object instanceof Target) {
+      // If object that was found is air or Target move the player
+      this.player.move(direction);
+    } else if (object instanceof Box) {
+      // If object that was found is Box, check if it can be moved
+      const boxPosition = addVectors(position, vectorFromDirection(direction));
+      const objectBehindBox = this.objectAt(boxPosition);
+
+      // If the box can be moved (allow only "air" and Targets), move it as well as the player
+      if (objectBehindBox === null || objectBehindBox instanceof Target) {
+        object.move(direction);
+        this.player.move(direction);
+
+        // Stop the game if every box now lies on a target
+        if (this.finished) {
+          console.warn('Finished!');
+          // TODO: Add stopping mechanics
+        }
+      }
+    }
+  }
+
+  /**
+   * Returns object at given position
+   * Returns
+   *    instance of game object,
+   *    null if nothing was found at given position
+   *    or undefined if level was not set or the position is out of bounds
+   */
+  private objectAt(position: Vector): Box | Target | Wall | null | undefined {
+    if (!this.level) return undefined;
+
+    const { boxes, targets, walls } = this.layout;
+
+    // prettier-ignore
+    if(position.x < 0 || position.y < 0 || position.x >= this.level.width || position.y >= this.level.height) return undefined;
+
+    // prettier-ignore
+    // Check position of every object
+    return [...boxes, ...targets, ...walls].find(object => object.x === position.x && object.y === position.y) ?? null;
+  }
+
   /** Draws the gameboard */
   private draw(): void {
     // Clear the canvas
@@ -173,10 +231,10 @@ export default class GameRunner {
 
     // Draw all objects
     [
-      this.player,
-      ...this.layout.boxes,
-      ...this.layout.targets,
       ...this.layout.walls,
+      ...this.layout.targets,
+      ...this.layout.boxes,
+      this.player,
     ].forEach((object: Actor) => object.draw(this.gridSize));
 
     // Draw again

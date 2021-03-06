@@ -20,6 +20,21 @@ export default abstract class Actor {
    */
   abstract draw(size: number): void;
 
+  /** Returns actor position */
+  get location(): Vector {
+    return { ...this.position };
+  }
+
+  /** Returns actor x */
+  get x(): number {
+    return this.position.x;
+  }
+
+  /** Returns actor y */
+  get y(): number {
+    return this.position.y;
+  }
+
   /** Provides additional logic to reset state of the actor */
   reset(): void {}
 }

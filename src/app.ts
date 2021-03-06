@@ -10,7 +10,7 @@ document.body.appendChild(canvas);
 // Init runner
 const runner = new GameRunner(ctx);
 runner.setLevel({
-  boxes: [], // { x: 1, y: 1 }
+  boxes: [{ x: 1, y: 1 }],
   height: 5,
   width: 10,
   start: { x: 2, y: 2 },

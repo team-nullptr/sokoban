@@ -2,8 +2,8 @@ import Actor from './Actor';
 import Animation from '../utils/Animation';
 import { Direction } from './Direction';
 import Vector from './Vector';
-import vectorFromDirection from '../utils/vectorFromDirection';
-import { addVectors, multiplyVector } from '../utils/addVectors';
+import { vectorFromDirection } from '../utils/vectorManipulation';
+import { addVectors, multiplyVector } from '../utils/vectorManipulation';
 
 export default abstract class Movable extends Actor {
   protected readonly animation: Animation;
@@ -43,7 +43,7 @@ export default abstract class Movable extends Actor {
   }
 
   /** Returns position for drawing */
-  get animatedPosition(): Vector {
+  protected get animatedPosition(): Vector {
     return addVectors(this.position, multiplyVector(this.direction, this.animation.progress - 1));
   }
 }
