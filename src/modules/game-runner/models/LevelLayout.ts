@@ -1,7 +1,9 @@
+import Vector from './Vector';
+
 /** Represents level layout */
 export default interface LevelLayout {
-  start: Position;
-  boxes: Position[];
-  targets: Position[];
-  walls: Position[];
+  start: Vector;
+  boxes: Vector[];
+  targets: Vector[];
+  walls: Vector[];
 }

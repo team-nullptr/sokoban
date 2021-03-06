@@ -1,4 +1,5 @@
 import GameRunner from './modules/game-runner/GameRunner';
+// import Stopwatch from './modules/game-runner/utils/Stopwatch';
 
 // Init document structure
 const canvas = document.createElement('canvas');
@@ -9,7 +10,7 @@ document.body.appendChild(canvas);
 // Init runner
 const runner = new GameRunner(ctx);
 runner.setLevel({
-  boxes: [{ x: 1, y: 1 }],
+  boxes: [], // { x: 1, y: 1 }
   height: 5,
   width: 10,
   start: { x: 2, y: 2 },
@@ -27,3 +28,9 @@ function updateCanvasSize(): void {
 
 updateCanvasSize();
 addEventListener('resize', updateCanvasSize);
+
+// const timer = new Stopwatch();
+// timer.start();
+// setInterval(() => console.log(timer.time), 100);
+// setTimeout(() => timer.stop(), 2000);
+// setTimeout(() => timer.start(), 5000);

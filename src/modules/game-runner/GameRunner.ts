@@ -1,3 +1,9 @@
+import Box from './classes/Box';
+import Player from './classes/Player';
+import Target from './classes/Target';
+import Wall from './classes/Wall';
+import Actor from './models/Actor';
+import { Direction } from './models/Direction';
 import Level from './models/Level';
 import LevelLayout from './models/LevelLayout';
 import Stats from './models/Stats';
@@ -5,39 +11,9 @@ import getGridSize from './utils/getGridSize';
 import isLayoutCompatible from './utils/isLayoutCompatible';
 import Stopwatch from './utils/Stopwatch';
 
-abstract class Drawable {
-  private position: Position;
-  abstract color: string = 'red';
-
-  constructor(position: Position) {
-    this.position = position;
-  }
-
-  draw(ctx: CanvasRenderingContext2D, size: number) {
-    const { x, y } = this.position;
-    ctx.fillStyle = this.color;
-    ctx.fillRect(x * size, y * size, size, size);
-  }
-
-  moveTo(position: Position) {
-    this.position = position;
-  }
-}
-class Player extends Drawable {
-  color = 'aqua';
-}
-class Box extends Drawable {
-  color = 'gold';
-}
-class Target extends Drawable {
-  color = 'tomato';
-}
-class Wall extends Drawable {
-  color = 'navy';
-}
-
 export default class GameRunner {
   private static readonly MaxGridSize = 50;
+  private static readonly AnimationDuration = 100;
 
   // Utilities
   private readonly ctx: CanvasRenderingContext2D;
@@ -46,8 +22,8 @@ export default class GameRunner {
   // Level
   private level: Level | undefined; // Copy of currently played level - for reloading
 
-  private player: Player = new Player({ x: 0, y: 0 });
-  private layout: {
+  private readonly player: Player;
+  private readonly layout: {
     boxes: Box[];
     targets: Target[];
     walls: Wall[];
@@ -61,6 +37,8 @@ export default class GameRunner {
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
+    this.player = new Player(this.ctx, { x: 0, y: 0 }, 'aqua', GameRunner.AnimationDuration);
+
     this.init();
   }
 
@@ -69,6 +47,30 @@ export default class GameRunner {
    * Initializes everything that could be done outside of the constructor
    */
   private init(): void {
+    // Listen for user input
+    addEventListener('keydown', event => {
+      const key = event.key.toLowerCase();
+
+      switch (key) {
+        case 'arrowup':
+        case 'w':
+          this.player.move(Direction.Up);
+          break;
+        case 'arrowdown':
+        case 's':
+          this.player.move(Direction.Down);
+          break;
+        case 'arrowleft':
+        case 'a':
+          this.player.move(Direction.Left);
+          break;
+        case 'arrowright':
+        case 'd':
+          this.player.move(Direction.Right);
+          break;
+      }
+    });
+
     this.draw();
   }
 
@@ -149,9 +151,11 @@ export default class GameRunner {
     this.layout.walls.length = 0;
 
     // Create new objects
-    this.layout.boxes = layout.boxes.map(position => new Box(position));
-    this.layout.targets = layout.targets.map(position => new Target(position));
-    this.layout.walls = layout.walls.map(position => new Wall(position));
+    this.layout.boxes = layout.boxes.map(
+      position => new Box(this.ctx, position, 'gold', GameRunner.AnimationDuration)
+    );
+    this.layout.targets = layout.targets.map(position => new Target(this.ctx, position, 'tomato'));
+    this.layout.walls = layout.walls.map(position => new Wall(this.ctx, position, 'navy'));
 
     // Update player position
     this.player.moveTo(layout.start);
@@ -173,7 +177,7 @@ export default class GameRunner {
       ...this.layout.boxes,
       ...this.layout.targets,
       ...this.layout.walls,
-    ].forEach((object: Drawable) => object.draw(this.ctx, this.gridSize));
+    ].forEach((object: Actor) => object.draw(this.gridSize));
 
     // Draw again
     requestAnimationFrame(this.draw.bind(this));

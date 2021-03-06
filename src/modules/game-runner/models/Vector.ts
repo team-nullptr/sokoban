@@ -1,5 +1,5 @@
 /** Represents position in 2D space */
-interface Position {
+export default interface Vector {
   x: number;
   y: number;
 }
