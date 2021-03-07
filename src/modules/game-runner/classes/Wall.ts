@@ -2,7 +2,7 @@ import Actor from '../models/Actor';
 
 /** Represents wall placed in level */
 export default class Wall extends Actor {
-  draw(size: number) {
+  draw(size: number): void {
     const x = this.position.x * size;
     const y = this.position.y * size;
 

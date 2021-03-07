@@ -14,10 +14,11 @@ import isLayoutCompatible from './utils/isLayoutCompatible';
 import Stopwatch from './utils/Stopwatch';
 import { vectorFromDirection } from './utils/vectorManipulation';
 import Animation from './utils/Animation';
+import Movable from './models/Movable';
 
 export default class GameRunner {
   private static readonly MaxGridSize = 50;
-  private static readonly AnimationDuration = 100;
+  private static readonly AnimationDuration = 1000;
 
   // Utilities
   private readonly ctx: CanvasRenderingContext2D;
@@ -125,6 +126,9 @@ export default class GameRunner {
    */
   reset(restore: boolean = true): void {
     Animation.reset(); // Reset all ongoing animations
+
+    const movable: Movable[] = [this.player, ...this.layout.boxes];
+    movable.forEach(object => object.reset()); // Block objects from moving after clicking 'reset'
 
     this.completed = false;
     this.stopped = false;

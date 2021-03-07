@@ -38,12 +38,17 @@ export default abstract class Movable extends Actor {
   }
 
   /** Moves object to a new position */
-  moveTo(position: Vector) {
+  moveTo(position: Vector): void {
     this.position = position;
   }
 
   /** Returns position for drawing */
   protected get animatedPosition(): Vector {
     return addVectors(this.position, multiplyVector(this.direction, this.animation.progress - 1));
+  }
+
+  reset(): void {
+    super.reset();
+    this.direction = { x: 0, y: 0 };
   }
 }

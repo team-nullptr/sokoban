@@ -1,7 +1,7 @@
 import Movable from '../models/Movable';
 
 export default class Box extends Movable {
-  draw(size: number) {
+  draw(size: number): void {
     const position = this.animatedPosition;
 
     const x = position.x * size;
