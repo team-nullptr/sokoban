@@ -47,9 +47,3 @@ document.body.appendChild(wrapper);
 // Build stats element
 const statistics = document.createElement('div');
 document.body.appendChild(statistics);
-
-setInterval(() => {
-  const stats = runner.stats;
-
-  statistics.textContent = `Player moves: ${stats.moves.player} | Box moves: ${stats.moves.box} | Time: ${stats.time}`;
-});

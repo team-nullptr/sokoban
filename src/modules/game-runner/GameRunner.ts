@@ -230,8 +230,6 @@ export default class GameRunner {
         }
       }
     }
-
-    console.log(this.playerMoves, this.boxMoves, this.stopwatch.time);
   }
 
   /**
