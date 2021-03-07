@@ -18,7 +18,7 @@ import Movable from './models/Movable';
 
 export default class GameRunner {
   private static readonly MaxGridSize = 50;
-  private static readonly AnimationDuration = 1000;
+  private static readonly AnimationDuration = 100;
 
   // Utilities
   private readonly ctx: CanvasRenderingContext2D;
@@ -202,6 +202,8 @@ export default class GameRunner {
     if (this.stopped || this.completed) return;
 
     this.stopwatch.start();
+
+    if (this.player.animating) return;
 
     const position = addVectors(this.player.location, vectorFromDirection(direction));
     const object = this.objectAt(position);
