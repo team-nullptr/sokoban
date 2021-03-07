@@ -1,5 +1,4 @@
 import GameRunner from './modules/game-runner/GameRunner';
-// import Stopwatch from './modules/game-runner/utils/Stopwatch';
 
 // Init document structure
 const canvas = document.createElement('canvas');
@@ -29,8 +28,28 @@ function updateCanvasSize(): void {
 updateCanvasSize();
 addEventListener('resize', updateCanvasSize);
 
-// const timer = new Stopwatch();
-// timer.start();
-// setInterval(() => console.log(timer.time), 100);
-// setTimeout(() => timer.stop(), 2000);
-// setTimeout(() => timer.start(), 5000);
+// Build controls
+const buttons = ['start', 'stop', 'reset'];
+const [start, stop, reset] = buttons.map(text => {
+  const button = document.createElement('button');
+  button.textContent = text;
+  return button;
+});
+
+start.onclick = () => runner.start();
+stop.onclick = () => runner.stop();
+reset.onclick = () => runner.reset();
+
+const wrapper = document.createElement('div');
+wrapper.append(start, stop, reset);
+document.body.appendChild(wrapper);
+
+// Build stats element
+const statistics = document.createElement('div');
+document.body.appendChild(statistics);
+
+setInterval(() => {
+  const stats = runner.stats;
+
+  statistics.textContent = `Player moves: ${stats.moves.player} | Box moves: ${stats.moves.box} | Time: ${stats.time}`;
+});

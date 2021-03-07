@@ -23,6 +23,10 @@ export default class GameRunner {
   private readonly ctx: CanvasRenderingContext2D;
   private gridSize: number = 0;
 
+  // State
+  private completed = false;
+  private stopped = false;
+
   // Level
   private level: Level | undefined; // Copy of currently played level - for reloading
 
@@ -97,30 +101,35 @@ export default class GameRunner {
   }
 
   /**
-   * TODO:
    * Starts the game
    * Allows the player to move around
    */
-  start(): void {}
+  start(): void {
+    this.stopped = false;
+    Animation.start();
+  }
 
   /**
-   * TODO:
    * Stops the game
    * Blocks the player from moving
    */
-  stop(): void {}
+  stop(): void {
+    this.stopwatch.stop();
+    this.stopped = true;
+    Animation.stop();
+  }
 
   /**
-   * TODO:
    * Restores default level layout and resets statistics
    * @param restore Whether the layout should be restored or not
    */
-  reset(restore: boolean): void {
+  reset(restore: boolean = true): void {
     Animation.reset(); // Reset all ongoing animations
 
-    this.stopwatch.reset();
-    this.boxMoves = 0;
-    this.playerMoves = 0;
+    this.completed = false;
+    this.stopped = false;
+
+    this.resetStats();
 
     if (restore && this.level) this.setLayout(this.level);
   }
@@ -132,8 +141,14 @@ export default class GameRunner {
     this.boxMoves = 0;
   }
 
+  private finish(): void {
+    console.warn('Finished!');
+    this.stopwatch.stop();
+    this.completed = true;
+  }
+
   /**
-   * TODO:
+   * TODO: Check if it works
    * Sets new level
    */
   setLevel(level: Level): void {
@@ -157,8 +172,7 @@ export default class GameRunner {
     if (!isLayoutCompatible(layout, this.level)) return;
 
     // Reset stats
-    this.stop();
-    this.resetStats();
+    this.reset(false);
 
     // Remove all objects
     this.layout.boxes.length = 0;
@@ -181,6 +195,8 @@ export default class GameRunner {
 
   /** Moves player towards given direction if it is possible */
   private movePlayerIfPossible(direction: Direction): void {
+    if (this.stopped || this.completed) return;
+
     this.stopwatch.start();
 
     const position = addVectors(this.player.location, vectorFromDirection(direction));
@@ -204,8 +220,7 @@ export default class GameRunner {
 
         // Stop the game if every box now lies on a target
         if (this.finished) {
-          console.warn('Finished!');
-          // TODO: Add stopping mechanics
+          this.finish();
         }
       }
     }
