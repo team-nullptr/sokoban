@@ -2,6 +2,8 @@ import { Direction } from '../models/Direction';
 import Movable from '../models/Movable';
 
 export default class Player extends Movable {
+  assetKey = 'player-tileset';
+
   private moved = false; // Has the player ever moved?
 
   get animating(): boolean {
@@ -13,17 +15,6 @@ export default class Player extends Movable {
 
     this.moved = true;
     super.move(direction);
-  }
-
-  draw(size: number): void {
-    const position = this.animatedPosition;
-
-    const x = position.x * size;
-    const y = position.y * size;
-
-    // TODO: Change to image asset
-    this.ctx.fillStyle = this.asset;
-    this.ctx.fillRect(x, y, size, size);
   }
 
   reset(): void {

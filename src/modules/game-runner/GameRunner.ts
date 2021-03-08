@@ -46,7 +46,7 @@ export default class GameRunner {
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
-    this.player = new Player(this.ctx, { x: 0, y: 0 }, 'aqua', GameRunner.AnimationDuration);
+    this.player = new Player(this.ctx, { x: 0, y: 0 }, GameRunner.AnimationDuration);
 
     this.init();
   }
@@ -185,10 +185,10 @@ export default class GameRunner {
 
     // Create new objects
     this.layout.boxes = layout.boxes.map(
-      position => new Box(this.ctx, position, 'gold', GameRunner.AnimationDuration)
+      position => new Box(this.ctx, position, GameRunner.AnimationDuration)
     );
-    this.layout.targets = layout.targets.map(position => new Target(this.ctx, position, 'tomato'));
-    this.layout.walls = layout.walls.map(position => new Wall(this.ctx, position, 'navy'));
+    this.layout.targets = layout.targets.map(position => new Target(this.ctx, position));
+    this.layout.walls = layout.walls.map(position => new Wall(this.ctx, position));
 
     // Update player position
     this.player.moveTo(layout.start);

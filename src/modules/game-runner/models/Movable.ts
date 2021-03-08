@@ -10,13 +10,8 @@ export default abstract class Movable extends Actor {
   private direction: Vector = { x: 0, y: 0 };
 
   /** @param duration Animation duration */
-  constructor(
-    ctx: CanvasRenderingContext2D,
-    position: Vector,
-    asset: string,
-    duration: number = 300
-  ) {
-    super(ctx, position, asset);
+  constructor(ctx: CanvasRenderingContext2D, position: Vector, duration: number = 300) {
+    super(ctx, position);
     this.animation = new Animation(duration);
   }
 
@@ -43,8 +38,12 @@ export default abstract class Movable extends Actor {
   }
 
   /** Returns position for drawing */
-  protected get animatedPosition(): Vector {
+  private get animatedPosition(): Vector {
     return addVectors(this.position, multiplyVector(this.direction, this.animation.progress - 1));
+  }
+
+  get drawingPosition(): Vector {
+    return this.animatedPosition;
   }
 
   reset(): void {

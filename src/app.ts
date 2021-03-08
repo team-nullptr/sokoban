@@ -1,13 +1,22 @@
 import GameRunner from './modules/game-runner/GameRunner';
 import ImageLoader from './modules/ImageLoader';
+
 import Wall from '%assets%/images/block_08.png';
+import Box from '%assets%/images/crate_02.png';
+import Target from '%assets%/images/crate_27.png';
+import Player from '%assets%/images/player_tileset.png';
+import PlayerFace from '%assets%/images/player_face.png';
+
+import Actor from './modules/game-runner/models/Actor';
 
 // Load images
 const loader = new ImageLoader();
 loader.add('wall', Wall);
-loader.load().then(success => {
-  console.log('loading images ', success ? 'succeeded' : 'failed');
-  console.log(loader.all);
+loader.add('box', Box);
+loader.add('target', Target);
+loader.add('player-tileset', PlayerFace); // Change to Player
+loader.load().then(() => {
+  Actor.assets = loader.all;
 });
 
 // Init document structure
