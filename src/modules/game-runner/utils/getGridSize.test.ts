@@ -13,6 +13,5 @@ test('square area on square area', () => {
 });
 
 test('value 0 in required space', () => {
-  console.log(getGridSize({ width: 100, height: 100 }, { width: 5, height: 0 }));
   expect(getGridSize({ width: 100, height: 100 }, { width: 5, height: 0 })).toBe(0);
 });
