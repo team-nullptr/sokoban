@@ -41,8 +41,8 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
     alias: {
-      '%assets%': path.resolve(__dirname, './src/assets/'),
-      '%styles%': path.resolve(__dirname, './src/sass/'),
+      '%assets%': path.resolve(__dirname, './assets/'),
+      '%styles%': path.resolve(__dirname, './sass/'),
     },
   },
   output: {

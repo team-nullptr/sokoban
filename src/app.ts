@@ -1,4 +1,14 @@
 import GameRunner from './modules/game-runner/GameRunner';
+import ImageLoader from './modules/ImageLoader';
+import Wall from '%assets%/images/block_08.png';
+
+// Load images
+const loader = new ImageLoader();
+loader.add('wall', Wall);
+loader.load().then(success => {
+  console.log('loading images ', success ? 'succeeded' : 'failed');
+  console.log(loader.all);
+});
 
 // Init document structure
 const canvas = document.createElement('canvas');
