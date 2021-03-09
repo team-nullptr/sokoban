@@ -2,7 +2,7 @@ import Layer from '../models/Layer';
 import '%styles%/main.scss';
 import Statistics from '../../../models/Stats';
 
-export default class Stats extends Layer {
+export default class StatsWidget extends Layer {
   element = document.createElement('section');
 
   /** References to stats elements */

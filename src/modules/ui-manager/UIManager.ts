@@ -1,6 +1,6 @@
 import { LayerType } from './models/LayerType';
 import Layer from './models/Layer';
-import Stats from './views/Stats';
+import StatsWidget from './views/StatsWidget';
 
 export default class UIManager {
   private readonly layers = new Map<LayerType, Layer>();
@@ -12,7 +12,7 @@ export default class UIManager {
 
   /** Initializes all layers */
   private init(): void {
-    this.layers.set(LayerType.Loader, new Stats());
+    this.layers.set(LayerType.Loader, new StatsWidget());
   }
 
   /** Renders all layers inside the frame */
