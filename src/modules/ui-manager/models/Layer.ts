@@ -22,4 +22,7 @@ export default abstract class Layer {
   get shown(): boolean {
     return this.element.classList.contains('shown');
   }
+
+  /** Resets component to it's initial state */
+  reset(): void {}
 }

@@ -4,6 +4,7 @@ import Statistics from '../../../models/Stats';
 
 export default class StatsWidget extends Layer {
   element = document.createElement('section');
+  private onclick: () => void = () => {}; // Called when pressing 'Pause' button
 
   /** References to stats elements */
   private readonly elements = {
@@ -21,12 +22,16 @@ export default class StatsWidget extends Layer {
     },
   };
 
-  set(stats?: Statistics) {
-    if (!stats) return;
+  set({ stats, onclick }: { stats?: Statistics; onclick?: () => void }) {
+    if (stats) {
+      // Update stats only if provided
+      this.stats = { ...this.stats, ...stats };
+      this.update();
+    }
 
-    // Update stats only if provided
-    this.stats = { ...this.stats, ...stats };
-    this.update();
+    if (onclick) {
+      this.onclick = onclick;
+    }
   }
 
   private update() {
@@ -64,6 +69,7 @@ export default class StatsWidget extends Layer {
     // Create pause button
     const button = document.createElement('button');
     button.textContent = 'Pause';
+    button.addEventListener('click', () => this.onclick());
 
     // Build final element
     container.append(wrapper, button);
@@ -78,5 +84,8 @@ export default class StatsWidget extends Layer {
     this.stats.time = 0;
     this.stats.moves.box = 0;
     this.stats.moves.player = 0;
+
+    // Remove reference to onclick handler
+    this.onclick = () => {};
   }
 }

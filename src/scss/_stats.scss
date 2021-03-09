@@ -23,6 +23,8 @@ section.stats {
   }
 
   button {
+    cursor: pointer;
+    pointer-events: auto;
     padding: 8px 16px;
     background: transparent;
     border: 1px solid black;

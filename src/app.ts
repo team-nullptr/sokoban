@@ -7,4 +7,6 @@ document.body.appendChild(main);
 
 const manager = new UIManager(main);
 
-manager.layer(LayerType.Loader)?.set({ time: 100 });
+manager
+  .layer(LayerType.Loader)
+  ?.set({ stats: { time: 100 }, onclick: () => console.log('clicked') });
