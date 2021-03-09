@@ -19,12 +19,11 @@ export default class Animation {
   }
 
   private timer = new Stopwatch();
-  private duration: number;
 
   /**
    * @param duration - animation duration in ms, default 300
    */
-  constructor(duration: number) {
+  constructor(private readonly duration: number) {
     this.duration = Math.max(1, duration);
     Animation.Animations.push(this);
   }

@@ -13,9 +13,7 @@ export default abstract class Actor {
   protected readonly ctx: CanvasRenderingContext2D;
   protected abstract readonly assetKey: string;
 
-  protected position: Vector;
-
-  constructor(ctx: CanvasRenderingContext2D, position: Vector) {
+  constructor(ctx: CanvasRenderingContext2D, protected position: Vector) {
     this.ctx = ctx;
     this.position = position;
   }

@@ -21,7 +21,6 @@ export default class GameRunner {
   private static readonly AnimationDuration = 100;
 
   // Utilities
-  private readonly ctx: CanvasRenderingContext2D;
   private gridSize: number = 0;
 
   // State
@@ -44,7 +43,7 @@ export default class GameRunner {
   private playerMoves: number = 0;
   private boxMoves: number = 0;
 
-  constructor(ctx: CanvasRenderingContext2D) {
+  constructor(private readonly ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
     this.player = new Player(this.ctx, { x: 0, y: 0 }, GameRunner.AnimationDuration);
 
