@@ -6,7 +6,7 @@ import Actor from './models/Actor';
 import { Direction } from './models/Direction';
 import Level from './models/Level';
 import LevelLayout from './models/LevelLayout';
-import Stats from './models/Stats';
+import Stats from '../../models/Stats';
 import Vector from './models/Vector';
 import { addVectors } from './utils/vectorManipulation';
 import getGridSize from './utils/getGridSize';

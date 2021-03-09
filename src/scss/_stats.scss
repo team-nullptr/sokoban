@@ -1,0 +1,37 @@
+section.stats {
+  .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 48px 128px;
+    font-weight: 500;
+  }
+
+  .wrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    span.vr {
+      display: inline-block;
+      height: 32px;
+      width: 1px;
+      background: black;
+    }
+  }
+}
+
+button {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid black;
+  border-radius: 64px;
+  font: inherit;
+  outline: none;
+  box-shadow: 0 0 #000;
+  transition: box-shadow 0.16s;
+
+  &:hover {
+    box-shadow: 2px 2px #000;
+  }
+}
