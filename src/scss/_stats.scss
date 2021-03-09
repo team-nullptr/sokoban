@@ -1,4 +1,6 @@
 section.stats {
+  pointer-events: none;
+
   .container {
     display: flex;
     justify-content: space-between;
@@ -19,19 +21,19 @@ section.stats {
       background: black;
     }
   }
-}
 
-button {
-  padding: 8px 16px;
-  background: transparent;
-  border: 1px solid black;
-  border-radius: 64px;
-  font: inherit;
-  outline: none;
-  box-shadow: 0 0 #000;
-  transition: box-shadow 0.16s;
+  button {
+    padding: 8px 16px;
+    background: transparent;
+    border: 1px solid black;
+    border-radius: 64px;
+    font: inherit;
+    outline: none;
+    box-shadow: 0 0 #000;
+    transition: box-shadow 0.16s;
 
-  &:hover {
-    box-shadow: 2px 2px #000;
+    &:hover {
+      box-shadow: 2px 2px #000;
+    }
   }
 }
