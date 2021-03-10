@@ -13,10 +13,17 @@ body {
   font: 16px 'Montserrat', sans-serif;
 }
 
-section .container {
-  margin: 0 auto;
+section {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  max-width: 1600px;
+
+  .container {
+    margin: 0 auto;
+    width: 100%;
+    max-width: 1600px;
+  }
 }
 
 @import 'stats';

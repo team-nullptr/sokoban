@@ -8,5 +8,5 @@ document.body.appendChild(main);
 const manager = new UIManager(main);
 
 manager
-  .layer(LayerType.Loader)
+  .layer(LayerType.GameRunner)
   ?.set({ stats: { time: 100 }, onclick: () => console.log('clicked') });

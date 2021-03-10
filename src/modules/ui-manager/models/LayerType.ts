@@ -1,5 +1,5 @@
 export enum LayerType {
-  Loader, // Loading screen
+  // Loader, // Loading screen
   // Navigation, // Navigation
   // ModuleList, // Modules (modes) list
 
@@ -7,7 +7,7 @@ export enum LayerType {
   // Custom0, // ?
 
   // PauseScreen, // ? Merge PauseScreen with GameRunner?
-  // GameRunner,
+  GameRunner,
 
   // Settings, // ?
   // Custom1, // ?

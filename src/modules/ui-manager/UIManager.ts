@@ -12,7 +12,7 @@ export default class UIManager {
 
   /** Initializes all layers */
   private init(): void {
-    this.layers.set(LayerType.Loader, new StatsWidget());
+    this.layers.set(LayerType.GameRunner, new StatsWidget());
   }
 
   /** Renders all layers inside the frame */
@@ -57,5 +57,27 @@ export default class UIManager {
     this.layers.forEach(layer => layer.hide());
   }
 
-  // TODO: Set order
+  /**
+   * Sets layers order
+   * @param order Order of elements
+   */
+  set order(order: LayerType[]) {
+    let before: Layer | undefined = undefined;
+
+    order.reverse().forEach(type => {
+      const current = this.layer(type);
+
+      if (!current) return;
+
+      if (before) {
+        // If current element is not the first element, append it after last element
+        before.element.after(current.element);
+      } else {
+        // If current element is the first element, set it as first children of parent
+        current?.element.parentElement?.prepend(current.element);
+      }
+
+      before = current;
+    });
+  }
 }
