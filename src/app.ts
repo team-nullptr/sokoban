@@ -49,7 +49,6 @@ const runner = new GameRunner(context);
 runner.setLevel(level);
 
 runnerLayer?.set({
-  stats: { time: 100, moves: { player: 6, box: 2 } },
   onclick: () => console.log('clicked on pause button'),
   runner, // Used for resizing
 });

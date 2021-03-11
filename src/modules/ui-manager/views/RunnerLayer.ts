@@ -44,7 +44,9 @@ export default class RunnerLayout extends Layer {
   set(args: any) {
     if (args?.runner instanceof GameRunner) {
       this.runner = args.runner;
-      // TODO: Add event listener
+
+      // Update stats every time the game is rendered
+      this.runner!.onDraw = () => this.stats.set({ stats: this.runner?.stats });
     }
 
     // Pass args to StatsWidget instance

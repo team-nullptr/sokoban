@@ -23,6 +23,9 @@ export default class GameRunner {
   // Utilities
   private gridSize: number = 0;
 
+  // Event handlers
+  private onDrawHandle: () => void = () => {};
+
   // State
   private completed = false;
   private stopped = false;
@@ -266,8 +269,16 @@ export default class GameRunner {
       this.player,
     ].forEach((object: Actor) => object.draw(this.gridSize));
 
+    // Dispatch onDraw event
+    this.onDrawHandle();
+
     // Draw again
     requestAnimationFrame(this.draw.bind(this));
+  }
+
+  /** Sets handle for onDraw event, that is being called every time the game is rendered. */
+  set onDraw(handle: () => void) {
+    this.onDrawHandle = handle;
   }
 
   /** Updates grid size according to canvas width and height */
