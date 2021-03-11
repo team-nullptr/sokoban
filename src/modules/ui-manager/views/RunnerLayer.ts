@@ -5,8 +5,10 @@ import StatsWidget from './StatsWidget';
 export default class RunnerLayout extends Layer {
   element = document.createElement('section');
 
-  private readonly stats = new StatsWidget();
   private readonly context: CanvasRenderingContext2D;
+
+  // References to widgets
+  private readonly stats = new StatsWidget();
   private runner?: GameRunner;
 
   constructor() {
@@ -30,8 +32,9 @@ export default class RunnerLayout extends Layer {
 
     // Calculate new canvas size
     const height = innerHeight - stats.offsetHeight - 4;
-    const width = document.body.clientWidth;
+    const width = innerWidth;
 
+    // Update canvas size
     canvas.height = height;
     canvas.width = width;
 
@@ -44,6 +47,7 @@ export default class RunnerLayout extends Layer {
       // TODO: Add event listener
     }
 
+    // Pass args to StatsWidget instance
     this.stats.set(args);
   }
 
@@ -57,8 +61,8 @@ export default class RunnerLayout extends Layer {
 
     // Compose new element
     this.element.innerHTML = '';
-    this.element.append(this.stats.element);
-    this.element.append(this.context.canvas);
+    this.element.append(this.stats.element); // Add StatsWidget
+    this.element.append(this.context.canvas); // Add canvas for game view
   }
 
   rendered() {
