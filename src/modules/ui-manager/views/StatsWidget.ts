@@ -3,7 +3,7 @@ import '%styles%/main.scss';
 import Statistics from '../../../models/Stats';
 
 export default class StatsWidget extends Layer {
-  element = document.createElement('section');
+  element = document.createElement('header');
   private onclick: () => void = () => {}; // Called when pressing 'Pause' button
 
   /** References to stats elements */

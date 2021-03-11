@@ -8,6 +8,9 @@ export default abstract class Layer {
   /** Renders the layer */
   abstract render(): void;
 
+  /** Called after first render in the DOM */
+  rendered(): void {}
+
   /** Shows the layer */
   show(): void {
     this.element.classList.add('shown');
