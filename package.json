@@ -9,10 +9,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "dev:watch": "tsc --watch",
-    "dev:build": "tsc",
-    "dev:bundle": "webpack",
-    "dev:bundle:watch": "webpack --watch"
+    "dev": "webpack --watch",
+    "dev:build": "webpack"
   },
   "devDependencies": {
     "clean-webpack-plugin": "^3.0.0",

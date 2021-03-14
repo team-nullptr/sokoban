@@ -2,7 +2,7 @@ import GameRunner from '../../game-runner/GameRunner';
 import Layer from '../models/Layer';
 import StatsWidget from './StatsWidget';
 
-export default class RunnerLayout extends Layer {
+export default class RunnerLayer extends Layer {
   element = document.createElement('section');
 
   private readonly context: CanvasRenderingContext2D;

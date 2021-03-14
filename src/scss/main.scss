@@ -14,10 +14,15 @@ body {
 }
 
 main > section {
+  display: none;
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
+
+  &.shown {
+    display: block;
+  }
 
   .container {
     margin: 0 auto;
@@ -27,3 +32,4 @@ main > section {
 }
 
 @import 'stats';
+@import 'list';

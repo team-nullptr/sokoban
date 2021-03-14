@@ -1,6 +1,7 @@
 import { LayerType } from './models/LayerType';
 import Layer from './models/Layer';
-import RunnerLayout from './views/RunnerLayer';
+import RunnerLayer from './views/RunnerLayer';
+import ListLayer from './views/ListLayer';
 
 export default class UIManager {
   private readonly layers = new Map<LayerType, Layer>();
@@ -12,7 +13,28 @@ export default class UIManager {
 
   /** Initializes all layers */
   private init(): void {
-    this.layers.set(LayerType.Runner, new RunnerLayout());
+    // Runner
+    this.layers.set(LayerType.Runner, new RunnerLayer());
+
+    // Module selection
+    const module = new ListLayer();
+    module.set({
+      items: [
+        {
+          title: 'Module one',
+          description: 'Choose the difficulty level',
+        },
+        {
+          title: 'Module two',
+          description: 'Play 20 levels ordered by difficulty level',
+        },
+        {
+          title: 'Module three',
+          description: 'Create and play your levels',
+        },
+      ],
+    });
+    this.layers.set(LayerType.Module, module);
   }
 
   /** Renders all layers inside the frame */
