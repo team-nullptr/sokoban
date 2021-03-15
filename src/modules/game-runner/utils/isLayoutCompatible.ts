@@ -1,5 +1,5 @@
-import LevelLayout from '../models/LevelLayout';
-import Level from '../models/Level';
+import Level from '../../../models/Level';
+import LevelLayout from '../../../models/LevelLayout';
 
 /**
  * Checks if given layout is compatible with given level
