@@ -17,7 +17,7 @@ const loader = new ImageLoader();
 loader.add('wall', Wall);
 loader.add('box', Box);
 loader.add('target', Target);
-loader.add('player-tileset', PlayerFace); // Change to Player
+loader.add('player-tileset', Player); // Change to Player
 loader.load().then(() => {
   Actor.assets = loader.all;
 });
