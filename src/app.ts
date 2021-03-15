@@ -48,7 +48,25 @@ const level: Level = {
 const runner = new GameRunner(context);
 runner.setLevel(level);
 
+import Previous from '%assets%/icons/arrow-left.svg';
+import Restart from '%assets%/icons/arrow-counterclockwise.svg';
+import Next from '%assets%/icons/arrow-right.svg';
+
 runnerLayer?.set({
-  onclick: () => console.log('clicked on pause button'),
   runner, // Used for resizing
+  items: [
+    {
+      src: Previous,
+      title: 'previous',
+    },
+    {
+      src: Restart,
+      title: 'restart',
+    },
+    {
+      src: Next,
+      title: 'next',
+    },
+  ],
+  onclick: console.log,
 });
