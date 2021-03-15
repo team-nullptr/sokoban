@@ -18,7 +18,7 @@ import Movable from './models/Movable';
 
 export default class GameRunner {
   private static readonly MaxGridSize = 50;
-  private static readonly AnimationDuration = 100;
+  static readonly AnimationDuration = 100;
 
   // Utilities
   private gridSize: number = 0;

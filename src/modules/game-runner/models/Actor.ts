@@ -27,7 +27,7 @@ export default abstract class Actor {
    * Draws on canvas
    * @param size Grid size
    */
-  draw(size: number) {
+  draw(size: number): void {
     const asset = this.asset;
 
     // Get position

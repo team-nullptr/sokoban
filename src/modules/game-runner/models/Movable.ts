@@ -7,7 +7,7 @@ import { addVectors, multiplyVector } from '../utils/vectorManipulation';
 
 export default abstract class Movable extends Actor {
   protected readonly animation: Animation;
-  private direction: Vector = { x: 0, y: 0 };
+  private offset: Vector = { x: 0, y: 0 }; // Direction to move the player towards
 
   /** @param duration Animation duration */
   constructor(ctx: CanvasRenderingContext2D, position: Vector, duration: number = 300) {
@@ -22,7 +22,7 @@ export default abstract class Movable extends Actor {
     const position = addVectors(vector, this.position);
 
     // Save direction
-    this.direction = vector;
+    this.offset = vector;
 
     // Change position
     this.position = position;
@@ -39,7 +39,7 @@ export default abstract class Movable extends Actor {
 
   /** Returns position for drawing */
   private get animatedPosition(): Vector {
-    return addVectors(this.position, multiplyVector(this.direction, this.animation.progress - 1));
+    return addVectors(this.position, multiplyVector(this.offset, this.animation.progress - 1));
   }
 
   get drawingPosition(): Vector {
@@ -48,6 +48,6 @@ export default abstract class Movable extends Actor {
 
   reset(): void {
     super.reset();
-    this.direction = { x: 0, y: 0 };
+    this.offset = { x: 0, y: 0 };
   }
 }
