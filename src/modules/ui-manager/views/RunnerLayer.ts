@@ -1,5 +1,6 @@
 import GameRunner from '../../game-runner/GameRunner';
 import Layer from '../models/Layer';
+import ControlsWidget from './ControlsWidget';
 import StatsWidget from './StatsWidget';
 
 export default class RunnerLayer extends Layer {
@@ -9,6 +10,7 @@ export default class RunnerLayer extends Layer {
 
   // References to widgets
   private readonly stats = new StatsWidget();
+  private readonly controls = new ControlsWidget();
   private runner?: GameRunner;
 
   constructor() {
@@ -18,15 +20,19 @@ export default class RunnerLayer extends Layer {
     const canvas = document.createElement('canvas');
     this.context = canvas.getContext('2d')!;
 
-    // Make sure stats are rendered
+    // Set onclick action to pause button
+    this.setPauseAction();
+
+    // Make sure widgets are rendered
     this.stats.render();
+    this.controls.render();
 
     // Listen for window resize
     addEventListener('resize', this.resize.bind(this));
   }
 
   /** Resizes the canvas */
-  private resize() {
+  private resize(): void {
     const canvas = this.context.canvas;
     const stats = this.stats.element;
 
@@ -41,6 +47,22 @@ export default class RunnerLayer extends Layer {
     this.runner?.updateGrid();
   }
 
+  /** Adds action executed when clicking on pause button */
+  private setPauseAction(): void {
+    let paused = false;
+
+    this.stats.set({
+      onclick: () => {
+        paused = !paused;
+        if (paused) {
+          this.controls.show();
+        } else {
+          this.controls.hide();
+        }
+      },
+    });
+  }
+
   set(args: any) {
     if (args?.runner instanceof GameRunner) {
       this.runner = args.runner;
@@ -49,8 +71,8 @@ export default class RunnerLayer extends Layer {
       this.runner!.onDraw = () => this.stats.set({ stats: this.runner?.stats });
     }
 
-    // Pass args to StatsWidget instance
-    this.stats.set(args);
+    // Pass args to ControlsWidget instance
+    this.controls.set(args);
   }
 
   /** Returns canvas' context */
@@ -65,6 +87,7 @@ export default class RunnerLayer extends Layer {
     this.element.innerHTML = '';
     this.element.append(this.stats.element); // Add StatsWidget
     this.element.append(this.context.canvas); // Add canvas for game view
+    this.element.append(this.controls.element); // Add ControlsWidget
   }
 
   rendered() {

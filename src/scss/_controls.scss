@@ -1,0 +1,46 @@
+nav {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  bottom: 96px;
+
+  display: none;
+
+  &.shown {
+    display: block;
+  }
+
+  ul {
+    margin: 0 auto;
+    display: flex;
+    list-style: none;
+    justify-content: center;
+
+    li {
+      cursor: pointer;
+      min-width: 64px;
+      margin-right: 112px;
+
+      &:last-child {
+        margin-right: 0;
+      }
+
+      img {
+        display: block;
+        width: 32px;
+        height: 32px;
+        margin: 0 auto;
+      }
+
+      p {
+        margin-top: 12px;
+        text-align: center;
+        font-weight: 500;
+      }
+
+      &.muted {
+        opacity: 0.16;
+      }
+    }
+  }
+}

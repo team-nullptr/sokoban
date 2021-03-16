@@ -85,7 +85,7 @@ export default class StatsWidget extends Layer {
     this.stats.moves.box = 0;
     this.stats.moves.player = 0;
 
-    // Remove reference to onclick handler
+    // Remove onclick handler
     this.onclick = () => {};
   }
 }

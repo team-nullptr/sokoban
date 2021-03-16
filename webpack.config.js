@@ -36,10 +36,14 @@ module.exports = {
           name: '[name].[ext]',
         },
       },
+      {
+        test: /\.svg$/i,
+        loader: 'svg-url-loader',
+      },
     ],
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js'],
+    extensions: ['.ts', '.js'],
     alias: {
       '%assets%': path.resolve(__dirname, './assets/'),
       '%styles%': path.resolve(__dirname, './src/scss/'),
