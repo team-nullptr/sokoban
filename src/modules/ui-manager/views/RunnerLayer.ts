@@ -47,18 +47,24 @@ export default class RunnerLayout extends Layer {
     this.runner?.updateGrid();
   }
 
+  /** Pauses the game */
+  private pause(): void {
+    this.controls.show();
+    this.runner?.stop();
+  }
+
+  /** Resumes the game */
+  private resume(): void {
+    this.controls.hide();
+    this.runner?.start();
+  }
+
   /** Adds action executed when clicking on pause button */
   private setPauseAction(): void {
-    let paused = false;
-
     this.stats.set({
       onclick: () => {
-        paused = !paused;
-        if (paused) {
-          this.controls.show();
-        } else {
-          this.controls.hide();
-        }
+        if (this.runner?.paused) this.resume();
+        else this.pause();
       },
     });
   }
@@ -69,6 +75,7 @@ export default class RunnerLayout extends Layer {
 
       // Update stats every time the game is rendered
       this.runner!.onDraw = () => this.stats.set({ stats: this.runner?.stats });
+      this.runner!.onFinish = () => this.controls.show();
     }
 
     // Pass args to ControlsWidget instance

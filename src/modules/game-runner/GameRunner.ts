@@ -94,6 +94,11 @@ export default class GameRunner {
     };
   }
 
+  /** Returns if the game is paused */
+  get paused(): boolean {
+    return this.stopped;
+  }
+
   /** Returns if the game is finished */
   get finished(): boolean {
     // Check if every target is occupied
@@ -151,6 +156,8 @@ export default class GameRunner {
   /** Called when the game is finished */
   private finish(): void {
     this.stopwatch.stop();
+    this.stopped = true;
+
     this.completed = true;
     this.onFinishHandle();
   }
