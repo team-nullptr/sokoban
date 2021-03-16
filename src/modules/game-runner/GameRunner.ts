@@ -25,6 +25,7 @@ export default class GameRunner {
 
   // Event handlers
   private onDrawHandle: () => void = () => {};
+  private onFinishHandle: () => void = () => {};
 
   // State
   private completed = false;
@@ -147,10 +148,16 @@ export default class GameRunner {
     this.boxMoves = 0;
   }
 
+  /** Called when the game is finished */
   private finish(): void {
-    console.warn('Finished!');
     this.stopwatch.stop();
     this.completed = true;
+    this.onFinishHandle();
+  }
+
+  /** Sets handle for onFinish event, that is called every time the game is finished. */
+  set onFinish(handle: () => void) {
+    this.onFinishHandle = handle;
   }
 
   /**
@@ -276,7 +283,7 @@ export default class GameRunner {
     requestAnimationFrame(this.draw.bind(this));
   }
 
-  /** Sets handle for onDraw event, that is being called every time the game is rendered. */
+  /** Sets handle for onDraw event, that is called every time the game is rendered. */
   set onDraw(handle: () => void) {
     this.onDrawHandle = handle;
   }
