@@ -2,6 +2,7 @@ import { LayerType } from './models/LayerType';
 import Layer from './models/Layer';
 import RunnerLayer from './views/RunnerLayer';
 import ListLayer from './views/ListLayer';
+import EditorLayer from './views/EditorLayer';
 
 export default class UIManager {
   private readonly layers = new Map<LayerType, Layer>();
@@ -15,6 +16,9 @@ export default class UIManager {
   private init(): void {
     // Runner
     this.layers.set(LayerType.Runner, new RunnerLayer());
+
+    // Editor layer
+    this.layers.set(LayerType.Editor, new EditorLayer());
 
     // Module selection
     const module = new ListLayer();
@@ -34,6 +38,7 @@ export default class UIManager {
         },
       ],
     });
+
     this.layers.set(LayerType.Module, module);
   }
 

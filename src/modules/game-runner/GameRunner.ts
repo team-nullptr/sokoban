@@ -293,7 +293,13 @@ export default class GameRunner {
     }
 
     // Get and set grid size
-    const gridSize = Math.min(getGridSize(this.ctx.canvas, this.level), GameRunner.MaxGridSize); // Keeps grid size under within range
+    const gridSize = Math.min(
+      getGridSize(
+        { x: this.ctx.canvas.width, y: this.ctx.canvas.height },
+        { x: this.level.width, y: this.level.height }
+      ),
+      GameRunner.MaxGridSize
+    ); // Keeps grid size under within range
     this.gridSize = gridSize;
 
     // Calculate offsets and set transform

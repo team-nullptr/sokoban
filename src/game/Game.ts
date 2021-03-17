@@ -33,12 +33,15 @@ export default class Game {
     this.moduleOne = new ModuleOne(this.uimanager);
 
     // Load images
-    this.loadImages().then(() => {
-      // After loading all images, show module selection menu
+    // this.loadImages().then(() => {
+    //   // After loading all images, show module selection menu
 
-      this.uimanager.layer(LayerType.Module)!.set({ onclick: this.run.bind(this) });
-      this.uimanager.show(LayerType.Module);
-    });
+    //   this.uimanager.layer(LayerType.Module)!.set({ onclick: this.run.bind(this) });
+    //   this.uimanager.show(LayerType.Module);
+    // });
+
+    // Show editor layer
+    this.uimanager.show(LayerType.Editor);
   }
 
   /** Loads images */

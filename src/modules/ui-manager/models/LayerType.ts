@@ -10,6 +10,7 @@ export enum LayerType {
   Runner,
   Module,
   Custom0,
+  Editor,
 
   // Settings, // ?
   // Custom1, // ?
