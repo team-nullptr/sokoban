@@ -21,16 +21,16 @@ export default class UIManager {
     module.set({
       items: [
         {
-          title: 'Module one',
-          description: 'Choose the difficulty level',
+          title: 'Moduł pierwszy',
+          description: 'Wybierz poziom trudności',
         },
         {
-          title: 'Module two',
-          description: 'Play 20 levels ordered by difficulty level',
+          title: 'Moduł drugi',
+          description: 'Zagraj w 20 poziomów o rosnącym poziomie trudności',
         },
         {
-          title: 'Module three',
-          description: 'Create and play your levels',
+          title: 'Moduł trzeci',
+          description: 'Zaprojektuj i graj na własnym poziomie',
         },
       ],
     });
@@ -53,6 +53,12 @@ export default class UIManager {
   /** Returns specific layer */
   layer(layer: LayerType): Layer | undefined {
     return this.layers.get(layer);
+  }
+
+  /** Creates custom layer */
+  create(layer: Layer, slot: LayerType.Custom0): void {
+    this.layers.set(slot, layer);
+    this.render();
   }
 
   /**

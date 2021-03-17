@@ -7,7 +7,6 @@ import Images from './Images';
 
 export default class Game {
   private readonly uimanager: UIManager;
-  private readonly runner: GameRunner;
 
   private readonly moduleOne: ModuleOne;
 
@@ -26,11 +25,11 @@ export default class Game {
     // We can safely ignore this error
     // because RunnerLayer has ctx getter
     // that doesn't exist on Layer type
-    this.runner = new GameRunner(runnerLayer.ctx);
-    runnerLayer!.set({ runner: this.runner });
+    const runner = new GameRunner(runnerLayer.ctx);
+    runnerLayer!.set({ runner });
 
     // Initialize modules
-    this.moduleOne = new ModuleOne(this.uimanager);
+    this.moduleOne = new ModuleOne(runner, this.uimanager);
 
     // Load images
     this.loadImages().then(() => {
