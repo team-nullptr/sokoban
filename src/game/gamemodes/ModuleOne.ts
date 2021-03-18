@@ -32,7 +32,7 @@ export default class ModuleOne {
     const difficulty = new ListLayer();
 
     difficulty.set({
-      items: [{ title: 'Początkujący' }, { title: 'Amator' }, { title: 'Zaawansowany' }],
+      items: [{ title: 'Novice' }, { title: 'Amateur' }, { title: 'Advanced' }],
       onclick: this.start.bind(this),
     });
 

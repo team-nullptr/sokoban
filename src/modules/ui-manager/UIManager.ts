@@ -21,16 +21,16 @@ export default class UIManager {
     module.set({
       items: [
         {
-          title: 'Moduł pierwszy',
-          description: 'Wybierz poziom trudności',
+          title: 'Module One',
+          description: 'Choose the difficulty level',
         },
         {
-          title: 'Moduł drugi',
-          description: 'Zagraj w 20 poziomów o rosnącym poziomie trudności',
+          title: 'Module Two',
+          description: 'Play 20 levels with increasing difficulty level',
         },
         {
-          title: 'Moduł trzeci',
-          description: 'Zaprojektuj i graj na własnym poziomie',
+          title: 'Module Three',
+          description: 'Create and play on your own levels',
         },
       ],
     });
