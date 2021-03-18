@@ -32,7 +32,7 @@ export default class RunnerLayer extends Layer {
   }
 
   /** Resizes the canvas */
-  private resize(): void {
+  resize(): void {
     const canvas = this.context.canvas;
     const stats = this.stats.element;
 
@@ -53,9 +53,14 @@ export default class RunnerLayer extends Layer {
     this.runner?.stop();
   }
 
+  /** Hides pause screen overlay */
+  hideOverlay(): void {
+    this.controls.hide();
+  }
+
   /** Resumes the game */
   private resume(): void {
-    this.controls.hide();
+    this.hideOverlay();
     this.runner?.start();
   }
 

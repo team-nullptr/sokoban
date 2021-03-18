@@ -2,6 +2,7 @@ import GameRunner from '../modules/game-runner/GameRunner';
 import Actor from '../modules/game-runner/models/Actor';
 import { LayerType } from '../modules/ui-manager/models/LayerType';
 import UIManager from '../modules/ui-manager/UIManager';
+import RunnerLayer from '../modules/ui-manager/views/RunnerLayer';
 import ModuleOne from './gamemodes/ModuleOne';
 import Images from './Images';
 
@@ -19,14 +20,10 @@ export default class Game {
     this.uimanager = new UIManager(main);
 
     // Initialize GameRunner
-    const runnerLayer = this.uimanager.layer(LayerType.Runner);
+    const runnerLayer = this.uimanager.layer(LayerType.Runner) as RunnerLayer;
 
-    // @ts-ignore Property 'ctx' does not exist on type 'Layer'. ts(2339)
-    // We can safely ignore this error
-    // because RunnerLayer has ctx getter
-    // that doesn't exist on Layer type
     const runner = new GameRunner(runnerLayer.ctx);
-    runnerLayer!.set({ runner });
+    runnerLayer.set({ runner });
 
     // Initialize modules
     this.moduleOne = new ModuleOne(runner, this.uimanager);

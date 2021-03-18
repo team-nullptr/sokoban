@@ -9,6 +9,7 @@ import Previous from '%assets%/icons/arrow-left.svg';
 import Restart from '%assets%/icons/arrow-counterclockwise.svg';
 import Next from '%assets%/icons/arrow-right.svg';
 import clamp from '../../utils/clamp';
+import RunnerLayer from '../../modules/ui-manager/views/RunnerLayer';
 
 export default class ModuleOne {
   constructor(private readonly gameRunner: GameRunner, private readonly uimanager: UIManager) {}
@@ -56,7 +57,7 @@ export default class ModuleOne {
       onclick: (option: number) => {
         if (option === 1) {
           // Restart
-          this.gameRunner.setLevel(this.levels[this.level]); // Play selected level
+          this.runCurrentLevel();
           return;
         }
 
@@ -74,9 +75,14 @@ export default class ModuleOne {
 
         // Update level
         this.level = clamped; // Update index
-        this.gameRunner.setLevel(this.levels[this.level]); // Play selected level
+        this.runCurrentLevel();
       },
     });
+  }
+
+  private runCurrentLevel(): void {
+    this.gameRunner.setLevel(this.levels[this.level]); // Play selected level
+    (this.uimanager.layer(LayerType.Runner) as RunnerLayer).hideOverlay(); // Hide pause screen
   }
 
   /** Starts new game on level with selected difficulty */
@@ -99,8 +105,13 @@ export default class ModuleOne {
 
     // Start new game
     this.level = 0;
-    this.gameRunner.setLevel(this.levels[this.level]); // Play selected level
+    this.runCurrentLevel();
     this.uimanager.hideAll();
     this.uimanager.show(LayerType.Runner);
+
+    // Resize the canvas to match browser window size
+    // This has to be done after showing Runner layer,
+    // to correctly measure Stats widget height
+    (this.uimanager.layer(LayerType.Runner) as RunnerLayer).resize();
   }
 }
