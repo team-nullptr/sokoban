@@ -30,7 +30,6 @@ export default class EditorNavWidget extends Layer {
 
   /**
    * Allows to subscribe to specific event
-   *
    * @param event type of event
    * @param handler handler function
    */

@@ -2,14 +2,21 @@ import Layer from '../models/Layer';
 import Editor from '../../editor/Editor';
 import EditorNavWidget, { EditorNavEvents } from './EditorNavWidget';
 import { Tool } from '../../editor/models/Tool';
+import { BoxPlacer } from '../../editor/models/Tools';
 
 export default class EditorLayer extends Layer {
+  // Main element
   element: HTMLElement = document.createElement('section');
 
+  // Canvas utils
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
+
+  // Editor
   private editor: Editor;
-  private editorNav: EditorNavWidget = new EditorNavWidget([{ name: 'rubber' }]);
+
+  // Widgets
+  private editorNav: EditorNavWidget = new EditorNavWidget([BoxPlacer]);
 
   constructor() {
     super();
@@ -48,7 +55,7 @@ export default class EditorLayer extends Layer {
   /** Resize canvas */
   private canvasResize() {
     // Get new height and width
-    const height = innerHeight;
+    const height = innerHeight / 2;
     const width = innerWidth;
 
     // Resize canvas
@@ -56,13 +63,13 @@ export default class EditorLayer extends Layer {
     this.canvas.width = width;
 
     // Draw grid
-    this.editor.updateGrid();
+    this.editor.render();
   }
 
   render(): void {
-    // Attach all widgets to parent element
-    this.element.appendChild(this.editorNav.element);
     // Attach canvas
     this.element.appendChild(this.canvas);
+    // Attach all widgets to parent element
+    this.element.appendChild(this.editorNav.element);
   }
 }
