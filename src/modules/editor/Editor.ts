@@ -33,7 +33,7 @@ export default class Editor {
     Images.load();
   }
 
-  /** Render canvas */
+  /** Render grid and it's element */
   render() {
     this.ctx.clearRect(0, 0, innerWidth, innerHeight);
     this.renderGrid();
@@ -106,7 +106,7 @@ export default class Editor {
   }
 
   /**
-   * handles cell click
+   * Handles cell click
    * @param e MouseEvent
    */
   onCellClick(e: MouseEvent) {
