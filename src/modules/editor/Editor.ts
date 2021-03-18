@@ -7,13 +7,13 @@ import { getCellFromPosition } from './utils/getCellFromPosition';
 
 export default class Editor {
   // Load assests
-  private images = Images.all;
+  private images: Map<string, HTMLImageElement> = Images.all;
 
   // Current tool
   private currentTool: Tool | undefined = undefined;
 
   // Grid dimensions
-  private gridSize: Vector = { x: 5, y: 5 };
+  private gridSize: Vector = { x: 8, y: 10 };
 
   // Grid layout
   private layout: LevelLayout = {
@@ -23,14 +23,15 @@ export default class Editor {
     walls: [],
   };
 
-  // Getell size
+  // Get cell size
   private cellSize: number = getGridSize(
     { x: this.ctx.canvas.width, y: this.ctx.canvas.height },
     this.gridSize
   );
 
   constructor(private ctx: CanvasRenderingContext2D) {
-    Images.load();
+    // Load images
+    Images.load().then(() => this.render());
   }
 
   /** Render grid and it's element */
@@ -86,11 +87,19 @@ export default class Editor {
         // Image for this cell
         let image: undefined | HTMLImageElement;
 
-        // Check if cell is box, and assign image for it
-        const isBox = this.layout.boxes.find(pos => pos.x === x && pos.y === y);
-        if (isBox) image = this.images.get('box');
+        // Check for type of cell
+        const isBox = this.layout.boxes.some(pos => pos.x === x && pos.y === y);
+        const isWall = this.layout.walls.some(pos => pos.x === x && pos.y === y);
+        const isTarget = this.layout.targets.some(pos => pos.x === x && pos.y === y);
+        const isPlayer = this.layout.start.x == x && this.layout.start.y === y;
 
-        // If there is available image for this cell
+        // Get proper image
+        if (isBox) image = this.images.get('box');
+        else if (isWall) image = this.images.get('wall');
+        else if (isPlayer) image = this.images.get('player-face');
+        else if (isTarget) image = this.images.get('target');
+
+        // If there is available image for this cell render it
         if (image) this.renderCellImage({ x, y }, image);
       }
     }

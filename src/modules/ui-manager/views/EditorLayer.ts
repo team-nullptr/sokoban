@@ -2,7 +2,7 @@ import Layer from '../models/Layer';
 import Editor from '../../editor/Editor';
 import EditorNavWidget, { EditorNavEvents } from './EditorNavWidget';
 import { Tool } from '../../editor/models/Tool';
-import { BoxPlacer } from '../../editor/models/Tools';
+import { BoxBuilder, WallBuilder, Rubber, TargetBuilder } from '../../editor/models/Tools';
 
 export default class EditorLayer extends Layer {
   // Main element
@@ -16,7 +16,12 @@ export default class EditorLayer extends Layer {
   private editor: Editor;
 
   // Widgets
-  private editorNav: EditorNavWidget = new EditorNavWidget([BoxPlacer]);
+  private editorNav: EditorNavWidget = new EditorNavWidget([
+    BoxBuilder,
+    WallBuilder,
+    TargetBuilder,
+    Rubber,
+  ]);
 
   constructor() {
     super();
@@ -34,16 +39,13 @@ export default class EditorLayer extends Layer {
 
     // init
     this.init();
-
     this.editorNav.render();
   }
 
   /** init */
   init() {
     // Listen for mouse down event on canvas
-    this.canvas.addEventListener('mousedown', (e: MouseEvent) => {
-      this.editor.onCellClick(e);
-    });
+    this.canvas.addEventListener('click', (e: MouseEvent) => this.editor.onCellClick(e));
 
     // Listen for tool change
     this.editorNav.subscribe(EditorNavEvents.TOOL_SELECTION, (tool: Tool) => {
