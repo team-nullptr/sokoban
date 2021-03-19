@@ -8,6 +8,10 @@ export default class EditorLayer extends Layer {
   // Main element
   element: HTMLElement = document.createElement('section');
 
+  // Advanced events
+  private dragHandler: (e: MouseEvent) => void = () => {};
+  private isDragging: boolean = false;
+
   // Canvas utils
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -32,6 +36,7 @@ export default class EditorLayer extends Layer {
 
     // Set editor
     this.editor = new Editor(this.ctx);
+    this.dragHandler = this.editor.onCellDrag.bind(this.editor);
 
     // Resize
     this.canvasResize();
@@ -44,8 +49,24 @@ export default class EditorLayer extends Layer {
 
   /** init */
   init() {
-    // Listen for mouse down event on canvas
-    this.canvas.addEventListener('click', (e: MouseEvent) => this.editor.onCellClick(e));
+    // Set drag handler
+    this.canvas.addEventListener('mousedown', (e: MouseEvent) => {
+      // Check if user pressed left mouse button
+      if (!e.button) {
+        this.isDragging = true;
+        this.editor.onCellDragStart(e);
+        this.dragHandler(e);
+      }
+    });
+
+    // Call drag handler
+    this.canvas.addEventListener('mousemove', e => {
+      // If user is dragging call drag handler
+      if (this.isDragging) this.dragHandler(e);
+    });
+
+    // Remove drag handler
+    this.canvas.addEventListener('mouseup', () => (this.isDragging = false));
 
     // Listen for tool change
     this.editorNav.subscribe(EditorNavEvents.TOOL_SELECTION, (tool: Tool) => {

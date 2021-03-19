@@ -2,6 +2,7 @@ import LevelLayout from '../../models/LevelLayout';
 import Vector from '../game-runner/models/Vector';
 import getGridSize from '../game-runner/utils/getGridSize';
 import Images from '../../game/Images';
+import { compareCells } from './utils/cellUtils';
 import { Tool } from './models/Tool';
 import { getCellFromPosition } from './utils/getCellFromPosition';
 
@@ -22,6 +23,10 @@ export default class Editor {
     targets: [],
     walls: [],
   };
+
+  // Editor drag
+  private dragStartCell: Vector | undefined;
+  private dragPrevCell: Vector | undefined;
 
   // Get cell size
   private cellSize: number = getGridSize(
@@ -115,24 +120,49 @@ export default class Editor {
   }
 
   /**
-   * Handles cell click
-   * @param e MouseEvent
+   * Get's cell from mouse event
+   * @param e Mouse event
+   * @returns Vector of cell position
    */
-  onCellClick(e: MouseEvent) {
-    // Get cell vector from mouse position
-    const cell = getCellFromPosition(
+  private getCellFromEvent(e: MouseEvent) {
+    return getCellFromPosition(
       { x: 0, y: 0 }, // Upper left corner
       this.gridSize, // Lower right corner
       { x: e.clientX, y: e.clientY }, // Eevnt position
       this.cellSize // Current cell size
     );
+  }
 
-    if (cell && this.currentTool) {
+  /**
+   * Handles start of cell drag
+   * @param e Mouse event
+   */
+  onCellDragStart(e: MouseEvent) {
+    const cell = this.getCellFromEvent(e);
+    this.dragStartCell = cell;
+  }
+
+  /**
+   * Handles cell drag
+   * @param e Moue event
+   */
+  onCellDrag(e: MouseEvent) {
+    // Get event cell
+    const cell = this.getCellFromEvent(e);
+
+    if (!compareCells(cell, this.dragPrevCell) && cell && this.currentTool) {
       // Update current layout
-      const updatedLayout = this.currentTool.handler(this.layout, cell);
-      this.layout = updatedLayout;
-      // Update elements on grid
-      this.render();
+      const [layout, wasUpdated] = this.currentTool.handler(this.layout, cell);
+
+      // Check if layout was modified in order to prevent unnecessary rerenders
+      if (wasUpdated) {
+        this.layout = layout;
+        // Update elements on grid
+        this.render();
+        // Set new prev cell
+        this.dragPrevCell = cell;
+        console.log('drag called');
+      }
     }
   }
 }
