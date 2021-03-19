@@ -20,6 +20,11 @@ nav {
       cursor: pointer;
       min-width: 64px;
 
+      &.locked {
+        opacity: 0.08;
+        cursor: default;
+      }
+
       &:last-child {
         margin-right: 0;
       }

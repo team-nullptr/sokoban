@@ -1,5 +1,5 @@
 /** Represents control button placed on pause screen  */
-export default interface ControlsItem {
+export default interface NamedIcon {
   src: string;
   title: string;
 }

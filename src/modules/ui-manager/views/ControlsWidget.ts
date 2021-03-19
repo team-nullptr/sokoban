@@ -1,14 +1,16 @@
-import ControlsItem from '../models/ControlsItem';
+import NamedIcon from '../models/ControlsItem';
 import Layer from '../models/Layer';
+
+type Item = NamedIcon & { locked: boolean };
 
 /** Represents widget with controls displayed on pause screen */
 export default class ControlsWidget extends Layer {
   element = document.createElement('nav');
 
-  private items: ControlsItem[] = [];
+  private items: Item[] = [];
   private onclick: (index: number) => void = () => {}; // Called when list elements are clicked
 
-  set({ items, onclick }: { items?: ControlsItem[]; onclick?: () => void }) {
+  set({ items, onclick }: { items?: Item[]; onclick?: () => void }) {
     if (items) {
       this.items = items;
       this.render();
@@ -27,6 +29,11 @@ export default class ControlsWidget extends Layer {
     this.items.forEach((item, i) => {
       const li = document.createElement('li');
       li.addEventListener('click', () => this.onclick(i));
+
+      // Add `locked` class if needed
+      if (item.locked) {
+        li.classList.add('locked');
+      }
 
       const img = document.createElement('img');
       img.src = item.src;

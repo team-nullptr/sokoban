@@ -1,14 +1,14 @@
-import ControlsItem from '../models/ControlsItem';
+import NamedIcon from '../models/ControlsItem';
 import Layer from '../models/Layer';
 
-type ControlsButton = ControlsItem & { onclick: () => void };
+type Button = NamedIcon & { onclick: () => void };
 
 export default class ActionButtonWidget extends Layer {
   element = document.createElement('button');
 
-  private options?: ControlsButton;
+  private options?: Button;
 
-  set(options: ControlsButton) {
+  set(options: Button) {
     this.options = options;
     this.render();
   }

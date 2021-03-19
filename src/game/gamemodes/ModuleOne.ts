@@ -22,14 +22,14 @@ export default class ModuleOne {
   /** Runs the module */
   run(): void {
     // Prepare UI
-    this.prepareUI();
+    this.prepareInterface();
     this.uimanager.order = [LayerType.Runner, LayerType.Custom0, LayerType.Module];
 
     this.uimanager.show(LayerType.Custom0);
   }
 
   /** Prepares user interface, ie. difficulty selection and pause screen */
-  private prepareUI(): void {
+  private prepareInterface(): void {
     // Create difficulty selection
     const difficulty = new ListLayer();
 
@@ -41,27 +41,16 @@ export default class ModuleOne {
     this.uimanager.create(difficulty, LayerType.Custom0);
 
     (this.uimanager.layer(LayerType.ActionButton) as ActionButtonWidget).set({
-      onclick: console.log,
+      onclick: () => {
+        this.uimanager.hideAll();
+        this.uimanager.show(LayerType.Custom0);
+      },
       src: Previous,
       title: 'select difficulty',
     });
 
     // Set pause screen items
     (this.uimanager.layer(LayerType.Runner) as RunnerLayer).set({
-      items: [
-        {
-          src: Previous,
-          title: 'previous',
-        },
-        {
-          src: Restart,
-          title: 'restart',
-        },
-        {
-          src: Next,
-          title: 'next',
-        },
-      ],
       onclick: (option: number) => {
         if (option === 1) {
           // Restart
@@ -86,10 +75,33 @@ export default class ModuleOne {
         this.runCurrentLevel();
       },
     });
+    this.updatePauseScreenControls();
+  }
+
+  private updatePauseScreenControls(): void {
+    (this.uimanager.layer(LayerType.Runner) as RunnerLayer).set({
+      items: [
+        {
+          src: Previous,
+          title: 'previous',
+          locked: this.level === 0,
+        },
+        {
+          src: Restart,
+          title: 'restart',
+        },
+        {
+          src: Next,
+          title: 'next',
+          locked: this.level === this.levels.length - 1,
+        },
+      ],
+    });
   }
 
   private runCurrentLevel(): void {
     this.gameRunner.setLevel(this.levels[this.level]); // Play selected level
+    this.updatePauseScreenControls();
     (this.uimanager.layer(LayerType.Runner) as RunnerLayer).hideOverlay(); // Hide pause screen
   }
 
