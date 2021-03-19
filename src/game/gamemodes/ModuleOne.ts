@@ -2,14 +2,16 @@ import Level from '../../models/Level';
 import GameRunner from '../../modules/game-runner/GameRunner';
 import { LayerType } from '../../modules/ui-manager/models/LayerType';
 import UIManager from '../../modules/ui-manager/UIManager';
+import ActionButtonWidget from '../../modules/ui-manager/views/ActionButtonWidget';
 import ListLayer from '../../modules/ui-manager/views/ListLayer';
 import { LevelsAdvanced, LevelsAmateur, LevelsNovice } from '../builtin-levels/LevelsModuleOne';
+import clamp from '../../utils/clamp';
+import RunnerLayer from '../../modules/ui-manager/views/RunnerLayer';
 
+// Images
 import Previous from '%assets%/icons/arrow-left.svg';
 import Restart from '%assets%/icons/arrow-counterclockwise.svg';
 import Next from '%assets%/icons/arrow-right.svg';
-import clamp from '../../utils/clamp';
-import RunnerLayer from '../../modules/ui-manager/views/RunnerLayer';
 
 export default class ModuleOne {
   constructor(private readonly gameRunner: GameRunner, private readonly uimanager: UIManager) {}
@@ -38,8 +40,14 @@ export default class ModuleOne {
 
     this.uimanager.create(difficulty, LayerType.Custom0);
 
+    (this.uimanager.layer(LayerType.ActionButton) as ActionButtonWidget).set({
+      onclick: console.log,
+      src: Previous,
+      title: 'select difficulty',
+    });
+
     // Set pause screen items
-    this.uimanager.layer(LayerType.Runner)?.set({
+    (this.uimanager.layer(LayerType.Runner) as RunnerLayer).set({
       items: [
         {
           src: Previous,

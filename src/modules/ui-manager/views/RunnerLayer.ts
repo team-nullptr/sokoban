@@ -1,5 +1,7 @@
 import GameRunner from '../../game-runner/GameRunner';
 import Layer from '../models/Layer';
+import { LayerType } from '../models/LayerType';
+import UIManager from '../UIManager';
 import ControlsWidget from './ControlsWidget';
 import StatsWidget from './StatsWidget';
 
@@ -13,7 +15,7 @@ export default class RunnerLayer extends Layer {
   private readonly controls = new ControlsWidget();
   private runner?: GameRunner;
 
-  constructor() {
+  constructor(private readonly uimanager: UIManager) {
     super();
 
     // Create canvas element and get ctx
@@ -49,12 +51,14 @@ export default class RunnerLayer extends Layer {
 
   /** Pauses the game */
   private pause(): void {
-    this.controls.show();
     this.runner?.stop();
+    this.controls.show();
+    this.uimanager.layer(LayerType.ActionButton)!.show();
   }
 
   /** Hides pause screen overlay */
   hideOverlay(): void {
+    this.uimanager.layer(LayerType.ActionButton)!.hide();
     this.controls.hide();
   }
 

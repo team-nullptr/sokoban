@@ -2,8 +2,7 @@ nav {
   position: absolute;
   width: 100%;
   left: 0;
-  bottom: 96px;
-
+  bottom: 128px;
   display: none;
 
   &.shown {
@@ -14,12 +13,12 @@ nav {
     margin: 0 auto;
     display: flex;
     list-style: none;
-    justify-content: center;
+    justify-content: space-around;
+    width: 416px;
 
     li {
       cursor: pointer;
       min-width: 64px;
-      margin-right: 112px;
 
       &:last-child {
         margin-right: 0;

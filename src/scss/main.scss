@@ -13,7 +13,7 @@ body {
   font: 16px 'Montserrat', sans-serif;
 }
 
-main > section {
+main > * {
   display: none;
   position: absolute;
   top: 0;
@@ -32,5 +32,6 @@ main > section {
 }
 
 @import 'stats';
-@import 'list';
 @import 'controls';
+@import 'action_button';
+@import 'list';

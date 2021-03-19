@@ -7,6 +7,7 @@ export enum LayerType {
   // Custom0, // ?
 
   // PauseScreen, // ? Merge PauseScreen with GameRunner?
+  ActionButton,
   Runner,
   Module,
   Custom0,

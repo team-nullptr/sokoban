@@ -1,0 +1,36 @@
+main > button.action {
+  font: inherit;
+  background: #000;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+
+  padding: 16px;
+  transform: translateX(-50%);
+
+  top: auto;
+  bottom: 32px;
+  left: 50%;
+  height: fit-content;
+  width: 416px;
+
+  .wrapper {
+    margin: 0 auto;
+    width: fit-content;
+    display: flex;
+    align-items: center;
+
+    img {
+      width: 24px;
+      height: 24px;
+      margin-right: 16px;
+      filter: invert(1);
+    }
+
+    p {
+      color: #fff;
+      text-align: center;
+      font-weight: 500;
+    }
+  }
+}
