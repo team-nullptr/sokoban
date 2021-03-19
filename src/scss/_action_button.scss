@@ -7,10 +7,9 @@ main > button.action {
   cursor: pointer;
 
   padding: 16px;
-  transform: translateX(-50%);
 
   top: auto;
-  bottom: 32px;
+  bottom: 0;
   left: 50%;
   height: fit-content;
   width: 416px;
@@ -33,5 +32,14 @@ main > button.action {
       text-align: center;
       font-weight: 500;
     }
+  }
+
+  display: block;
+
+  transform: translate(-50%, 100%);
+  transition: transform 0.16s;
+
+  &.shown {
+    transform: translate(-50%, -32px);
   }
 }

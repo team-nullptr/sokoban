@@ -3,10 +3,14 @@ nav {
   width: 100%;
   left: 0;
   bottom: 128px;
-  display: none;
+
+  opacity: 0;
+  transition: opacity 0.16s;
+  pointer-events: none;
 
   &.shown {
-    display: block;
+    pointer-events: all;
+    opacity: 1;
   }
 
   ul {
