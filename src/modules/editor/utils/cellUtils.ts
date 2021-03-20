@@ -1,3 +1,4 @@
+import Level from '../../../models/Level';
 import LevelLayout from '../../../models/LevelLayout';
 import Vector from '../../game-runner/models/Vector';
 
@@ -29,6 +30,26 @@ export const searchInLayout = (layout: LevelLayout, cell: Vector | undefined) =>
 
   // This cell is not in layout
   return false;
+};
+
+export const moveElement = (
+  layout: LevelLayout,
+  elements: Vector[],
+  prevCell: Vector,
+  currentCell: Vector
+) => {
+  elements = elements.map(element => {
+    if (
+      element.x === prevCell.x &&
+      element.y === prevCell.y &&
+      !searchInLayout(layout, currentCell)
+    ) {
+      return currentCell;
+    }
+    return element;
+  });
+
+  return elements;
 };
 
 /**

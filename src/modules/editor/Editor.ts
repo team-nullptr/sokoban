@@ -3,7 +3,7 @@ import Vector from '../game-runner/models/Vector';
 import getGridSize from '../game-runner/utils/getGridSize';
 import Images from '../../game/Images';
 import { compareCells, getCellFromPosition } from './utils/cellUtils';
-import { Tool } from './models/Tool';
+import { BuilderTool, Tool, ToolHandlerResult, TransferorTool } from './models/Tool';
 
 export default class Editor {
   // Load assests
@@ -20,6 +20,9 @@ export default class Editor {
     { x: this.ctx.canvas.width, y: this.ctx.canvas.height },
     this.gridSize
   );
+
+  // drag cell
+  private prevDragCell: Vector | undefined;
 
   // Ctx dimensions
   private canvasStartX: number = this.ctx.canvas.width / 2 - this.cellSize * (this.gridSize.x / 2);
@@ -51,8 +54,8 @@ export default class Editor {
 
     // Calculate ctx offset on x
     this.canvasStartX = innerWidth / 2 - this.cellSize * (this.gridSize.x / 2);
-    console.log(this.canvasStartX);
 
+    // Render level
     this.renderLevel();
   }
 
@@ -228,6 +231,12 @@ export default class Editor {
     this.uiCtx.globalAlpha = 1;
   }
 
+  /** On drag event stat */
+  onCellDragStart() {
+    // Set previous cell to undefiend
+    this.prevDragCell = undefined;
+  }
+
   /**
    * Handles cell drag
    * @param e Moue event
@@ -240,15 +249,32 @@ export default class Editor {
     const cell = this.getCellFromPosition({ x: e.clientX, y: e.clientY });
 
     if (cell && this.currentTool) {
-      // Update current layout
-      const [layout, wasUpdated] = this.currentTool.handler(this.layout, cell);
+      // Declare variable for tool result
+      let result: ToolHandlerResult;
+
+      // Get instance of current tools
+      const toolType = this.currentTool.constructor;
+
+      // Check for tool types
+      if (toolType === BuilderTool) {
+        result = this.currentTool.use(this.layout, cell);
+      } else if (toolType === TransferorTool) {
+        result = this.currentTool.use(this.layout, this.prevDragCell, cell);
+      }
+
+      // Get result values
+      const [layout, wasUpdated] = result!;
 
       // Check if layout was modified in order to prevent unnecessary rerenders
-      if (wasUpdated) {
-        this.layout = layout;
+      if (wasUpdated!) {
+        // Update current layout
+        this.layout = layout!;
         // Update elements on grid
         this.renderLevel();
       }
     }
+
+    // Set new previous cell
+    this.prevDragCell = cell;
   }
 }

@@ -1,8 +1,14 @@
-import Layer from '../models/Layer';
 import Editor from '../../editor/Editor';
-import EditorNavWidget, { EditorNavEvents } from './EditorNavWidget';
 import { Tool } from '../../editor/models/Tool';
-import { BoxBuilder, WallBuilder, Rubber, TargetBuilder } from '../../editor/models/Tools';
+import {
+  BoxBuilder,
+  ElementsTransferor,
+  Rubber,
+  TargetBuilder,
+  WallBuilder,
+} from '../../editor/models/Tools';
+import Layer from '../models/Layer';
+import EditorNavWidget, { EditorNavEvents } from './EditorNavWidget';
 
 export default class EditorLayer extends Layer {
   // Main element
@@ -27,6 +33,7 @@ export default class EditorLayer extends Layer {
     WallBuilder,
     TargetBuilder,
     Rubber,
+    ElementsTransferor,
   ]);
 
   constructor() {
@@ -54,6 +61,7 @@ export default class EditorLayer extends Layer {
 
   /** init */
   init() {
+    // Prevent opening of browser context menu
     this.canvas.addEventListener('contextmenu', e => {
       e.preventDefault();
     });
@@ -66,10 +74,12 @@ export default class EditorLayer extends Layer {
         this.editor.onSelectionStart(e);
       } else {
         this.isDragging = true;
+        this.editor.onCellDragStart();
         this.editor.onCellDrag(e);
       }
     });
 
+    // Remove events on mouseenter
     this.canvas.addEventListener('mouseenter', e => {
       this.isDragging = false;
       this.isSelecting = false;

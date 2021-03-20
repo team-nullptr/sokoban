@@ -1,62 +1,71 @@
-import { searchInLayout } from '../utils/cellUtils';
-import { Tool } from './Tool';
+import LevelLayout from '../../../models/LevelLayout';
+import Vector from '../../game-runner/models/Vector';
+import { moveElement, searchInLayout } from '../utils/cellUtils';
+import { BuilderTool, TransferorTool } from './Tool';
 
-export const BoxBuilder: Tool = {
-  name: 'Box builder',
-  handler: (layout, cell) => {
-    // If there is something on current cell just return layout
-    if (searchInLayout(layout, cell)) return [layout, false];
+export const BoxBuilder = new BuilderTool('Box builder', (layout: LevelLayout, cell: Vector) => {
+  // If there is something on current cell just return layout
+  if (searchInLayout(layout, cell)) return [layout, false];
+  // Otherwise add box on this cell
+  layout.boxes.push(cell);
+  // Return updated layout
+  return [layout, true];
+});
 
-    // Otherwise add box on this cell
-    layout.boxes.push(cell);
+/** Rubber tool */
+export const Rubber = new BuilderTool('Rubber', (layout, cell) => {
+  // Check if there is something to remove
+  if (!searchInLayout(layout, cell)) return [layout, false];
 
-    // Return updated layout
-    return [layout, true];
-  },
-};
+  // Clear this cell
+  layout.boxes = layout.boxes.filter(position => position.x !== cell.x || position.y !== cell.y);
+  layout.targets = layout.targets.filter(
+    position => position.x !== cell.x || position.y !== cell.y
+  );
+  layout.walls = layout.walls.filter(position => position.x !== cell.x || position.y !== cell.y);
 
-export const Rubber: Tool = {
-  name: 'Rubber',
-  handler: (layout, cell) => {
-    // Check if there is something to remove
-    if (!searchInLayout(layout, cell)) return [layout, false];
+  // Return updated layout
+  return [layout, true];
+});
 
-    // Clear this cell
-    layout.boxes = layout.boxes.filter(position => position.x !== cell.x || position.y !== cell.y);
-    layout.targets = layout.targets.filter(
-      position => position.x !== cell.x || position.y !== cell.y
-    );
-    layout.walls = layout.walls.filter(position => position.x !== cell.x || position.y !== cell.y);
+/** Wall builder */
+export const WallBuilder = new BuilderTool('Wall builder', (layout, cell) => {
+  // If there is something on current cell just return layout
+  if (searchInLayout(layout, cell)) return [layout, false];
 
-    // Return updated layout
-    return [layout, true];
-  },
-};
+  // Otherwise add box on this cell
+  layout.walls.push(cell);
 
-export const WallBuilder: Tool = {
-  name: 'Wall builder',
-  handler: (layout, cell) => {
-    // If there is something on current cell just return layout
-    if (searchInLayout(layout, cell)) return [layout, false];
+  // Return updated layout
+  return [layout, true];
+});
 
-    // Otherwise add box on this cell
-    layout.walls.push(cell);
+/** Target builder */
+export const TargetBuilder = new BuilderTool('Target builder', (layout, cell) => {
+  // If there is something on current cell just return layout
+  if (searchInLayout(layout, cell)) return [layout, false];
 
-    // Return updated layout
-    return [layout, true];
-  },
-};
+  // Otherwise add target to this cell
+  layout.targets.push(cell);
 
-export const TargetBuilder: Tool = {
-  name: 'Target builder',
-  handler: (layout, cell) => {
-    // If there is something on current cell just return layout
-    if (searchInLayout(layout, cell)) return [layout, false];
+  // Return updated layout
+  return [layout, true];
+});
 
-    // Otherwise add target to this cell
-    layout.targets.push(cell);
+export const ElementsTransferor = new TransferorTool('move', (layout, prevCell, currentCell) => {
+  // If previous cell is the same as current cell return unmodified layout
+  if (!prevCell || (prevCell.x === currentCell.x && prevCell.y === currentCell.y))
+    return [layout, false];
 
-    // Return updated layout
-    return [layout, true];
-  },
-};
+  // Modify boxes
+  layout.boxes = moveElement(layout, layout.boxes, prevCell, currentCell);
+  // Modify walls
+  layout.walls = moveElement(layout, layout.walls, prevCell, currentCell);
+  // Modify targets
+  layout.targets = moveElement(layout, layout.targets, prevCell, currentCell);
+  // Modify start position
+  layout.start = moveElement(layout, [layout.start], prevCell, currentCell)[0];
+
+  // Return moified layout
+  return [layout, true];
+});
