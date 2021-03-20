@@ -12,44 +12,41 @@ import RunnerLayer from '../../modules/ui-manager/views/RunnerLayer';
 import Previous from '%assets%/icons/arrow-left.svg';
 import Restart from '%assets%/icons/arrow-counterclockwise.svg';
 import Next from '%assets%/icons/arrow-right.svg';
+import Game from '../Game';
 
 export default class ModuleOne {
-  constructor(private readonly gameRunner: GameRunner, private readonly uimanager: UIManager) {}
+  private readonly uimanager: UIManager;
+
+  constructor(private readonly gameRunner: GameRunner, private readonly game: Game) {
+    this.uimanager = game.uimanager;
+  }
 
   private levels: Level[] = [];
   private level = 0;
 
   /** Runs the module */
-  run(): void {
+  start(): void {
     // Prepare UI
-    this.prepareInterface();
+    this.prepare();
     this.uimanager.order = [LayerType.Runner, LayerType.Custom0, LayerType.Module];
 
-    this.uimanager.show(LayerType.Custom0);
+    // Show proper menu
+    this.showMenu();
   }
 
-  /** Prepares user interface, ie. difficulty selection and pause screen */
-  private prepareInterface(): void {
-    // Create difficulty selection
+  /** Prepares user interface */
+  private prepare(): void {
+    // Create difficulty selection menu
     const difficulty = new ListLayer();
 
     difficulty.set({
       items: [{ title: 'Novice' }, { title: 'Amateur' }, { title: 'Advanced' }],
-      onclick: this.start.bind(this),
+      onclick: this.run.bind(this),
     });
 
-    this.uimanager.create(difficulty, LayerType.Custom0);
+    this.uimanager.create(difficulty, LayerType.Custom0); // Create new layer, to put the difficulty menu in
 
-    (this.uimanager.layer(LayerType.ActionButton) as ActionButtonWidget).set({
-      onclick: () => {
-        this.uimanager.hideAll();
-        this.uimanager.show(LayerType.Custom0);
-      },
-      src: Previous,
-      title: 'select difficulty',
-    });
-
-    // Set pause screen items
+    // Set pause screen action
     (this.uimanager.layer(LayerType.Runner) as RunnerLayer).set({
       onclick: (option: number) => {
         if (option === 1) {
@@ -75,38 +72,53 @@ export default class ModuleOne {
         this.runCurrentLevel();
       },
     });
-    this.updatePauseScreenControls();
   }
 
-  private updatePauseScreenControls(): void {
+  /** Shows difficulty selection menu */
+  private showMenu(): void {
+    // Set ActionButton contents
+    (this.uimanager.layer(LayerType.ActionButton) as ActionButtonWidget).set({
+      onclick: () => {
+        this.game.showMenu();
+      },
+      src: Previous,
+      title: 'back to menu',
+    });
+
+    // Show proper layers
+    this.uimanager.hideAll();
+    this.uimanager.show(LayerType.Custom0, LayerType.ActionButton);
+  }
+
+  /** Runs current level */
+  private runCurrentLevel(): void {
+    (this.uimanager.layer(LayerType.Runner) as RunnerLayer).hideOverlay(); // Hide pause screen
+
+    this.updateControls(); // Update control buttons on pause screen
+    this.gameRunner.setLevel(this.levels[this.level]); // Play selected level
+  }
+
+  /** Updates control buttons on pause screen */
+  private updateControls(): void {
+    // Set ActionButton contents
+    (this.uimanager.layer(LayerType.ActionButton) as ActionButtonWidget).set({
+      onclick: () => this.showMenu(),
+      src: Previous,
+      title: 'select difficulty',
+    });
+
+    // Set actions for controls buttons
     (this.uimanager.layer(LayerType.Runner) as RunnerLayer).set({
       items: [
-        {
-          src: Previous,
-          title: 'previous',
-          locked: this.level === 0,
-        },
-        {
-          src: Restart,
-          title: 'restart',
-        },
-        {
-          src: Next,
-          title: 'next',
-          locked: this.level === this.levels.length - 1,
-        },
+        { src: Previous, title: 'previous', locked: this.level === 0 },
+        { src: Restart, title: 'restart' },
+        { src: Next, title: 'next', locked: this.level === this.levels.length - 1 },
       ],
     });
   }
 
-  private runCurrentLevel(): void {
-    this.gameRunner.setLevel(this.levels[this.level]); // Play selected level
-    this.updatePauseScreenControls();
-    (this.uimanager.layer(LayerType.Runner) as RunnerLayer).hideOverlay(); // Hide pause screen
-  }
-
   /** Starts new game on level with selected difficulty */
-  private start(difficulty: number): void {
+  private run(difficulty: number): void {
     // Clear this.levels array
     this.levels.length = 0;
 
@@ -126,6 +138,8 @@ export default class ModuleOne {
     // Start new game
     this.level = 0;
     this.runCurrentLevel();
+
+    // Hide all layers except GameRunner
     this.uimanager.hideAll();
     this.uimanager.show(LayerType.Runner);
 

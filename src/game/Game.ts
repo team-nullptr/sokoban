@@ -7,8 +7,9 @@ import ModuleOne from './gamemodes/ModuleOne';
 import Images from './Images';
 
 export default class Game {
-  private readonly uimanager: UIManager;
+  readonly uimanager: UIManager;
 
+  // Modules
   private readonly moduleOne: ModuleOne;
 
   constructor() {
@@ -26,14 +27,14 @@ export default class Game {
     runnerLayer.set({ runner });
 
     // Initialize modules
-    this.moduleOne = new ModuleOne(runner, this.uimanager);
+    this.moduleOne = new ModuleOne(runner, this);
 
     // Load images
     this.loadImages().then(() => {
       // After loading all images, show module selection menu
 
       this.uimanager.layer(LayerType.Module)!.set({ onclick: this.run.bind(this) });
-      this.uimanager.show(LayerType.Module);
+      this.showMenu();
     });
   }
 
@@ -47,8 +48,14 @@ export default class Game {
   private run(module: number): void {
     switch (module) {
       case 0:
-        this.moduleOne.run();
+        this.moduleOne.start();
         break;
     }
+  }
+
+  /** Shows module selection menu */
+  showMenu(): void {
+    this.uimanager.hideAll();
+    this.uimanager.show(LayerType.Module);
   }
 }
