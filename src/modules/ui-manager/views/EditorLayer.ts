@@ -9,12 +9,14 @@ export default class EditorLayer extends Layer {
   element: HTMLElement = document.createElement('section');
 
   // Advanced events
-  private dragHandler: (e: MouseEvent) => void = () => {};
   private isDragging: boolean = false;
+  private isSelecting: boolean = false;
 
   // Canvas utils
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
+  private uiCanvas: HTMLCanvasElement;
+  private uiCtx: CanvasRenderingContext2D;
 
   // Editor
   private editor: Editor;
@@ -30,13 +32,16 @@ export default class EditorLayer extends Layer {
   constructor() {
     super();
 
-    // Create canvas
+    // Create canvas for main editor
     this.canvas = document.createElement('canvas');
     this.ctx = this.canvas.getContext('2d')!;
 
-    // Set editor
-    this.editor = new Editor(this.ctx);
-    this.dragHandler = this.editor.onCellDrag.bind(this.editor);
+    // Create canvas for ui Layer
+    this.uiCanvas = document.createElement('canvas');
+    this.uiCtx = this.uiCanvas.getContext('2d')!;
+
+    // Create new editor
+    this.editor = new Editor(this.ctx, this.uiCtx);
 
     // Resize
     this.canvasResize();
@@ -49,24 +54,44 @@ export default class EditorLayer extends Layer {
 
   /** init */
   init() {
+    this.canvas.addEventListener('contextmenu', e => {
+      e.preventDefault();
+    });
+
     // Set drag handler
     this.canvas.addEventListener('mousedown', (e: MouseEvent) => {
-      // Check if user pressed left mouse button
-      if (!e.button) {
+      // Check if user is selecting or building
+      if (e.button || e.ctrlKey) {
+        this.isSelecting = true;
+        this.editor.onSelectionStart(e);
+      } else {
         this.isDragging = true;
-        this.editor.onCellDragStart(e);
-        this.dragHandler(e);
+        this.editor.onCellDrag(e);
       }
+    });
+
+    this.canvas.addEventListener('mouseenter', e => {
+      this.isDragging = false;
+      this.isSelecting = false;
     });
 
     // Call drag handler
     this.canvas.addEventListener('mousemove', e => {
       // If user is dragging call drag handler
-      if (this.isDragging) this.dragHandler(e);
+      if (this.isDragging) this.editor.onCellDrag(e);
+      else if (this.isSelecting) this.editor.seletionHandler(e);
     });
 
     // Remove drag handler
-    this.canvas.addEventListener('mouseup', () => (this.isDragging = false));
+    this.canvas.addEventListener('mouseup', e => {
+      // If user was selecting call selection end
+      if (e.button || e.ctrlKey) {
+        this.isSelecting = false;
+        this.editor.onSelectionEnd(e);
+      } else {
+        this.isDragging = false;
+      }
+    });
 
     // Listen for tool change
     this.editorNav.subscribe(EditorNavEvents.TOOL_SELECTION, (tool: Tool) => {
@@ -84,14 +109,23 @@ export default class EditorLayer extends Layer {
     // Resize canvas
     this.canvas.height = height;
     this.canvas.width = width;
+    this.uiCanvas.height = height;
+    this.uiCanvas.width = width;
 
     // Draw grid
-    this.editor.render();
+    this.editor.renderLevel();
   }
 
   render(): void {
+    // Set styles for ui canvas
+    this.uiCanvas.style.pointerEvents = 'none';
+    this.uiCanvas.style.position = 'absolute';
+    this.uiCanvas.style.top = '0';
+    this.uiCanvas.style.left = '0';
+
     // Attach canvas
     this.element.appendChild(this.canvas);
+    this.element.appendChild(this.uiCanvas);
     // Attach all widgets to parent element
     this.element.appendChild(this.editorNav.element);
   }

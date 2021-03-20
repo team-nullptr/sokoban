@@ -2,9 +2,8 @@ import LevelLayout from '../../models/LevelLayout';
 import Vector from '../game-runner/models/Vector';
 import getGridSize from '../game-runner/utils/getGridSize';
 import Images from '../../game/Images';
-import { compareCells } from './utils/cellUtils';
+import { compareCells, getCellFromPosition } from './utils/cellUtils';
 import { Tool } from './models/Tool';
-import { getCellFromPosition } from './utils/getCellFromPosition';
 
 export default class Editor {
   // Load assests
@@ -14,7 +13,7 @@ export default class Editor {
   private currentTool: Tool | undefined = undefined;
 
   // Grid dimensions
-  private gridSize: Vector = { x: 8, y: 10 };
+  private gridSize: Vector = { x: 5, y: 5 };
 
   // Grid layout
   private layout: LevelLayout = {
@@ -24,9 +23,9 @@ export default class Editor {
     walls: [],
   };
 
-  // Editor drag
-  private dragStartCell: Vector | undefined;
-  private dragPrevCell: Vector | undefined;
+  // selection
+  private selectionStart: Vector | undefined;
+  private selectedCells: Vector[] = [];
 
   // Get cell size
   private cellSize: number = getGridSize(
@@ -34,16 +33,24 @@ export default class Editor {
     this.gridSize
   );
 
-  constructor(private ctx: CanvasRenderingContext2D) {
+  constructor(private ctx: CanvasRenderingContext2D, private uiCtx: CanvasRenderingContext2D) {
     // Load images
-    Images.load().then(() => this.render());
+    Images.load().then(() => this.renderLevel());
   }
 
   /** Render grid and it's element */
-  render() {
+  renderLevel() {
+    // Clear grid
     this.ctx.clearRect(0, 0, innerWidth, innerHeight);
+
+    // Render grid
     this.renderGrid();
-    this.renderElements();
+
+    // Render elements
+    this.renderElements(this.layout.boxes, 'box');
+    this.renderElements(this.layout.targets, 'target');
+    this.renderElements(this.layout.walls, 'wall');
+    this.renderElements([this.layout.start], 'player-face');
   }
 
   /** Render grid rows and columns */
@@ -76,6 +83,7 @@ export default class Editor {
   private renderCellImage(cell: Vector, image: HTMLImageElement) {
     const gap = 5;
 
+    // Draw image on canvas
     this.ctx.drawImage(
       image!,
       this.cellSize * cell.x + gap,
@@ -85,29 +93,29 @@ export default class Editor {
     );
   }
 
+  private renderSelectedCell(cell: Vector) {
+    this.ctx.fillStyle = 'rgba(161, 232, 255, 0.5)';
+    this.uiCtx.globalAlpha = 0.1;
+
+    this.ctx.fillRect(this.cellSize * cell.x, this.cellSize * cell.y, this.cellSize, this.cellSize);
+
+    this.uiCtx.globalAlpha = 1;
+  }
+
   /** Render grid elements */
-  private renderElements() {
-    for (let x = 0; x < this.gridSize.x; x++) {
-      for (let y = 0; y < this.gridSize.y; y++) {
-        // Image for this cell
-        let image: undefined | HTMLImageElement;
+  private renderElements(elements: Vector[], assetKey: string) {
+    elements.forEach(element => {
+      // Get image for element
+      const image = this.images.get(assetKey);
 
-        // Check for type of cell
-        const isBox = this.layout.boxes.some(pos => pos.x === x && pos.y === y);
-        const isWall = this.layout.walls.some(pos => pos.x === x && pos.y === y);
-        const isTarget = this.layout.targets.some(pos => pos.x === x && pos.y === y);
-        const isPlayer = this.layout.start.x == x && this.layout.start.y === y;
+      // Render image
+      if (image) this.renderCellImage(element, image);
 
-        // Get proper image
-        if (isBox) image = this.images.get('box');
-        else if (isWall) image = this.images.get('wall');
-        else if (isPlayer) image = this.images.get('player-face');
-        else if (isTarget) image = this.images.get('target');
-
-        // If there is available image for this cell render it
-        if (image) this.renderCellImage({ x, y }, image);
+      for (let i = 0; i < this.selectedCells.length; i++) {
+        if (element.x === this.selectedCells[i].x && element.y === this.selectedCells[i].y)
+          this.renderSelectedCell(this.selectedCells[i]);
       }
-    }
+    });
   }
 
   /**
@@ -124,22 +132,77 @@ export default class Editor {
    * @param e Mouse event
    * @returns Vector of cell position
    */
-  private getCellFromEvent(e: MouseEvent) {
+  private getCellFromPosition(pos: Vector) {
+    // Run util function for getting cell from position
     return getCellFromPosition(
-      { x: 0, y: 0 }, // Upper left corner
-      this.gridSize, // Lower right corner
-      { x: e.clientX, y: e.clientY }, // Eevnt position
-      this.cellSize // Current cell size
+      { x: 0, y: 0 },
+      { x: pos.x, y: pos.y },
+      this.gridSize,
+      this.cellSize
     );
   }
 
   /**
-   * Handles start of cell drag
+   * Handles start of selection
    * @param e Mouse event
    */
-  onCellDragStart(e: MouseEvent) {
-    const cell = this.getCellFromEvent(e);
-    this.dragStartCell = cell;
+  onSelectionStart(e: MouseEvent) {
+    // Set drag start
+    this.selectionStart = { x: e.clientX, y: e.clientY };
+  }
+
+  /**
+   * Handles selection end
+   * @param e Mouse eevent
+   */
+  onSelectionEnd(e: MouseEvent) {
+    // Remvoe selected fields
+    this.selectedCells = [];
+
+    // Get selection bounds
+    const from = this.getCellFromPosition({
+      x: this.selectionStart!.x,
+      y: this.selectionStart!.y,
+    })!;
+    const to = this.getCellFromPosition({ x: e.clientX, y: e.clientY })!;
+
+    // Generate selection based on it's bounds
+    for (let x = Math.min(from.x, to.x); x <= Math.max(from.x, to.x); x++) {
+      for (let y = Math.min(from.y, to.y); y <= Math.max(from.y, to.y); y++) {
+        // Add selected cell
+        this.selectedCells.push({ x, y });
+      }
+    }
+
+    // Clear ui canvas
+    this.uiCtx.clearRect(0, 0, innerWidth, innerHeight);
+
+    // Rerender level
+    this.renderLevel();
+  }
+
+  /**
+   * Handles selection
+   * @param e Mouse event
+   */
+  seletionHandler(e: MouseEvent) {
+    // Clear canvas
+    this.uiCtx.clearRect(0, 0, innerWidth, innerHeight);
+
+    // Set styles for selection rectangle
+    this.uiCtx.fillStyle = '#84b9e8';
+    this.uiCtx.globalAlpha = 0.4;
+
+    // Render rectangle
+    this.uiCtx.fillRect(
+      this.selectionStart!.x,
+      this.selectionStart!.y,
+      e.clientX - this.selectionStart!.x,
+      e.clientY - this.selectionStart!.y
+    );
+
+    // Set context alpha
+    this.uiCtx.globalAlpha = 1;
   }
 
   /**
@@ -147,10 +210,13 @@ export default class Editor {
    * @param e Moue event
    */
   onCellDrag(e: MouseEvent) {
-    // Get event cell
-    const cell = this.getCellFromEvent(e);
+    // Remove selected cells
+    this.selectedCells = [];
 
-    if (!compareCells(cell, this.dragPrevCell) && cell && this.currentTool) {
+    // Get event cell
+    const cell = this.getCellFromPosition({ x: e.clientX, y: e.clientY });
+
+    if (cell && this.currentTool) {
       // Update current layout
       const [layout, wasUpdated] = this.currentTool.handler(this.layout, cell);
 
@@ -158,10 +224,7 @@ export default class Editor {
       if (wasUpdated) {
         this.layout = layout;
         // Update elements on grid
-        this.render();
-        // Set new prev cell
-        this.dragPrevCell = cell;
-        console.log('drag called');
+        this.renderLevel();
       }
     }
   }
