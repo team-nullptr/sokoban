@@ -45,19 +45,19 @@ export const getCellFromPosition = (
   gridDim: Vector,
   cellSize: number
 ): Vector | undefined => {
-  // Get distance from left and top of a grid
-  const offsetX = eventPos.x - gridStart.x;
-  const offsetY = eventPos.y - gridStart.y;
-
   // Check if event took place on grid
   if (
-    offsetX < 0 ||
-    offsetY < 0 ||
-    cellSize * gridDim.x + gridStart.x < offsetX ||
-    cellSize * gridDim.y + gridStart.y < offsetY
+    eventPos.x < gridStart.x ||
+    eventPos.y < gridStart.y ||
+    cellSize * gridDim.x + gridStart.x < eventPos.x ||
+    cellSize * gridDim.y + gridStart.y < eventPos.y
   ) {
     return undefined;
   }
+
+  // Get distance from left and top of a grid
+  const offsetX = eventPos.x - gridStart.x;
+  const offsetY = eventPos.y - gridStart.y;
 
   // Calculate grid x and y position
   const cellX = Math.floor(offsetX / cellSize);

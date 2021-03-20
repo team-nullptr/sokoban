@@ -113,7 +113,7 @@ export default class EditorLayer extends Layer {
     this.uiCanvas.width = width;
 
     // Draw grid
-    this.editor.renderLevel();
+    this.editor.updateDimensions();
   }
 
   render(): void {

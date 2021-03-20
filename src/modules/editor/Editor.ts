@@ -15,6 +15,15 @@ export default class Editor {
   // Grid dimensions
   private gridSize: Vector = { x: 5, y: 5 };
 
+  // Get cell size
+  private cellSize: number = getGridSize(
+    { x: this.ctx.canvas.width, y: this.ctx.canvas.height },
+    this.gridSize
+  );
+
+  // Ctx dimensions
+  private canvasStartX: number = this.ctx.canvas.width / 2 - this.cellSize * (this.gridSize.x / 2);
+
   // Grid layout
   private layout: LevelLayout = {
     start: { x: 2, y: 2 },
@@ -27,19 +36,28 @@ export default class Editor {
   private selectionStart: Vector | undefined;
   private selectedCells: Vector[] = [];
 
-  // Get cell size
-  private cellSize: number = getGridSize(
-    { x: this.ctx.canvas.width, y: this.ctx.canvas.height },
-    this.gridSize
-  );
-
   constructor(private ctx: CanvasRenderingContext2D, private uiCtx: CanvasRenderingContext2D) {
     // Load images
     Images.load().then(() => this.renderLevel());
   }
 
+  /** Updates size of level */
+  updateDimensions() {
+    // Calc cell size
+    this.cellSize = getGridSize(
+      { x: this.ctx.canvas.width, y: this.ctx.canvas.height },
+      this.gridSize
+    );
+
+    // Calculate ctx offset on x
+    this.canvasStartX = innerWidth / 2 - this.cellSize * (this.gridSize.x / 2);
+    console.log(this.canvasStartX);
+
+    this.renderLevel();
+  }
+
   /** Render grid and it's element */
-  renderLevel() {
+  private renderLevel() {
     // Clear grid
     this.ctx.clearRect(0, 0, innerWidth, innerHeight);
 
@@ -55,24 +73,22 @@ export default class Editor {
 
   /** Render grid rows and columns */
   private renderGrid() {
-    this.cellSize = getGridSize(
-      { x: this.ctx.canvas.width, y: this.ctx.canvas.height },
-      this.gridSize
-    );
-
     // Set color of line
     this.ctx.strokeStyle = '#888';
 
     // Draw grid columns
     for (let i = 1; i < this.gridSize.x; i++) {
-      this.ctx.moveTo(this.cellSize * i, 0);
-      this.ctx.lineTo(this.cellSize * i, this.cellSize * this.gridSize.y);
+      this.ctx.moveTo(this.cellSize * i + this.canvasStartX, 0);
+      this.ctx.lineTo(
+        this.cellSize * i + this.canvasStartX,
+        this.cellSize * this.gridSize.y + this.canvasStartX
+      );
     }
 
     // draw grid rows
     for (let j = 1; j < this.gridSize.y; j++) {
-      this.ctx.moveTo(0, this.cellSize * j);
-      this.ctx.lineTo(this.cellSize * this.gridSize.x, this.cellSize * j);
+      this.ctx.moveTo(this.canvasStartX, this.cellSize * j);
+      this.ctx.lineTo(this.cellSize * this.gridSize.x + this.canvasStartX, this.cellSize * j);
     }
 
     // Add stroke to draw line
@@ -86,20 +102,27 @@ export default class Editor {
     // Draw image on canvas
     this.ctx.drawImage(
       image!,
-      this.cellSize * cell.x + gap,
+      this.cellSize * cell.x + gap + this.canvasStartX,
       this.cellSize * cell.y + gap,
       this.cellSize - gap * 2,
       this.cellSize - gap * 2
     );
   }
 
+  /**
+   * Renders selected cell background
+   * @param cell Vector of cell
+   */
   private renderSelectedCell(cell: Vector) {
+    // Set color
     this.ctx.fillStyle = 'rgba(161, 232, 255, 0.5)';
-    this.uiCtx.globalAlpha = 0.1;
-
-    this.ctx.fillRect(this.cellSize * cell.x, this.cellSize * cell.y, this.cellSize, this.cellSize);
-
-    this.uiCtx.globalAlpha = 1;
+    // Render background for cell
+    this.ctx.fillRect(
+      this.cellSize * cell.x + this.canvasStartX,
+      this.cellSize * cell.y,
+      this.cellSize,
+      this.cellSize
+    );
   }
 
   /** Render grid elements */
@@ -135,7 +158,7 @@ export default class Editor {
   private getCellFromPosition(pos: Vector) {
     // Run util function for getting cell from position
     return getCellFromPosition(
-      { x: 0, y: 0 },
+      { x: this.canvasStartX, y: 0 },
       { x: pos.x, y: pos.y },
       this.gridSize,
       this.cellSize
