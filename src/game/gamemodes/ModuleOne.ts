@@ -2,11 +2,11 @@ import Level from '../../models/Level';
 import GameRunner from '../../modules/game-runner/GameRunner';
 import { LayerType } from '../../modules/ui-manager/models/LayerType';
 import UIManager from '../../modules/ui-manager/UIManager';
-import ActionButtonWidget from '../../modules/ui-manager/views/ActionButtonWidget';
 import ListLayer from '../../modules/ui-manager/views/ListLayer';
 import { LevelsAdvanced, LevelsAmateur, LevelsNovice } from '../builtin-levels/LevelsModuleOne';
 import clamp from '../../utils/clamp';
 import RunnerLayer from '../../modules/ui-manager/views/RunnerLayer';
+import ActionsLayer from '../../modules/ui-manager/views/ActionsLayer';
 
 // Images
 import Previous from '%assets%/icons/arrow-left.svg';
@@ -77,17 +77,14 @@ export default class ModuleOne {
   /** Shows difficulty selection menu */
   private showMenu(): void {
     // Set ActionButton contents
-    (this.uimanager.layer(LayerType.ActionButton) as ActionButtonWidget).set({
-      onclick: () => {
-        this.game.showMenu();
-      },
-      src: Previous,
-      title: 'back to menu',
+    (this.uimanager.layer(LayerType.Actions) as ActionsLayer).set({
+      onclick: () => this.game.showMenu(),
+      items: [{ src: Previous, title: 'back to menu' }],
     });
 
     // Show proper layers
     this.uimanager.hideAll();
-    this.uimanager.show(LayerType.Custom0, LayerType.ActionButton);
+    this.uimanager.show(LayerType.Custom0, LayerType.Actions);
   }
 
   /** Runs current level */
@@ -101,10 +98,9 @@ export default class ModuleOne {
   /** Updates control buttons on pause screen */
   private updateControls(): void {
     // Set ActionButton contents
-    (this.uimanager.layer(LayerType.ActionButton) as ActionButtonWidget).set({
+    (this.uimanager.layer(LayerType.Actions) as ActionsLayer).set({
       onclick: () => this.showMenu(),
-      src: Previous,
-      title: 'select difficulty',
+      items: [{ src: Previous, title: 'select difficulty' }],
     });
 
     // Set actions for controls buttons

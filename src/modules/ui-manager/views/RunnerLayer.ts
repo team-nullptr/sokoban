@@ -53,12 +53,12 @@ export default class RunnerLayer extends Layer {
   private pause(): void {
     this.runner?.stop();
     this.controls.show();
-    this.uimanager.layer(LayerType.ActionButton)!.show();
+    this.uimanager.layer(LayerType.Actions)!.show();
   }
 
   /** Hides pause screen overlay */
   hideOverlay(): void {
-    this.uimanager.layer(LayerType.ActionButton)!.hide();
+    this.uimanager.layer(LayerType.Actions)!.hide();
     this.controls.hide();
   }
 

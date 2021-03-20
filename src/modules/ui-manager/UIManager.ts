@@ -2,7 +2,7 @@ import { LayerType } from './models/LayerType';
 import Layer from './models/Layer';
 import RunnerLayer from './views/RunnerLayer';
 import ListLayer from './views/ListLayer';
-import ActionButtonWidget from './views/ActionButtonWidget';
+import ActionsLayer from './views/ActionsLayer';
 
 export default class UIManager {
   private readonly layers = new Map<LayerType, Layer>();
@@ -18,7 +18,7 @@ export default class UIManager {
     this.layers.set(LayerType.Runner, new RunnerLayer(this));
 
     // Button
-    this.layers.set(LayerType.ActionButton, new ActionButtonWidget());
+    this.layers.set(LayerType.Actions, new ActionsLayer());
 
     // Module selection
     const module = new ListLayer();

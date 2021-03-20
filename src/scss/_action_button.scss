@@ -1,24 +1,40 @@
-main > button.action {
-  font: inherit;
-  background: #000;
-  border: none;
-  border-radius: 8px;
-  outline: none;
-  cursor: pointer;
-
-  padding: 16px;
-
+section.actions {
   top: auto;
   bottom: 0;
-  left: 50%;
-  height: fit-content;
-  width: 416px;
 
-  .wrapper {
-    margin: 0 auto;
-    width: fit-content;
+  display: block;
+
+  & > .wrapper {
     display: flex;
+    flex-direction: column;
     align-items: center;
+    gap: 12px;
+    padding-bottom: 32px;
+    transition: transform 0.16s;
+    transform: translateY(100%); // Hide buttons by default
+  }
+
+  &.shown > .wrapper {
+    transform: translateY(0);
+  }
+
+  button {
+    background: #000;
+    color: #fff;
+    border: none;
+    outline: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font: inherit;
+    padding: 16px;
+    width: 416px;
+
+    .wrapper {
+      margin: 0 auto;
+      width: fit-content;
+      display: flex;
+      align-items: center;
+    }
 
     img {
       width: 24px;
@@ -28,18 +44,7 @@ main > button.action {
     }
 
     p {
-      color: #fff;
-      text-align: center;
       font-weight: 500;
     }
-  }
-
-  display: block;
-
-  transform: translate(-50%, 100%);
-  transition: transform 0.16s;
-
-  &.shown {
-    transform: translate(-50%, -32px);
   }
 }
