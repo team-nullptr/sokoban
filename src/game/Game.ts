@@ -3,14 +3,20 @@ import Actor from '../modules/game-runner/models/Actor';
 import { LayerType } from '../modules/ui-manager/models/LayerType';
 import UIManager from '../modules/ui-manager/UIManager';
 import RunnerLayer from '../modules/ui-manager/views/RunnerLayer';
-import ModuleOne from './gamemodes/ModuleOne';
+
+// Images
 import Images from './Images';
+
+// Modules
+import ModuleOne from './gamemodes/ModuleOne';
+import ModuleTwo from './gamemodes/ModuleTwo';
 
 export default class Game {
   readonly uimanager: UIManager;
 
   // Modules
   private readonly moduleOne: ModuleOne;
+  private readonly moduleTwo: ModuleTwo;
 
   constructor() {
     // Create app frame
@@ -28,6 +34,7 @@ export default class Game {
 
     // Initialize modules
     this.moduleOne = new ModuleOne(runner, this);
+    this.moduleTwo = new ModuleTwo(this);
 
     // Load images
     this.loadImages().then(() => {
@@ -46,11 +53,8 @@ export default class Game {
 
   /** Runs module */
   private run(module: number): void {
-    switch (module) {
-      case 0:
-        this.moduleOne.start();
-        break;
-    }
+    if (module === 0) this.moduleOne.start();
+    else if (module === 1) this.moduleTwo.start();
   }
 
   /** Shows module selection menu */

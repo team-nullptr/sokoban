@@ -7,14 +7,15 @@ import { LevelsAdvanced, LevelsAmateur, LevelsNovice } from '../builtin-levels/L
 import clamp from '../../utils/clamp';
 import RunnerLayer from '../../modules/ui-manager/views/RunnerLayer';
 import ActionsLayer from '../../modules/ui-manager/views/ActionsLayer';
+import Module from '../../models/Module';
+import Game from '../Game';
 
 // Images
 import Previous from '%assets%/icons/arrow-left.svg';
 import Restart from '%assets%/icons/arrow-counterclockwise.svg';
 import Next from '%assets%/icons/arrow-right.svg';
-import Game from '../Game';
 
-export default class ModuleOne {
+export default class ModuleOne implements Module {
   private readonly uimanager: UIManager;
 
   constructor(private readonly gameRunner: GameRunner, private readonly game: Game) {
@@ -28,9 +29,14 @@ export default class ModuleOne {
   start(): void {
     // Prepare UI
     this.prepare();
-    this.uimanager.order = [LayerType.Runner, LayerType.Custom0, LayerType.Module];
+    this.uimanager.order = [
+      LayerType.Runner,
+      LayerType.Actions,
+      LayerType.Custom0,
+      LayerType.Module,
+    ];
 
-    // Show proper menu
+    // Show difficulty selection menu
     this.showMenu();
   }
 
