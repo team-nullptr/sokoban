@@ -1,4 +1,5 @@
-import { Tool } from '../../editor/models/Tool';
+import FormWidget from './FormWidget';
+import { Tool } from '../../editor/classes/Tool';
 import Vector from '../../game-runner/models/Vector';
 import Layer from '../models/Layer';
 
@@ -11,14 +12,12 @@ type ToolSubscriber = (value: Tool) => void;
 type GridSizeSubscriber = (value: Vector) => void;
 
 export default class EditorNavWidget extends Layer {
-  element = document.createElement('nav');
+  element = document.createElement('section');
 
   // Subscribers
   private toolSubscribers: ToolSubscriber[] = [];
-  private gridSizeSubscribers: GridSizeSubscriber[] = [];
 
-  // Selected nav tool
-  private selectedToolElement: HTMLElement | undefined;
+  // Widgets
 
   constructor(private tools: Tool[]) {
     super();
@@ -66,11 +65,15 @@ export default class EditorNavWidget extends Layer {
     this.notify(EditorNavEvents.TOOL_SELECTION, tool);
   }
 
-  render(): void {
+  private createNav() {
+    // Create nav
+    const nav = document.createElement('nav');
+
     // Create unordered list
     const ul = document.createElement('ul');
     ul.classList.add('editor-menu');
 
+    // Create nav items for each tool
     this.tools.forEach(tool => {
       // Create list item
       const li = document.createElement('li');
@@ -88,6 +91,11 @@ export default class EditorNavWidget extends Layer {
       ul.appendChild(li);
     });
 
-    this.element.appendChild(ul);
+    nav.appendChild(ul);
+    return nav;
+  }
+
+  render() {
+    this.element.appendChild(this.createNav());
   }
 }

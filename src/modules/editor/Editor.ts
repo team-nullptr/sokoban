@@ -3,13 +3,9 @@ import Vector from '../game-runner/models/Vector';
 import getGridSize from '../game-runner/utils/getGridSize';
 import Images from '../../game/Images';
 import { getCellFromPosition, searchInLayout } from './utils/cellUtils';
-import {
-  BuilderTool,
-  Tool,
-  ToolHandlerResult,
-  TransferorTool,
-  TransferorToolHandlerResult,
-} from './models/Tool';
+import { BuilderTool } from './classes/BuilderTool';
+import { TransferorTool, TransferorToolHandlerResult } from './classes/TransferorTool';
+import { Tool, ToolHandlerResult } from './classes/Tool';
 
 export default class Editor {
   // Load assests
@@ -36,7 +32,7 @@ export default class Editor {
 
   // Grid layout
   private layout: LevelLayout = {
-    start: { x: 2, y: 2 },
+    start: { x: 0, y: 0 },
     boxes: [],
     targets: [],
     walls: [],
@@ -49,6 +45,33 @@ export default class Editor {
   constructor(private ctx: CanvasRenderingContext2D, private uiCtx: CanvasRenderingContext2D) {
     // Load images
     Images.load().then(() => this.renderLevel());
+  }
+
+  /** Returns meta of the level */
+  get metaInfo() {
+    return {
+      layout: this.layout,
+      size: this.gridSize,
+    };
+  }
+
+  /**
+   * Updates editor grid size
+   * @param size Size of grid
+   */
+  updateGridSize(size: Vector) {
+    // Update size of grid
+    this.gridSize = size;
+
+    // Reset level
+    this.layout = {
+      start: { x: 0, y: 0 },
+      boxes: [],
+      targets: [],
+      walls: [],
+    };
+
+    this.updateDimensions();
   }
 
   /** Updates size of level */
@@ -85,6 +108,8 @@ export default class Editor {
   private renderGrid() {
     // Set color of line
     this.ctx.strokeStyle = '#888';
+
+    this.ctx.beginPath();
 
     // Draw grid columns
     for (let i = 1; i < this.gridSize.x; i++) {
@@ -184,6 +209,12 @@ export default class Editor {
     this.selectionStart = { x: e.clientX, y: e.clientY };
   }
 
+  /** Clear selection */
+  clearSelection() {
+    // Clear
+    this.uiCtx.clearRect(0, 0, innerWidth, innerHeight);
+  }
+
   /**
    * Handles selection end
    * @param e Mouse eevent
@@ -202,8 +233,6 @@ export default class Editor {
       x: Math.min(e.clientX, this.canvasStartX + this.gridSize.x * this.cellSize),
       y: e.clientY,
     })!;
-
-    console.log(from, to);
 
     // Generate selection based on it's bounds
     if (to && from)

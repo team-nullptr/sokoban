@@ -1,5 +1,5 @@
 import Editor from '../../editor/Editor';
-import { Tool } from '../../editor/models/Tool';
+import { Tool } from '../../editor/classes/Tool';
 import {
   BoxBuilder,
   ElementsTransferor,
@@ -9,6 +9,8 @@ import {
 } from '../../editor/models/Tools';
 import Layer from '../models/Layer';
 import EditorNavWidget, { EditorNavEvents } from './EditorNavWidget';
+import FormWidget from './FormWidget';
+import { downloadLevel } from '../../editor/classes/LevelDownloader';
 
 export default class EditorLayer extends Layer {
   // Main element
@@ -26,6 +28,9 @@ export default class EditorLayer extends Layer {
 
   // Editor
   private editor: Editor;
+
+  // Form
+  private form: FormWidget;
 
   // Widgets
   private editorNav: EditorNavWidget = new EditorNavWidget([
@@ -50,6 +55,20 @@ export default class EditorLayer extends Layer {
     // Create new editor
     this.editor = new Editor(this.ctx, this.uiCtx);
 
+    // Create form
+    this.form = new FormWidget([
+      { name: 'width', type: 'number' },
+      { name: 'height', type: 'number' },
+    ]);
+
+    // Subscribe for form submit and change size of grid
+    this.form.subscribe<{ width: string; height: string }>(data =>
+      this.editor.updateGridSize({ x: parseInt(data.width), y: parseInt(data.height) })
+    );
+
+    // Render form
+    this.form.render();
+
     // Resize
     this.canvasResize();
     addEventListener('resize', this.canvasResize.bind(this));
@@ -62,7 +81,7 @@ export default class EditorLayer extends Layer {
   /** init */
   init() {
     // Prevent opening of browser context menu
-    this.canvas.addEventListener('contextmenu', e => {
+    document.addEventListener('contextmenu', e => {
       e.preventDefault();
     });
 
@@ -84,6 +103,9 @@ export default class EditorLayer extends Layer {
       this.isDragging = false;
       this.isSelecting = false;
     });
+
+    // Clear selection when user goes outside
+    this.canvas.addEventListener('mouseleave', () => this.editor.clearSelection());
 
     // Call drag handler
     this.canvas.addEventListener('mousemove', e => {
@@ -134,11 +156,23 @@ export default class EditorLayer extends Layer {
     const editorContainer = document.createElement('section');
     editorContainer.classList.add('editor-container');
 
-    // Attach all widgets to parent element
-    this.element.appendChild(this.editorNav.element);
     // Attach canvas
     editorContainer.appendChild(this.canvas);
     editorContainer.appendChild(this.uiCanvas);
     this.element.appendChild(editorContainer);
+
+    // Attach all widgets to parent element
+    this.element.appendChild(this.editorNav.element);
+
+    // Attach form
+    this.element.appendChild(this.form.element);
+
+    // Create download button
+    const downloadButton = document.createElement('button');
+    downloadButton.innerHTML = 'download';
+    // Allow for downloading
+    downloadButton.addEventListener('click', () => downloadLevel(this.editor.metaInfo));
+    // Attach button
+    this.element.append(downloadButton);
   }
 }

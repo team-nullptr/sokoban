@@ -1,7 +1,8 @@
 import LevelLayout from '../../../models/LevelLayout';
 import Vector from '../../game-runner/models/Vector';
 import { moveSelection, checkTransform, searchInLayout } from '../utils/cellUtils';
-import { BuilderTool, TransferorTool } from './Tool';
+import { BuilderTool } from '../classes/BuilderTool';
+import { TransferorTool } from '../classes/TransferorTool';
 
 export const BoxBuilder = new BuilderTool('Box builder', (layout: LevelLayout, cell: Vector) => {
   // If there is something on current cell just return layout
