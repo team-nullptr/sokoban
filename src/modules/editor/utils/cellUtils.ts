@@ -13,6 +13,37 @@ export const compareCells = (cellA: Vector | undefined, cellB: Vector | undefine
   return false;
 };
 
+export const checkTransform = (
+  layout: LevelLayout,
+  selection: Vector[],
+  shift: Vector,
+  gridSize: Vector
+) => {
+  const fullLayout = [...layout.boxes, ...layout.targets, ...layout.walls, layout.start];
+
+  for (let i = 0; i < selection.length; i++) {
+    // Find potential collision
+    const collision = fullLayout.find(
+      element => element.x === selection[i].x + shift.x && element.y === selection[i].y + shift.y
+    );
+
+    // Check if collision exists and if collision element is not selected
+    if (
+      (collision &&
+        selection.findIndex(element => element.x === collision.x && element.y === collision.y) ===
+          -1) ||
+      selection[i].x + shift.x > gridSize.x - 1 ||
+      selection[i].y + shift.y > gridSize.y - 1 ||
+      selection[i].x + shift.x < 0 ||
+      selection[i].y + shift.y < 0
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 /**
  * Moves elements on level by provided vector
  * @param elements level elements

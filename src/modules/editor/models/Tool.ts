@@ -47,7 +47,8 @@ type TransferorToolHandler = (
   layout: LevelLayout,
   selection: Vector[],
   prevCell: Vector | undefined,
-  currentCell: Vector
+  currentCell: Vector,
+  gridSize: Vector
 ) => TransferorToolHandlerResult;
 
 // Transferor tool class declaration
@@ -63,7 +64,13 @@ export class TransferorTool extends Tool {
    * @param currentCell Current event cell
    * @returns Layout and boolean which indicates if layout was modified
    */
-  use(layout: LevelLayout, selection: Vector[], prevCell: Vector | undefined, currentCell: Vector) {
-    return this.handler(layout, selection, prevCell, currentCell);
+  use(
+    layout: LevelLayout,
+    selection: Vector[],
+    prevCell: Vector | undefined,
+    currentCell: Vector,
+    gridSize: Vector
+  ) {
+    return this.handler(layout, selection, prevCell, currentCell, gridSize);
   }
 }

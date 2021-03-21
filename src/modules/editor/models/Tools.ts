@@ -1,6 +1,6 @@
 import LevelLayout from '../../../models/LevelLayout';
 import Vector from '../../game-runner/models/Vector';
-import { moveSelection, searchInLayout } from '../utils/cellUtils';
+import { moveSelection, checkTransform, searchInLayout } from '../utils/cellUtils';
 import { BuilderTool, TransferorTool } from './Tool';
 
 export const BoxBuilder = new BuilderTool('Box builder', (layout: LevelLayout, cell: Vector) => {
@@ -54,7 +54,7 @@ export const TargetBuilder = new BuilderTool('Target builder', (layout, cell) =>
 
 export const ElementsTransferor = new TransferorTool(
   'move',
-  (layout, selection, prevCell, currentCell) => {
+  (layout, selection, prevCell, currentCell, gridSize) => {
     // If previous cell is the same as current cell return unmodified layout
     if (!prevCell || (prevCell.x === currentCell.x && prevCell.y === currentCell.y))
       return { layout, wasUpdated: false, selection };
@@ -62,23 +62,9 @@ export const ElementsTransferor = new TransferorTool(
     // Get selection shift
     const shift = { x: currentCell.x - prevCell.x, y: currentCell.y - prevCell.y };
 
-    const fullLayout = [...layout.boxes, ...layout.targets, ...layout.walls, layout.start];
-
-    for (let i = 0; i < selection.length; i++) {
-      // Find potential collision
-      const collision = fullLayout.find(
-        element => element.x === selection[i].x + shift.x && element.y === selection[i].y + shift.y
-      );
-
-      // Check if collision exists and if collision element is not selected
-      if (
-        collision &&
-        selection.findIndex(element => element.x === collision.x && element.y === collision.y) ===
-          -1
-      ) {
-        return { layout, wasUpdated: false, selection };
-      }
-    }
+    // Check if selection can be moved
+    if (!checkTransform(layout, selection, shift, gridSize))
+      return { layout, wasUpdated: false, selection };
 
     // Move all boxes
     layout.boxes = moveSelection(layout.boxes, selection, shift);

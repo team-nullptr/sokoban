@@ -278,7 +278,8 @@ export default class Editor {
           this.layout,
           this.selectedCells,
           this.prevDragCell,
-          cell
+          cell,
+          this.gridSize
         );
         this.selectedCells = (result as TransferorToolHandlerResult).selection;
       }
