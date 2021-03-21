@@ -14,6 +14,33 @@ export const compareCells = (cellA: Vector | undefined, cellB: Vector | undefine
 };
 
 /**
+ * Moves elements on level by provided vector
+ * @param elements level elements
+ * @param selection selected elements
+ * @param shift transfer vector
+ * @returns elements with modified position
+ */
+export const moveSelection = (elements: Vector[], selection: Vector[], shift: Vector) => {
+  // Create copy of elements and selection
+  const unmodifiedElements = [...elements];
+
+  // Find selected cell in layout elements (Can be done faster)
+  for (let i = 0; i < unmodifiedElements.length; i++) {
+    for (let j = 0; j < selection.length; j++) {
+      if (compareCells(unmodifiedElements[i], selection[j])) {
+        // Get destination
+        const dest = { x: unmodifiedElements[i].x + shift.x, y: unmodifiedElements[i].y + shift.y };
+        // Update elements and selection
+        elements[i] = dest;
+      }
+    }
+  }
+
+  // Return new elements and selection
+  return elements;
+};
+
+/**
  * Checks if cell is used in layout
  * @param layout Level layout
  * @param cell cell
@@ -30,26 +57,6 @@ export const searchInLayout = (layout: LevelLayout, cell: Vector | undefined) =>
 
   // This cell is not in layout
   return false;
-};
-
-export const moveElement = (
-  layout: LevelLayout,
-  elements: Vector[],
-  prevCell: Vector,
-  currentCell: Vector
-) => {
-  elements = elements.map(element => {
-    if (
-      element.x === prevCell.x &&
-      element.y === prevCell.y &&
-      !searchInLayout(layout, currentCell)
-    ) {
-      return currentCell;
-    }
-    return element;
-  });
-
-  return elements;
 };
 
 /**

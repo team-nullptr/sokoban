@@ -2,8 +2,14 @@ import LevelLayout from '../../models/LevelLayout';
 import Vector from '../game-runner/models/Vector';
 import getGridSize from '../game-runner/utils/getGridSize';
 import Images from '../../game/Images';
-import { compareCells, getCellFromPosition } from './utils/cellUtils';
-import { BuilderTool, Tool, ToolHandlerResult, TransferorTool } from './models/Tool';
+import { getCellFromPosition, searchInLayout } from './utils/cellUtils';
+import {
+  BuilderTool,
+  Tool,
+  ToolHandlerResult,
+  TransferorTool,
+  TransferorToolHandlerResult,
+} from './models/Tool';
 
 export default class Editor {
   // Load assests
@@ -13,7 +19,7 @@ export default class Editor {
   private currentTool: Tool | undefined = undefined;
 
   // Grid dimensions
-  private gridSize: Vector = { x: 5, y: 5 };
+  private gridSize: Vector = { x: 10, y: 10 };
 
   // Get cell size
   private cellSize: number = getGridSize(
@@ -22,6 +28,7 @@ export default class Editor {
   );
 
   // drag cell
+  private startDragCell: Vector | undefined;
   private prevDragCell: Vector | undefined;
 
   // Ctx dimensions
@@ -187,18 +194,23 @@ export default class Editor {
 
     // Get selection bounds
     const from = this.getCellFromPosition({
-      x: this.selectionStart!.x,
+      x: Math.max(this.selectionStart!.x, this.canvasStartX),
       y: this.selectionStart!.y,
     })!;
-    const to = this.getCellFromPosition({ x: e.clientX, y: e.clientY })!;
+
+    const to = this.getCellFromPosition({
+      x: Math.min(e.clientX, this.canvasStartX + this.gridSize.x * this.cellSize),
+      y: e.clientY,
+    })!;
 
     // Generate selection based on it's bounds
-    for (let x = Math.min(from.x, to.x); x <= Math.max(from.x, to.x); x++) {
-      for (let y = Math.min(from.y, to.y); y <= Math.max(from.y, to.y); y++) {
-        // Add selected cell
-        this.selectedCells.push({ x, y });
+    if (to && from)
+      for (let x = Math.min(from.x, to.x); x <= Math.max(from.x, to.x); x++) {
+        for (let y = Math.min(from.y, to.y); y <= Math.max(from.y, to.y); y++) {
+          // Add selected cell if there is something on this cell
+          if (searchInLayout(this.layout, { x, y })) this.selectedCells.push({ x, y });
+        }
       }
-    }
 
     // Clear ui canvas
     this.uiCtx.clearRect(0, 0, innerWidth, innerHeight);
@@ -231,10 +243,15 @@ export default class Editor {
     this.uiCtx.globalAlpha = 1;
   }
 
-  /** On drag event stat */
-  onCellDragStart() {
-    // Set previous cell to undefiend
-    this.prevDragCell = undefined;
+  /**
+   * On cell drag start
+   * @param e Mouse event
+   */
+  onCellDragStart(e: MouseEvent) {
+    // Get event cell
+    const cell = this.getCellFromPosition({ x: e.clientX, y: e.clientY });
+    // Set previous cell to undefined
+    this.prevDragCell = cell;
   }
 
   /**
@@ -242,9 +259,6 @@ export default class Editor {
    * @param e Moue event
    */
   onCellDrag(e: MouseEvent) {
-    // Remove selected cells
-    this.selectedCells = [];
-
     // Get event cell
     const cell = this.getCellFromPosition({ x: e.clientX, y: e.clientY });
 
@@ -257,13 +271,20 @@ export default class Editor {
 
       // Check for tool types
       if (toolType === BuilderTool) {
-        result = this.currentTool.use(this.layout, cell);
+        this.selectedCells = [];
+        result = (this.currentTool as BuilderTool).use(this.layout, cell);
       } else if (toolType === TransferorTool) {
-        result = this.currentTool.use(this.layout, this.prevDragCell, cell);
+        result = (this.currentTool as TransferorTool).use(
+          this.layout,
+          this.selectedCells,
+          this.prevDragCell,
+          cell
+        );
+        this.selectedCells = (result as TransferorToolHandlerResult).selection;
       }
 
       // Get result values
-      const [layout, wasUpdated] = result!;
+      const { layout, wasUpdated } = result!;
 
       // Check if layout was modified in order to prevent unnecessary rerenders
       if (wasUpdated!) {
@@ -271,10 +292,9 @@ export default class Editor {
         this.layout = layout!;
         // Update elements on grid
         this.renderLevel();
+        // Update previous cell
+        this.prevDragCell = cell;
       }
     }
-
-    // Set new previous cell
-    this.prevDragCell = cell;
   }
 }

@@ -2,7 +2,10 @@ import LevelLayout from '../../../models/LevelLayout';
 import Vector from '../../game-runner/models/Vector';
 
 // type of tool handler return value
-export type ToolHandlerResult = [LevelLayout, boolean];
+export interface ToolHandlerResult {
+  layout: LevelLayout;
+  wasUpdated: boolean;
+}
 
 // Abstract class for tool
 export abstract class Tool {
@@ -35,12 +38,17 @@ export class BuilderTool extends Tool {
   }
 }
 
+export interface TransferorToolHandlerResult extends ToolHandlerResult {
+  selection: Vector[];
+}
+
 // Type of transferor tool handler
 type TransferorToolHandler = (
   layout: LevelLayout,
-  prevCell: Vector,
+  selection: Vector[],
+  prevCell: Vector | undefined,
   currentCell: Vector
-) => ToolHandlerResult;
+) => TransferorToolHandlerResult;
 
 // Transferor tool class declaration
 export class TransferorTool extends Tool {
@@ -55,7 +63,7 @@ export class TransferorTool extends Tool {
    * @param currentCell Current event cell
    * @returns Layout and boolean which indicates if layout was modified
    */
-  use(layout: LevelLayout, prevCell: Vector, currentCell: Vector) {
-    return this.handler(layout, prevCell, currentCell);
+  use(layout: LevelLayout, selection: Vector[], prevCell: Vector | undefined, currentCell: Vector) {
+    return this.handler(layout, selection, prevCell, currentCell);
   }
 }

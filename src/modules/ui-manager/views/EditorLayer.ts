@@ -74,7 +74,7 @@ export default class EditorLayer extends Layer {
         this.editor.onSelectionStart(e);
       } else {
         this.isDragging = true;
-        this.editor.onCellDragStart();
+        this.editor.onCellDragStart(e);
         this.editor.onCellDrag(e);
       }
     });
@@ -97,6 +97,7 @@ export default class EditorLayer extends Layer {
       // If user was selecting call selection end
       if (e.button || e.ctrlKey) {
         this.isSelecting = false;
+        this.editor.onCellDragStart(e);
         this.editor.onSelectionEnd(e);
       } else {
         this.isDragging = false;
