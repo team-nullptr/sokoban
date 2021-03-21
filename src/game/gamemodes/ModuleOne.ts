@@ -30,8 +30,8 @@ export default class ModuleOne implements Module {
     // Prepare UI
     this.prepare();
     this.uimanager.order = [
-      LayerType.Runner,
       LayerType.Actions,
+      LayerType.Runner,
       LayerType.Custom0,
       LayerType.Module,
     ];
@@ -55,8 +55,8 @@ export default class ModuleOne implements Module {
     // Set pause screen action
     (this.uimanager.layer(LayerType.Runner) as RunnerLayer).set({
       onclick: (option: number) => {
+        // Restart
         if (option === 1) {
-          // Restart
           this.runCurrentLevel();
           return;
         }
@@ -97,8 +97,8 @@ export default class ModuleOne implements Module {
   private runCurrentLevel(): void {
     (this.uimanager.layer(LayerType.Runner) as RunnerLayer).hideOverlay(); // Hide pause screen
 
-    this.updateControls(); // Update control buttons on pause screen
     this.gameRunner.setLevel(this.levels[this.level]); // Play selected level
+    this.updateControls(); // Update control buttons on pause screen
   }
 
   /** Updates control buttons on pause screen */

@@ -34,7 +34,7 @@ export default class Game {
 
     // Initialize modules
     this.moduleOne = new ModuleOne(runner, this);
-    this.moduleTwo = new ModuleTwo(this);
+    this.moduleTwo = new ModuleTwo(runner, this);
 
     // Load images
     this.loadImages().then(() => {

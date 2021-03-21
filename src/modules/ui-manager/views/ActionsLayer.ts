@@ -1,4 +1,4 @@
-import NamedIcon from '../models/ControlsItem';
+import NamedIcon from '../models/NamedItem';
 import Layer from '../models/Layer';
 
 export default class ActionsLayer extends Layer {

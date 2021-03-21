@@ -15,6 +15,9 @@ export default class RunnerLayer extends Layer {
   private readonly controls = new ControlsWidget();
   private runner?: GameRunner;
 
+  // Event handlers
+  private onFinishHandle: () => void = () => {};
+
   constructor(private readonly uimanager: UIManager) {
     super();
 
@@ -78,13 +81,22 @@ export default class RunnerLayer extends Layer {
     });
   }
 
+  /** Sets handle for onFinish event */
+  set onFinish(handle: () => void) {
+    this.onFinishHandle = handle;
+  }
+
   set(args: any) {
     if (args?.runner instanceof GameRunner) {
       this.runner = args.runner;
 
       // Update stats every time the game is rendered
       this.runner!.onDraw = () => this.stats.set({ stats: this.runner?.stats });
-      this.runner!.onFinish = () => this.controls.show();
+      this.runner!.onFinish = () => {
+        this.onFinishHandle();
+        this.uimanager.layer(LayerType.Actions)!.show();
+        this.controls.show();
+      };
     }
 
     // Pass args to ControlsWidget instance
