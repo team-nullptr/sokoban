@@ -13,6 +13,14 @@ export const compareCells = (cellA: Vector | undefined, cellB: Vector | undefine
   return false;
 };
 
+/**
+ * Checks if selection can be shifted by depcified vector
+ * @param layout Level layout
+ * @param selection Selected items
+ * @param shift Shift vector
+ * @param gridSize Size of edit grid
+ * @returns If selection can be moved
+ */
 export const checkTransform = (
   layout: LevelLayout,
   selection: Vector[],
@@ -108,8 +116,8 @@ export const getCellFromPosition = (
   if (
     eventPos.x < gridStart.x ||
     eventPos.y < gridStart.y ||
-    cellSize * gridDim.x + gridStart.x < eventPos.x ||
-    cellSize * gridDim.y + gridStart.y < eventPos.y
+    cellSize * gridDim.x + gridStart.x <= eventPos.x ||
+    cellSize * gridDim.y + gridStart.y <= eventPos.y
   ) {
     return undefined;
   }

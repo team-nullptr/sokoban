@@ -168,7 +168,7 @@ export default class Editor {
   private getCellFromPosition(pos: Vector) {
     // Run util function for getting cell from position
     return getCellFromPosition(
-      { x: this.canvasStartX, y: 0 },
+      { x: this.canvasStartX, y: this.ctx.canvas.parentElement!.offsetTop },
       { x: pos.x, y: pos.y },
       this.gridSize,
       this.cellSize
@@ -203,6 +203,8 @@ export default class Editor {
       y: e.clientY,
     })!;
 
+    console.log(from, to);
+
     // Generate selection based on it's bounds
     if (to && from)
       for (let x = Math.min(from.x, to.x); x <= Math.max(from.x, to.x); x++) {
@@ -234,7 +236,7 @@ export default class Editor {
     // Render rectangle
     this.uiCtx.fillRect(
       this.selectionStart!.x,
-      this.selectionStart!.y,
+      this.selectionStart!.y - this.ctx.canvas.parentElement!.offsetTop,
       e.clientX - this.selectionStart!.x,
       e.clientY - this.selectionStart!.y
     );

@@ -1,15 +1,24 @@
 import { Tool } from '../../editor/models/Tool';
+import Vector from '../../game-runner/models/Vector';
 import Layer from '../models/Layer';
 
 export enum EditorNavEvents {
   TOOL_SELECTION,
+  GRID_SIZE_CHANGE,
 }
 
 type ToolSubscriber = (value: Tool) => void;
+type GridSizeSubscriber = (value: Vector) => void;
 
 export default class EditorNavWidget extends Layer {
   element = document.createElement('nav');
+
+  // Subscribers
   private toolSubscribers: ToolSubscriber[] = [];
+  private gridSizeSubscribers: GridSizeSubscriber[] = [];
+
+  // Selected nav tool
+  private selectedToolElement: HTMLElement | undefined;
 
   constructor(private tools: Tool[]) {
     super();
@@ -41,18 +50,34 @@ export default class EditorNavWidget extends Layer {
     }
   }
 
+  private onToolClick(element: HTMLElement, tool: Tool) {
+    // Get nav elements
+    const listElements = document.querySelectorAll('.editor-menu-element');
+
+    // Clear selected class on nav elements
+    listElements.forEach(element => {
+      element.classList.remove('editor-menu-element--selected');
+    });
+
+    // Add selected class list on clicked nav element
+    element.classList.add('editor-menu-element--selected');
+
+    // Notify tool selection subscribers
+    this.notify(EditorNavEvents.TOOL_SELECTION, tool);
+  }
+
   render(): void {
     // Create unordered list
     const ul = document.createElement('ul');
+    ul.classList.add('editor-menu');
 
     this.tools.forEach(tool => {
       // Create list item
       const li = document.createElement('li');
+      li.classList.add('editor-menu-element');
 
       // Notify all subscribers about new tool being selected
-      li.addEventListener('click', () => {
-        this.notify(EditorNavEvents.TOOL_SELECTION, tool);
-      });
+      li.addEventListener('click', () => this.onToolClick(li, tool));
 
       // Create element for tool name
       const p = document.createElement('p');

@@ -128,16 +128,17 @@ export default class EditorLayer extends Layer {
   }
 
   render(): void {
-    // Set styles for ui canvas
-    this.uiCanvas.style.pointerEvents = 'none';
-    this.uiCanvas.style.position = 'absolute';
-    this.uiCanvas.style.top = '0';
-    this.uiCanvas.style.left = '0';
+    // Set class for ui canvas
+    this.uiCanvas.classList.add('event-layer');
 
-    // Attach canvas
-    this.element.appendChild(this.canvas);
-    this.element.appendChild(this.uiCanvas);
+    const editorContainer = document.createElement('section');
+    editorContainer.classList.add('editor-container');
+
     // Attach all widgets to parent element
     this.element.appendChild(this.editorNav.element);
+    // Attach canvas
+    editorContainer.appendChild(this.canvas);
+    editorContainer.appendChild(this.uiCanvas);
+    this.element.appendChild(editorContainer);
   }
 }

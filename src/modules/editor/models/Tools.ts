@@ -53,7 +53,7 @@ export const TargetBuilder = new BuilderTool('Target builder', (layout, cell) =>
 });
 
 export const ElementsTransferor = new TransferorTool(
-  'move',
+  'Move',
   (layout, selection, prevCell, currentCell, gridSize) => {
     // If previous cell is the same as current cell return unmodified layout
     if (!prevCell || (prevCell.x === currentCell.x && prevCell.y === currentCell.y))
