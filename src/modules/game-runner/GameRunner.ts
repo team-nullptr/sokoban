@@ -16,6 +16,12 @@ import { vectorFromDirection } from './utils/vectorManipulation';
 import Animation from './utils/Animation';
 import Movable from './models/Movable';
 
+interface RunnerLayout {
+  boxes: Box[];
+  targets: Target[];
+  walls: Wall[];
+}
+
 export default class GameRunner {
   private static readonly MaxGridSize = 50;
   static readonly AnimationDuration = 100;
@@ -35,11 +41,7 @@ export default class GameRunner {
   private level: Level | undefined; // Copy of currently played level - for reloading
 
   private readonly player: Player;
-  private readonly layout: {
-    boxes: Box[];
-    targets: Target[];
-    walls: Wall[];
-  } = { boxes: [], targets: [], walls: [] };
+  private readonly layout: RunnerLayout = { boxes: [], targets: [], walls: [] };
 
   // Statistics
   // ? Maybe change this to Stats object
@@ -92,6 +94,17 @@ export default class GameRunner {
         box: this.boxMoves,
       },
     };
+  }
+
+  set stats(stats: Stats) {
+    const {
+      moves: { box, player },
+      time,
+    } = stats;
+
+    this.boxMoves = box;
+    this.playerMoves = player;
+    this.stopwatch.time = time;
   }
 
   /** Returns if the game is paused */
@@ -213,7 +226,18 @@ export default class GameRunner {
     this.start();
   }
 
-  /** Moves player towards given direction if it is possible */
+  /** Returns current objects layout */
+  getLayout(): LevelLayout {
+    const start = this.player.location;
+
+    const boxes = this.layout.boxes.map(box => box.location);
+    const targets = this.layout.targets.map(target => target.location);
+    const walls = this.layout.walls.map(wall => wall.location);
+
+    return { start, boxes, targets, walls };
+  }
+
+  /** Moves player towards given direction if possible */
   private movePlayerIfPossible(direction: Direction): void {
     if (this.stopped || this.completed) return;
 

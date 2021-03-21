@@ -1,7 +1,7 @@
 import Layer from '../models/Layer';
 import NamedIcon from '../models/NamedItem';
 
-interface MultifunctionalListItem {
+export interface MultifunctionalListItem {
   title: string;
   description: string;
   onclick: () => void;
@@ -16,10 +16,11 @@ export default class MultifunctionalListLayer extends Layer {
 
   set(items: MultifunctionalListItem[]) {
     this.items = items;
+    this.render();
   }
 
   render(): void {
-    this.element.className = 'multi-list';
+    this.element.classList.add('multi-list');
 
     const entries = this.items.map(item => {
       // Create action buttons

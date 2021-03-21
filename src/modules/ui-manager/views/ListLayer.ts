@@ -13,7 +13,7 @@ export default class ListLayer extends Layer {
   }
 
   render(): void {
-    this.element.className = 'list';
+    this.element.classList.add('list');
 
     // Create responsive container
     const container = document.createElement('div');

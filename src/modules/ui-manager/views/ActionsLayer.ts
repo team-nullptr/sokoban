@@ -15,7 +15,7 @@ export default class ActionsLayer extends Layer {
   }
 
   render(): void {
-    this.element.className = 'actions';
+    this.element.classList.add('actions');
 
     // Create buttons
     const buttons = this.options.map((option, i) => {

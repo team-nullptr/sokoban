@@ -109,7 +109,7 @@ export default class RunnerLayer extends Layer {
   }
 
   render() {
-    this.element.className = 'runner';
+    this.element.classList.add('runner');
 
     // Compose new element
     this.element.innerHTML = '';

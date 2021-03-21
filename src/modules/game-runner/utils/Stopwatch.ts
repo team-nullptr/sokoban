@@ -15,6 +15,11 @@ export default class Stopwatch {
     return this.elapsed;
   }
 
+  /** Sets elapsed time */
+  set time(time: number) {
+    this.elapsed = time;
+  }
+
   /** Returns if the timer is stopped */
   get stopped(): boolean {
     return !this.running;

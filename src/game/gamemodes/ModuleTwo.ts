@@ -3,18 +3,24 @@ import { LayerType } from '../../modules/ui-manager/models/LayerType';
 import UIManager from '../../modules/ui-manager/UIManager';
 import ActionsLayer from '../../modules/ui-manager/views/ActionsLayer';
 import Game from '../Game';
-import MultifunctionalListLayer from '../../modules/ui-manager/views/MultifunctionalListLayer';
+import MultifunctionalListLayer, {
+  MultifunctionalListItem,
+} from '../../modules/ui-manager/views/MultifunctionalListLayer';
 import Level from '../../models/Level';
 import { LevelsModuleTwo } from '../builtin-levels/LevelsModuleTwo';
 import RunnerLayer from '../../modules/ui-manager/views/RunnerLayer';
 import GameRunner from '../../modules/game-runner/GameRunner';
+import Storage from '../../modules/storage/Storage';
+import SavedGame from '../../modules/storage/models/SavedGame';
 
 // Images
-import Previous from '%assets%/icons/arrow-left.svg';
-import Reward from '%assets%/icons/award.svg';
-import Plus from '%assets%/icons/patch-plus.svg';
-import Restart from '%assets%/icons/arrow-counterclockwise.svg';
 import Next from '%assets%/icons/arrow-right.svg';
+import Play from '%assets%/icons/play.svg';
+import Plus from '%assets%/icons/patch-plus.svg';
+import Previous from '%assets%/icons/arrow-left.svg';
+import Restart from '%assets%/icons/arrow-counterclockwise.svg';
+import Reward from '%assets%/icons/award.svg';
+import Trash from '%assets%/icons/trash.svg';
 
 export default class ModuleTwo implements Module {
   private readonly uimanager: UIManager;
@@ -86,15 +92,47 @@ export default class ModuleTwo implements Module {
   }
 
   private updateSavedGamesList(): void {
-    this.savedGamesList.set([
-      {
-        title: 'Start new game',
-        description: '',
-        actions: [{ src: Plus, title: 'Start new game', onclick: this.startGame.bind(this) }],
-        onclick: this.startGame.bind(this),
-        highlighted: true,
-      },
-    ]);
+    const items: MultifunctionalListItem[] = [];
+
+    console.log('upd');
+
+    // Add 'Start new game' button
+    items.push({
+      title: 'Start new game',
+      description: '',
+      onclick: () => this.startGame(),
+      actions: [{ src: Plus, title: 'Start new game', onclick: () => this.startGame() }],
+      highlighted: true,
+    });
+
+    const run = (id: string) => {
+      const game = Storage.game(id);
+      if (game) this.startGame(game);
+    };
+
+    // Add saved games to the list
+    items.push(
+      ...Storage.allGames().map(game => ({
+        title: game.name,
+        description: `Level ${game.level + 1}/${this.levels.length} | ${game.points} point${
+          game.points === 1 ? '' : 's'
+        }`,
+        actions: [
+          { src: Play, title: 'Play this level', onclick: () => run(game.id!) },
+          {
+            src: Trash,
+            title: 'Delete this level',
+            onclick: () => {
+              Storage.removeGame(game.id!);
+              this.updateSavedGamesList();
+            },
+          },
+        ],
+        onclick: () => run(game.id!),
+      }))
+    );
+
+    this.savedGamesList.set(items);
   }
 
   /** Shows menu with saved games / ranking */
@@ -115,15 +153,89 @@ export default class ModuleTwo implements Module {
     this.uimanager.show(LayerType.Custom0, LayerType.Actions);
   }
 
+  /**
+   * @param name Name of the save
+   * @returns If the app should proceed to next step (like close the Runner window)
+   */
+  private save(existing?: { id: string; name: string }): boolean {
+    const saveConfirm = confirm('Do you want to save your progress?');
+
+    if (!saveConfirm) {
+      // If the player doesn't want to save their progress
+      const confirmation = confirm("Your progress won't be saved. Do you want to continue?");
+
+      if (confirmation) return true;
+      return false;
+    }
+
+    let name = existing?.name;
+    let id = existing?.id;
+
+    if (!name) {
+      // Ask for level name if needed
+      let input = undefined;
+
+      while (!input) {
+        input = prompt('Type a name for this save');
+        if (input === null) return false;
+      }
+
+      name = input;
+    }
+
+    // Save the game
+    const finished = this.gameRunner.finished;
+
+    const save: SavedGame = {
+      id,
+      name,
+      level: Math.min(this.level + (finished ? 1 : 0), this.levels.length - 1), // ? Można by było usunąć to sprawdzenie po dodaniu zapisu do rankingu
+      points: 0, // TODO: Liczenie punktów
+    };
+
+    if (!finished) {
+      // Add level layout to the save
+      const stats = this.gameRunner.stats;
+      const layout = this.gameRunner.getLayout();
+
+      save.saved = { ...stats, ...layout };
+    }
+
+    // Save the game
+    Storage.saveGame(save);
+    this.updateSavedGamesList(); // Update user interface
+
+    return true;
+  }
+
   /** Starts new game */
-  private startGame(): void {
+  private startGame(saved?: SavedGame): void {
     // Start new game
-    this.level = 0;
+    if (saved) this.level = saved.level;
+    else this.level = 0;
+
     this.runCurrentLevel();
+
+    if (saved?.saved) {
+      this.gameRunner.setLayout(saved.saved);
+      this.gameRunner.stats = saved.saved;
+    }
 
     // Set ActionButton contents
     (this.uimanager.layer(LayerType.Actions) as ActionsLayer).set({
-      onclick: () => this.showMenu(), // TODO: Zapis
+      onclick: () => {
+        let exit;
+
+        if (saved?.id) {
+          // Save the game without asking for name
+          const { id, name } = saved;
+          exit = this.save({ id, name });
+        } else {
+          exit = this.save();
+        }
+
+        if (exit) this.showMenu();
+      },
       items: [{ src: Previous, title: 'back to menu' }],
     });
 
