@@ -88,18 +88,23 @@ export default class ModuleTwo implements Module {
         // If current level is not finished, stop function execution
         if (!this.gameRunner.finished) return;
 
-        // Run next level
+        // If the game has just ended, save it in the ranking
+        if (this.level >= this.levels.length - 1) {
+          // If this is the last level, save to ranking
+          const save = confirm(
+            'This game has just ended. Do you want to save your progress (and save it in the ranking)?'
+          );
 
-        // Find new level index
-        const updated = this.level + 1;
-        const clamped = Math.min(updated, this.levels.length - 1); // Prevent level index from going out of bounds
+          if (save) {
+            const exit = this.saveToRanking();
+            if (exit) this.showMenu();
+          }
 
-        // Decide if level needs to be updated
-        const needsUpdate = this.level !== clamped;
-        if (!needsUpdate) return; // TODO: End
+          return;
+        }
 
         // Update level
-        this.level = clamped; // Update index
+        this.level++; // Update index
         this.runCurrentLevel();
       },
     });
@@ -274,6 +279,7 @@ export default class ModuleTwo implements Module {
     Storage.saveToRanking({ name, points: 0 }); // TODO: Calculate points
 
     if (id) Storage.removeGame(id);
+    this.updateSavedGamesList();
     this.updateRankingList();
 
     return true;
@@ -300,10 +306,21 @@ export default class ModuleTwo implements Module {
     // Set ActionButton contents
     (this.uimanager.layer(LayerType.Actions) as ActionsLayer).set({
       onclick: () => {
-        let exit;
+        if (this.level >= this.levels.length - 1) {
+          // If this is the last level, save to ranking
+          const save = confirm(
+            'This game has just ended. Do you want to save your progress (and save it in the ranking)?'
+          );
 
-        exit = this.save();
+          if (save) {
+            const exit = this.saveToRanking();
+            if (exit) this.showMenu();
+          }
 
+          return;
+        }
+
+        const exit = this.save();
         if (exit) this.showMenu();
       },
       items: [{ src: Previous, title: 'back to menu' }],
