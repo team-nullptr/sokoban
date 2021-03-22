@@ -60,7 +60,7 @@ export default class UIManager {
   }
 
   /** Creates custom layer */
-  create(layer: Layer, slot: LayerType.Custom0): void {
+  create(layer: Layer, slot: LayerType.Custom0 | LayerType.Custom1): void {
     this.layers.set(slot, layer);
     this.render();
   }

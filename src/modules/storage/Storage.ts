@@ -1,4 +1,5 @@
 import { v4 as uuid } from 'uuid';
+import RankingEntry from './models/RankingEntry';
 
 import SavedGame from './models/SavedGame';
 
@@ -9,7 +10,6 @@ export default class Storage {
 
     // Parse JSON into SavedGame array
     const saves: SavedGame[] = read ? JSON.parse(read) : [];
-
     return saves;
   }
 
@@ -45,5 +45,25 @@ export default class Storage {
     // Save new JSON
     const json = JSON.stringify(filtered);
     localStorage.setItem('saved-games', json);
+  }
+
+  static ranking(): RankingEntry[] {
+    // Get value at 'ranking' index
+    const read = localStorage.getItem('ranking');
+
+    // Parse JSON into RankingEntry array
+    const ranking: RankingEntry[] = read ? JSON.parse(read) : [];
+    return ranking;
+  }
+
+  static saveToRanking(entry: RankingEntry) {
+    const ranking = this.ranking();
+
+    // Save the entry
+    ranking.push(entry);
+
+    // Save new JSON
+    const json = JSON.stringify(ranking);
+    localStorage.setItem('ranking', json);
   }
 }
