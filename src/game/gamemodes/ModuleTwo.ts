@@ -7,8 +7,7 @@ import MultifunctionalListLayer, {
   MultifunctionalListItem,
 } from '../../modules/ui-manager/views/MultifunctionalListLayer';
 import Level from '../../models/Level';
-// import { LevelsModuleTwo } from '../builtin-levels/LevelsModuleTwo';
-import { LevelsNovice } from '../builtin-levels/LevelsModuleOne';
+import { LevelsModuleTwo } from '../builtin-levels/LevelsModuleTwo';
 import RunnerLayer from '../../modules/ui-manager/views/RunnerLayer';
 import GameRunner from '../../modules/game-runner/GameRunner';
 import Storage from '../../modules/storage/Storage';
@@ -31,13 +30,15 @@ export default class ModuleTwo implements Module {
     this.uimanager = game.uimanager;
   }
 
-  private levels: Level[] = [...LevelsNovice];
+  private levels: Level[] = [...LevelsModuleTwo];
   private level = 0;
 
   /** Runs the module */
   start(): void {
     // Prepare ui
     this.prepare();
+
+    // Set order
     this.uimanager.order = [
       LayerType.Actions,
       LayerType.Runner,
@@ -64,8 +65,8 @@ export default class ModuleTwo implements Module {
     this.uimanager.create(this.rankingList, LayerType.Custom1);
 
     const runnerLayer = this.uimanager.layer(LayerType.Runner) as RunnerLayer;
-    // Set pause screen action
 
+    // Set pause screen action
     runnerLayer.set({
       onclick: (option: number) => {
         // Restart
@@ -180,7 +181,9 @@ export default class ModuleTwo implements Module {
         if (index === 0) {
           this.isRankingShown = !this.isRankingShown;
           this.showMenu();
-        } else this.game.showMenu();
+        } else {
+          this.game.showMenu();
+        }
       },
       items: [
         this.isRankingShown
