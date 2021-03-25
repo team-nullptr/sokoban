@@ -1,69 +1,64 @@
-import { v4 as uuid } from 'uuid';
-import RankingEntry from './models/RankingEntry';
-
-import SavedGame from './models/SavedGame';
-
 export default class Storage {
-  static allGames(): SavedGame[] {
-    // Get value at 'saved-games' index
-    const read = localStorage.getItem('saved-games');
+  static get<T>(slot: string): StorageQuery<StorageEntry<T>> {
+    // Get value from given slot
+    const value = localStorage.getItem(slot);
 
-    // Parse JSON into SavedGame array
-    const saves: SavedGame[] = read ? JSON.parse(read) : [];
-    return saves;
+    // Parse got values into an array
+    const items: StorageEntry<T>[] = value ? JSON.parse(value) : [];
+
+    return new StorageQuery<StorageEntry<T>>(items);
   }
 
-  static game(id: string): SavedGame | undefined {
-    return this.allGames().find(save => save.id === id);
-  }
+  static append<T extends IdentifiableItem>(slot: string, value: T): void {
+    // Get current values in given slot
+    const other = Storage.get<T>(slot).all;
 
-  static saveGame(save: SavedGame): string {
-    // Generate an id if it wasn't provided
-    if (!save.id) save.id = uuid();
+    // Remove the item, that has the same id as new value
+    const filtered = other.filter(entry => entry.id !== value.id);
 
-    const games = this.allGames();
+    // Add new value
+    filtered.push(value);
 
-    // Remove a save with given id
-    const filtered = games.filter(game => game.id !== save.id);
-
-    // Save the game
-    filtered.push(save);
-
-    // Save new JSON
+    // Save a JSON string
     const json = JSON.stringify(filtered);
-    localStorage.setItem('saved-games', json);
-
-    return save.id;
+    localStorage.setItem(slot, json);
   }
 
-  static removeGame(id: string): void {
-    const games = this.allGames();
+  static remove<T>(slot: string, id: string): StorageEntry<T> | void {
+    // Get current values in given slot
+    const entries = Storage.get<T>(slot).all;
 
-    // Remove a save with given id
-    const filtered = games.filter(game => game.id !== id);
+    // Find index of the entry with given id
+    const index = entries.findIndex(value => value.id === id);
 
-    // Save new JSON
-    const json = JSON.stringify(filtered);
-    localStorage.setItem('saved-games', json);
+    // If the entry was not found, stop function execution
+    if (index === -1) return;
+
+    // Remove the item from the index found
+    const removed = entries.splice(index, 1);
+
+    // Save a JSON string
+    const json = JSON.stringify(entries);
+    localStorage.setItem(slot, json);
+
+    return removed[0];
+  }
+}
+
+export interface IdentifiableItem {
+  id: string;
+}
+
+export type StorageEntry<T> = T & IdentifiableItem;
+
+export class StorageQuery<T extends IdentifiableItem> {
+  constructor(private readonly items: T[]) {}
+
+  get all(): T[] {
+    return this.items;
   }
 
-  static ranking(): RankingEntry[] {
-    // Get value at 'ranking' index
-    const read = localStorage.getItem('ranking');
-
-    // Parse JSON into RankingEntry array
-    const ranking: RankingEntry[] = read ? JSON.parse(read) : [];
-    return ranking;
-  }
-
-  static saveToRanking(entry: RankingEntry) {
-    const ranking = this.ranking();
-
-    // Save the entry
-    ranking.push(entry);
-
-    // Save new JSON
-    const json = JSON.stringify(ranking);
-    localStorage.setItem('ranking', json);
+  findOne(id: string): T | undefined {
+    return this.items.find(item => item.id === id);
   }
 }
