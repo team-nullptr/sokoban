@@ -12,6 +12,8 @@ import RunnerLayer from '../../modules/ui-manager/views/RunnerLayer';
 import GameRunner from '../../modules/game-runner/GameRunner';
 import Storage from '../../modules/storage/Storage';
 import SavedGame from '../../modules/storage/models/SavedGame';
+import { v4 as uuid } from 'uuid';
+import RankingEntry from '../../modules/storage/models/RankingEntry';
 
 // Images
 import Next from '%assets%/icons/arrow-right.svg';
@@ -131,13 +133,13 @@ export default class ModuleTwo implements Module {
     });
 
     const run = (id: string) => {
-      const game = Storage.game(id);
+      const game = Storage.get<SavedGame>('games').findOne(id);
       if (game) this.startGame(game);
     };
 
     // Add saved games to the list
     items.push(
-      ...Storage.allGames().map(game => ({
+      ...Storage.get<SavedGame>('games').all.map(game => ({
         title: game.name,
         description: `Level ${game.level + 1}/${this.levels.length} | ${game.points} point${
           game.points === 1 ? '' : 's'
@@ -148,7 +150,7 @@ export default class ModuleTwo implements Module {
             src: Trash,
             title: 'Delete this level',
             onclick: () => {
-              Storage.removeGame(game.id!);
+              Storage.remove('games', game.id);
               this.updateSavedGamesList();
             },
           },
@@ -162,8 +164,8 @@ export default class ModuleTwo implements Module {
 
   /** Updates a list with ranking */
   private updateRankingList(): void {
-    const items: MultifunctionalListItem[] = Storage.ranking()
-      .sort((a, b) => b.points - a.points) // Sort in descending order
+    const items: MultifunctionalListItem[] = Storage.get<RankingEntry>('ranking')
+      .all.sort((a, b) => b.points - a.points) // Sort in descending order
       .map(entry => ({
         title: entry.name,
         description: `${entry.points} point${entry.points === 1 ? '' : 's'}`,
@@ -237,8 +239,8 @@ export default class ModuleTwo implements Module {
     // Save the game
     const finished = this.gameRunner.finished;
 
-    const save: SavedGame = {
-      id,
+    const save: SavedGame & { id: string } = {
+      id: id ?? uuid(),
       name,
       level: Math.min(this.level + (finished ? 1 : 0), this.levels.length - 1), // ? Można by było usunąć to sprawdzenie po dodaniu zapisu do rankingu
       points: 0, // TODO: Liczenie punktów
@@ -253,7 +255,7 @@ export default class ModuleTwo implements Module {
     }
 
     // Save the game
-    Storage.saveGame(save);
+    Storage.append('games', save);
     this.updateSavedGamesList(); // Update user interface
 
     return true;
@@ -279,9 +281,9 @@ export default class ModuleTwo implements Module {
       name = input;
     }
 
-    Storage.saveToRanking({ name, points: 0 }); // TODO: Calculate points
+    Storage.append('ranking', { id: uuid(), name, points: 0 }); // TODO: Calculate points
 
-    if (id) Storage.removeGame(id);
+    if (id) Storage.remove('games', id);
     this.updateSavedGamesList();
     this.updateRankingList();
 
