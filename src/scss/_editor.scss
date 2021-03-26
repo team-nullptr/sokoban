@@ -1,0 +1,50 @@
+section.shown.editor {
+  display: flex;
+}
+
+.event-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.editor-nav {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  background: white;
+}
+
+.editor-canvas {
+  background: rgb(243, 243, 243);
+}
+
+.editor-menu {
+  list-style: none;
+  justify-content: center;
+  height: fit-content;
+}
+
+.editor-menu-element {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.1s ease-in-out;
+
+  &--selected {
+    background-color: #4696ff;
+
+    & > img {
+      filter: invert(1);
+    }
+  }
+
+  &__icon {
+    width: 25px;
+  }
+}

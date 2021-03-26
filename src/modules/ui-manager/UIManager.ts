@@ -3,6 +3,7 @@ import Layer from './models/Layer';
 import RunnerLayer from './views/RunnerLayer';
 import ActionsLayer from './views/ActionsLayer';
 import MultifunctionalListLayer from './views/MultifunctionalListLayer';
+import EditorLayer from './views/EditorLayer';
 
 export default class UIManager {
   private readonly layers = new Map<LayerType, Layer>();
@@ -19,6 +20,9 @@ export default class UIManager {
 
     // Button
     this.layers.set(LayerType.Actions, new ActionsLayer());
+
+    // Editor layer
+    this.layers.set(LayerType.Editor, new EditorLayer());
 
     // Module selection
     // Items are initialized in Game.ts
