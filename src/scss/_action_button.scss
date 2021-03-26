@@ -5,6 +5,7 @@ section.actions {
   display: block;
 
   & > .wrapper {
+    background: linear-gradient(transparent, white);
     display: flex;
     flex-direction: column;
     align-items: center;

@@ -2,7 +2,6 @@ import Level from '../../models/Level';
 import GameRunner from '../../modules/game-runner/GameRunner';
 import { LayerType } from '../../modules/ui-manager/models/LayerType';
 import UIManager from '../../modules/ui-manager/UIManager';
-import ListLayer from '../../modules/ui-manager/views/ListLayer';
 import { LevelsAdvanced, LevelsAmateur, LevelsNovice } from '../builtin-levels/LevelsModuleOne';
 import clamp from '../../utils/clamp';
 import RunnerLayer from '../../modules/ui-manager/views/RunnerLayer';
@@ -14,6 +13,9 @@ import Game from '../Game';
 import Previous from '%assets%/icons/arrow-left.svg';
 import Restart from '%assets%/icons/arrow-counterclockwise.svg';
 import Next from '%assets%/icons/arrow-right.svg';
+import MultifunctionalListLayer, {
+  MultifunctionalListItem,
+} from '../../modules/ui-manager/views/MultifunctionalListLayer';
 
 export default class ModuleOne implements Module {
   private readonly uimanager: UIManager;
@@ -43,12 +45,14 @@ export default class ModuleOne implements Module {
   /** Prepares user interface */
   private prepare(): void {
     // Create difficulty selection menu
-    const difficulty = new ListLayer();
+    const difficulty = new MultifunctionalListLayer('Difficulty');
+    const items: MultifunctionalListItem[] = [];
 
-    difficulty.set({
-      items: [{ title: 'Novice' }, { title: 'Amateur' }, { title: 'Advanced' }],
-      onclick: this.run.bind(this),
+    ['Novice', 'Amateur', 'Advanced'].forEach((title, index) => {
+      items.push({ title, onclick: () => this.run(index) });
     });
+
+    difficulty.set(items);
 
     this.uimanager.create(difficulty, LayerType.Custom0); // Create new layer, to put the difficulty menu in
 

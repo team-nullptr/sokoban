@@ -1,8 +1,8 @@
 import { LayerType } from './models/LayerType';
 import Layer from './models/Layer';
 import RunnerLayer from './views/RunnerLayer';
-import ListLayer from './views/ListLayer';
 import ActionsLayer from './views/ActionsLayer';
+import MultifunctionalListLayer from './views/MultifunctionalListLayer';
 
 export default class UIManager {
   private readonly layers = new Map<LayerType, Layer>();
@@ -21,23 +21,9 @@ export default class UIManager {
     this.layers.set(LayerType.Actions, new ActionsLayer());
 
     // Module selection
-    const module = new ListLayer();
-    module.set({
-      items: [
-        {
-          title: 'Module One',
-          description: 'Choose the difficulty level',
-        },
-        {
-          title: 'Module Two',
-          description: 'Play 20 levels with increasing difficulty level',
-        },
-        {
-          title: 'Module Three',
-          description: 'Create and play on your own levels',
-        },
-      ],
-    });
+    // Items are initialized in Game.ts
+    const module = new MultifunctionalListLayer('Module');
+
     this.layers.set(LayerType.Module, module);
   }
 

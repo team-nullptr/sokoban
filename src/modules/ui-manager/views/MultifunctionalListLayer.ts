@@ -3,9 +3,9 @@ import NamedIcon from '../models/NamedItem';
 
 export interface MultifunctionalListItem {
   title: string;
-  description: string;
-  onclick: () => void;
-  actions: (NamedIcon & { onclick: () => void })[];
+  description?: string;
+  onclick?: () => void;
+  actions?: (NamedIcon & { onclick: () => void })[];
   highlighted?: boolean;
 }
 
@@ -13,6 +13,10 @@ export default class MultifunctionalListLayer extends Layer {
   element = document.createElement('section');
 
   private items: MultifunctionalListItem[] = [];
+
+  constructor(private readonly title: string) {
+    super();
+  }
 
   set(items: MultifunctionalListItem[]) {
     this.items = items;
@@ -23,53 +27,75 @@ export default class MultifunctionalListLayer extends Layer {
     this.element.classList.add('multi-list');
 
     const entries = this.items.map(item => {
-      // Create action buttons
-      const actions = item.actions.map(action => {
-        const icon = document.createElement('img');
+      const entry = document.createElement('div');
+      entry.className = 'entry';
 
-        icon.src = action.src;
-        icon.title = action.title;
-        icon.addEventListener('click', e => {
-          e.stopPropagation();
-          action.onclick();
+      // If action buttons were provided, create buttons
+      if (item.actions) {
+        // Create action buttons
+        const actions = item.actions.map(action => {
+          const icon = document.createElement('img');
+
+          icon.src = action.src;
+          icon.title = action.title;
+          icon.addEventListener('click', e => {
+            e.stopPropagation();
+            action.onclick();
+          });
+
+          return icon;
         });
 
-        return icon;
-      });
+        // Wrapper for action buttons
+        const actionsWrapper = document.createElement('div');
+        actionsWrapper.className = 'actions-wrapper';
+        actionsWrapper.append(...actions);
 
-      // Wrapper for action buttons
-      const actionsWrapper = document.createElement('div');
-      actionsWrapper.className = 'actions-wrapper';
-      actionsWrapper.append(...actions);
+        entry.appendChild(actionsWrapper);
+      }
 
       // Wrapper for title and description
       const textWrapper = document.createElement('div');
       textWrapper.classList.add('text-wrapper');
 
-      // Create and fill title and description elements
+      // Create and fill title element
       const title = document.createElement('p');
       title.className = 'title';
       title.textContent = item.title;
+      textWrapper.appendChild(title);
 
-      const description = document.createElement('p');
-      description.className = 'description';
-      description.textContent = item.description;
-
-      // Append title and description to wrapper
-      textWrapper.append(title, description);
+      // If description was provided, create coresponding element
+      if (item.description) {
+        const description = document.createElement('p');
+        description.className = 'description';
+        description.textContent = item.description;
+        textWrapper.appendChild(description);
+      }
 
       // Build final element
-      const entry = document.createElement('div');
-      entry.className = 'entry';
       if (item.highlighted === true) entry.classList.add('highlighted');
-      entry.addEventListener('click', item.onclick);
 
-      entry.append(actionsWrapper, textWrapper);
+      // Add event listener if provided, else add class 'locked'
+      if (item.onclick) entry.addEventListener('click', item.onclick);
+      else entry.classList.add('locked');
+
+      entry.appendChild(textWrapper);
 
       return entry;
     });
 
+    const container = document.createElement('div');
+    container.classList.add('container');
+
+    if (this.title) {
+      const header = document.createElement('h2');
+      header.textContent = this.title;
+      container.appendChild(header);
+    }
+
+    container.append(...entries);
+
     this.element.innerHTML = '';
-    this.element.append(...entries);
+    this.element.appendChild(container);
   }
 }
