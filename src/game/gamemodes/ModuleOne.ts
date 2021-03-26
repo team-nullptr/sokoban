@@ -8,14 +8,15 @@ import RunnerLayer from '../../modules/ui-manager/views/RunnerLayer';
 import ActionsLayer from '../../modules/ui-manager/views/ActionsLayer';
 import Module from '../../models/Module';
 import Game from '../Game';
+import MultifunctionalListLayer, {
+  MultifunctionalListItem,
+} from '../../modules/ui-manager/views/MultifunctionalListLayer';
+import shuffle from '../../utils/shuffle';
 
 // Images
 import Previous from '%assets%/icons/arrow-left.svg';
 import Restart from '%assets%/icons/arrow-counterclockwise.svg';
 import Next from '%assets%/icons/arrow-right.svg';
-import MultifunctionalListLayer, {
-  MultifunctionalListItem,
-} from '../../modules/ui-manager/views/MultifunctionalListLayer';
 
 export default class ModuleOne implements Module {
   private readonly uimanager: UIManager;
@@ -131,13 +132,13 @@ export default class ModuleOne implements Module {
     // Fill the array with proper levels
     switch (difficulty) {
       case 0:
-        this.levels = [...LevelsNovice];
+        this.levels = shuffle(LevelsNovice.slice());
         break;
       case 1:
-        this.levels = [...LevelsAmateur];
+        this.levels = shuffle(LevelsAmateur.slice());
         break;
       case 2:
-        this.levels = [...LevelsAdvanced];
+        this.levels = shuffle(LevelsAdvanced.slice());
         break;
     }
 
