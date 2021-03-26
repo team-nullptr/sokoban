@@ -28,13 +28,19 @@ export default class ModuleThree implements Module {
   private readonly uimanager: UIManager;
 
   private readonly levelList = new MultifunctionalListLayer();
+  private readonly gamesList = new MultifunctionalListLayer();
 
   constructor(private readonly gameRunner: GameRunner, private readonly game: Game) {
     this.uimanager = game.uimanager;
   }
 
+  /** Indicates what list should be shown at the moment */
+  private games = false;
+
   start(): void {
     this.prepareui();
+
+    this.games = false;
     this.openMenu();
   }
 
@@ -51,6 +57,7 @@ export default class ModuleThree implements Module {
 
     // Create custom layers
     this.uimanager.create(this.levelList, LayerType.Custom0);
+    this.uimanager.create(this.gamesList, LayerType.Custom1);
   }
 
   /** Opens a menu with created levels / saved games */
@@ -59,23 +66,25 @@ export default class ModuleThree implements Module {
     (this.uimanager.layer(LayerType.Actions) as ActionsLayer).set({
       onclick: index => {
         if (index === 0) {
-          // TODO:
+          this.games = !this.games;
+          this.openMenu();
         } else {
           this.game.showMenu();
         }
       },
       items: [
-        { src: Play, title: 'saved games' },
+        this.games ? { src: Pen, title: 'levels' } : { src: Play, title: 'saved games' },
         { src: Restart, title: 'back to menu' },
       ],
     });
 
     // Update lists
-    this.updateLevelsList();
+    if (this.games) this.updateGamesList();
+    else this.updateLevelsList();
 
     // Show propper layers
     this.uimanager.hideAll();
-    this.uimanager.show(LayerType.Actions, LayerType.Custom0);
+    this.uimanager.show(LayerType.Actions, this.games ? LayerType.Custom1 : LayerType.Custom0);
   }
 
   /** Updates the list of created levels */
@@ -103,26 +112,52 @@ export default class ModuleThree implements Module {
     };
 
     // Remove level from localStorage
-    const remove = (id: string) => {
+    const remove = (id: string, name: string) => {
+      if (!confirm(`Delete '${name}'?`)) return;
+
       Storage.remove('levels', id);
       this.updateLevelsList();
     };
 
     // Create a list with created levels
-    items.push(
-      ...levels.map(level => ({
+    levels.forEach(level => {
+      const item: MultifunctionalListItem = {
         title: level.name,
         description: '',
         actions: [
           { src: Play, title: 'Play', onclick: () => play(level.id) },
           { src: Pen, title: 'Edit', onclick: () => edit(level.id) },
-          { src: Trash, title: 'Remove', onclick: () => remove(level.id) },
+          { src: Trash, title: 'Remove', onclick: () => remove(level.id, level.name) },
         ],
         onclick: () => edit(level.id),
-      }))
-    );
+      };
+
+      items.push(item);
+    });
 
     this.levelList.set(items);
+  }
+
+  /** Updates the list of unfinished games */
+  private updateGamesList(): void {
+    const items: MultifunctionalListItem[] = [];
+    const games = Storage.get<SavedCustomGame>('custom-games').all;
+
+    const play = (id: string) => {
+      const game = games.find(game => game.id === id);
+      this.openRunner(game!);
+    };
+
+    games.forEach(game =>
+      items.push({
+        title: game.name,
+        description: '',
+        actions: [{ src: Play, title: 'Play', onclick: () => play(game.id) }],
+        onclick: () => play(game.id),
+      })
+    );
+
+    this.gamesList.set(items);
   }
 
   /** Opens the editor for */
@@ -134,7 +169,7 @@ export default class ModuleThree implements Module {
   }
 
   /** Opens the game runner */
-  private openRunner(level: Level, inEditor: boolean = false): void {
+  private openRunner(game: Level | SavedCustomGame, inEditor: boolean = false): void {
     // Hide all layers except GameRunner
     this.uimanager.hideAll();
     this.uimanager.show(LayerType.Runner);
@@ -144,18 +179,26 @@ export default class ModuleThree implements Module {
     runner.resize(); // Resize the canvas to match browser window size
     runner.hideOverlay(); // Hide pause screen
 
-    this.updateUI(inEditor, level);
+    this.updateUI(inEditor, game);
 
     // Set level
-    this.gameRunner.setLevel(level);
+    this.gameRunner.setLevel('level' in game ? game.level : game);
+
+    // Set layout and stats if available (if type of the object is SavedCustomGame - not Level)
+    if ('layout' in game) {
+      this.gameRunner.setLayout(game.layout);
+      this.gameRunner.stats = game.stats;
+    }
   }
 
   /**
    * Updates actions and control buttons
    * @param inEditor Determines if the level was started from the menu, or the editor
    */
-  private updateUI(inEditor: boolean, level: Level, saved?: SavedCustomGame) {
+  private updateUI(inEditor: boolean, game: Level | SavedCustomGame) {
     const runner = this.uimanager.layer(LayerType.Runner) as RunnerLayer;
+
+    let saved = 'level' in game ? game : undefined;
 
     if (inEditor) {
       /* TODO: */
@@ -180,12 +223,16 @@ export default class ModuleThree implements Module {
         id = uuid();
       }
 
+      // Get level
+      const level = 'level' in game ? game.level : game;
+
       // Save current game
       const save: SavedCustomGame = {
         id: id!,
         name: name!,
         level,
         layout: this.gameRunner.getLayout(),
+        stats: this.gameRunner.stats,
       };
 
       saved = save; // TODO: Test it
