@@ -27,8 +27,8 @@ export default class ModuleThree implements Module {
   // User interface
   private readonly uimanager: UIManager;
 
-  private readonly levelList = new MultifunctionalListLayer();
-  private readonly gamesList = new MultifunctionalListLayer();
+  private readonly levelList = new MultifunctionalListLayer('Levels');
+  private readonly gamesList = new MultifunctionalListLayer('Saved games');
 
   constructor(private readonly gameRunner: GameRunner, private readonly game: Game) {
     this.uimanager = game.uimanager;
@@ -94,7 +94,6 @@ export default class ModuleThree implements Module {
     // Create the highlighted 'Create new level' button
     items.push({
       title: 'Create new level',
-      description: '',
       onclick: this.openEditor.bind(this),
       actions: [{ src: Plus, title: 'Start new game', onclick: this.openEditor.bind(this) }],
       highlighted: true,
@@ -123,7 +122,6 @@ export default class ModuleThree implements Module {
     levels.forEach(level => {
       const item: MultifunctionalListItem = {
         title: level.name,
-        description: '',
         actions: [
           { src: Play, title: 'Play', onclick: () => play(level.id) },
           { src: Pen, title: 'Edit', onclick: () => edit(level.id) },
@@ -151,7 +149,6 @@ export default class ModuleThree implements Module {
     games.forEach(game =>
       items.push({
         title: game.name,
-        description: '',
         actions: [{ src: Play, title: 'Play', onclick: () => play(game.id) }],
         onclick: () => play(game.id),
       })
