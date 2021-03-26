@@ -24,7 +24,7 @@ export default class Storage {
     localStorage.setItem(slot, json);
   }
 
-  static remove<T>(slot: string, id: string): StorageEntry<T> | void {
+  static remove<T>(slot: 'games' | 'levels' | 'custom-games', id: string): StorageEntry<T> | void {
     // Get current values in given slot
     const entries = Storage.get<T>(slot).all;
 
