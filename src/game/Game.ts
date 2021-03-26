@@ -3,6 +3,9 @@ import Actor from '../modules/game-runner/models/Actor';
 import { LayerType } from '../modules/ui-manager/models/LayerType';
 import UIManager from '../modules/ui-manager/UIManager';
 import RunnerLayer from '../modules/ui-manager/views/RunnerLayer';
+import MultifunctionalListLayer, {
+  MultifunctionalListItem,
+} from '../modules/ui-manager/views/MultifunctionalListLayer';
 
 // Images
 import Images from './Images';
@@ -40,7 +43,18 @@ export default class Game {
     this.loadImages().then(() => {
       // After loading all images, show module selection menu
 
-      this.uimanager.layer(LayerType.Module)!.set({ onclick: this.run.bind(this) });
+      // Build module selection menu
+      const modules: MultifunctionalListItem[] = [
+        ['Module One', 'Choose the difficulty level'],
+        ['Module Two', 'Play 20 levels with increasing difficulty level'],
+        ['Module Three', 'Create and play on your own levels'],
+      ].map((module, index) => ({
+        title: module[0],
+        description: module[1],
+        onclick: () => this.run(index),
+      }));
+
+      (this.uimanager.layer(LayerType.Module) as MultifunctionalListLayer).set(modules);
       this.showMenu();
     });
   }

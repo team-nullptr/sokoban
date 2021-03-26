@@ -1,69 +1,86 @@
-ul.list {
-  padding: 48px 128px;
+section.multi-list {
+  font-weight: 500;
+  overflow-y: auto;
+  padding: 128px;
+  max-height: 100vh;
 
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+  h2 {
+    font-size: 2.4em;
+    font-weight: 800;
+    margin: 0 0 96px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1;
 
-  li {
+    &::after {
+      position: absolute;
+      bottom: -80px;
+      left: -48px;
+      width: calc(100% + 96px);
+      height: 300px;
+      content: '';
+      background: linear-gradient(0deg, transparent, #fff 64px, #fff);
+      z-index: -1;
+    }
+  }
+
+  .entry {
     display: flex;
     align-items: center;
-    gap: 32px;
-
-    padding: 24px 48px;
-    border: 1px solid #000;
-    border-radius: 8px;
     cursor: pointer;
 
-    &.best {
-      background: #ffce38;
+    padding: 32px 0;
+    border-bottom: 1px solid #000;
+
+    &.locked {
+      cursor: default;
+    }
+
+    &.highlighted {
+      background: #000;
+      color: #fff;
       border: none;
-    }
+      border-radius: 8px;
+      margin-bottom: 12px;
+      width: calc(100% + 64px);
+      padding: 32px;
+      margin-left: -32px;
 
-    & > div {
-      flex-grow: 1;
-      max-width: 50%;
-    }
-
-    .main {
-      .title {
-        font-size: 1.1em;
-        font-weight: 700;
-      }
-
-      .description {
-        font-size: 0.9em;
-        margin-top: 4px;
-        line-height: 1.6em;
+      img {
+        filter: invert(1);
       }
     }
 
-    .sidebar {
+    &:last-child {
+      border-bottom: none;
+      margin-bottom: 96px;
+    }
+
+    .actions-wrapper {
       display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      justify-content: center;
+      align-items: center;
+      gap: 24px;
 
-      .actions ul {
-        display: flex;
-        gap: 16px;
+      margin-right: 24px;
 
-        li {
-          padding: 0;
-          border: none;
-          cursor: pointer;
+      img {
+        height: 24px;
+        width: 24px;
+      }
+    }
 
-          span.vr {
-            display: inline-block;
-            height: 32px;
-            width: 1px;
-            background: black;
-          }
+    .text-wrapper {
+      display: flex;
+      align-items: baseline;
+      gap: 32px;
 
-          &:last-child {
-            border: none;
-          }
-        }
+      .title {
+        font-size: 1.16em;
+        font-weight: 500;
+      }
+
+      .decription {
+        font-size: 0.95em;
       }
     }
   }

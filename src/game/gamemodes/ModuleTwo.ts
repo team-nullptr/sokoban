@@ -52,8 +52,8 @@ export default class ModuleTwo implements Module {
     this.showMenu();
   }
 
-  private readonly savedGamesList = new MultifunctionalListLayer();
-  private readonly rankingList = new MultifunctionalListLayer();
+  private readonly savedGamesList = new MultifunctionalListLayer('Saved games');
+  private readonly rankingList = new MultifunctionalListLayer('Ranking');
 
   private isRankingShown = false;
 
@@ -125,7 +125,6 @@ export default class ModuleTwo implements Module {
     // Add 'Start new game' button
     items.push({
       title: 'Start new game',
-      description: '',
       onclick: () => this.startGame(),
       actions: [{ src: Plus, title: 'Start new game', onclick: () => this.startGame() }],
       highlighted: true,
@@ -168,8 +167,6 @@ export default class ModuleTwo implements Module {
       .map(entry => ({
         title: entry.name,
         description: `${entry.points} point${entry.points === 1 ? '' : 's'}`,
-        onclick: () => {},
-        actions: [],
       }));
 
     this.rankingList.set(items);
