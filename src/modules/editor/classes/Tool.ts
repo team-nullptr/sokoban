@@ -8,7 +8,7 @@ export interface ToolHandlerResult {
 
 // Abstract class for tool
 export abstract class Tool {
-  constructor(public name: string) {}
+  constructor(public name: string, public iconPath: string) {}
 
   /**
    * Abstract declaration of tool use method

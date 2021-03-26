@@ -1,20 +1,32 @@
+import BoxToolIcon from '%assets%/icons/box.svg';
+import WallToolIcon from '%assets%/icons/bricks.svg';
+import TransferorToolIcon from '%assets%/icons/cursor.svg';
+import RubberToolIcon from '%assets%/icons/eraser.svg';
+import TargetToolIcon from '%assets%/icons/geo.svg';
+
 import LevelLayout from '../../../models/LevelLayout';
 import Vector from '../../game-runner/models/Vector';
 import { moveSelection, checkTransform, searchInLayout } from '../utils/cellUtils';
 import { BuilderTool } from '../classes/BuilderTool';
 import { TransferorTool } from '../classes/TransferorTool';
 
-export const BoxBuilder = new BuilderTool('Box builder', (layout: LevelLayout, cell: Vector) => {
-  // If there is something on current cell just return layout
-  if (searchInLayout(layout, cell)) return { layout, wasUpdated: false };
-  // Otherwise add box on this cell
-  layout.boxes.push(cell);
-  // Return updated layout
-  return { layout, wasUpdated: true };
-});
+const iconPath = './dist/icons';
+
+export const BoxBuilder = new BuilderTool(
+  'Box builder',
+  BoxToolIcon,
+  (layout: LevelLayout, cell: Vector) => {
+    // If there is something on current cell just return layout
+    if (searchInLayout(layout, cell)) return { layout, wasUpdated: false };
+    // Otherwise add box on this cell
+    layout.boxes.push(cell);
+    // Return updated layout
+    return { layout, wasUpdated: true };
+  }
+);
 
 /** Rubber tool */
-export const Rubber = new BuilderTool('Rubber', (layout, cell) => {
+export const Rubber = new BuilderTool('Rubber', RubberToolIcon, (layout, cell) => {
   // Check if there is something to remove
   if (!searchInLayout(layout, cell)) return { layout, wasUpdated: false };
 
@@ -30,7 +42,7 @@ export const Rubber = new BuilderTool('Rubber', (layout, cell) => {
 });
 
 /** Wall builder */
-export const WallBuilder = new BuilderTool('Wall builder', (layout, cell) => {
+export const WallBuilder = new BuilderTool('Wall builder', WallToolIcon, (layout, cell) => {
   // If there is something on current cell just return layout
   if (searchInLayout(layout, cell)) return { layout, wasUpdated: false };
 
@@ -42,7 +54,7 @@ export const WallBuilder = new BuilderTool('Wall builder', (layout, cell) => {
 });
 
 /** Target builder */
-export const TargetBuilder = new BuilderTool('Target builder', (layout, cell) => {
+export const TargetBuilder = new BuilderTool('Target builder', TargetToolIcon, (layout, cell) => {
   // If there is something on current cell just return layout
   if (searchInLayout(layout, cell)) return { layout, wasUpdated: false };
 
@@ -55,6 +67,7 @@ export const TargetBuilder = new BuilderTool('Target builder', (layout, cell) =>
 
 export const ElementsTransferor = new TransferorTool(
   'Move',
+  TransferorToolIcon,
   (layout, selection, prevCell, currentCell, gridSize) => {
     // If previous cell is the same as current cell return unmodified layout
     if (!prevCell || (prevCell.x === currentCell.x && prevCell.y === currentCell.y))

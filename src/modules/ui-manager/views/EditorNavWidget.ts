@@ -1,21 +1,19 @@
-import FormWidget from './FormWidget';
 import { Tool } from '../../editor/classes/Tool';
-import Vector from '../../game-runner/models/Vector';
 import Layer from '../models/Layer';
 
 export enum EditorNavEvents {
   TOOL_SELECTION,
-  GRID_SIZE_CHANGE,
+  GRID_SIZE_TOGGLE,
 }
 
 type ToolSubscriber = (value: Tool) => void;
-type GridSizeSubscriber = (value: Vector) => void;
 
 export default class EditorNavWidget extends Layer {
-  element = document.createElement('section');
+  element = document.createElement('nav');
 
   // Subscribers
   private toolSubscribers: ToolSubscriber[] = [];
+  private toggleGridSizeSubscribers: (() => {})[] = [];
 
   // Widgets
 
@@ -33,6 +31,9 @@ export default class EditorNavWidget extends Layer {
         // Call all subscribers
         this.toolSubscribers.forEach(handler => handler(value as Tool));
         break;
+      case EditorNavEvents.GRID_SIZE_TOGGLE:
+        this.toggleGridSizeSubscribers.forEach(handler => handler());
+        break;
     }
   }
 
@@ -45,6 +46,9 @@ export default class EditorNavWidget extends Layer {
     switch (event) {
       case EditorNavEvents.TOOL_SELECTION:
         this.toolSubscribers.push(handler as ToolSubscriber);
+        break;
+      case EditorNavEvents.GRID_SIZE_TOGGLE:
+        this.toggleGridSizeSubscribers.push(handler as () => {});
         break;
     }
   }
@@ -65,10 +69,7 @@ export default class EditorNavWidget extends Layer {
     this.notify(EditorNavEvents.TOOL_SELECTION, tool);
   }
 
-  private createNav() {
-    // Create nav
-    const nav = document.createElement('nav');
-
+  private createToolList() {
     // Create unordered list
     const ul = document.createElement('ul');
     ul.classList.add('editor-menu');
@@ -83,19 +84,27 @@ export default class EditorNavWidget extends Layer {
       li.addEventListener('click', () => this.onToolClick(li, tool));
 
       // Create element for tool name
-      const p = document.createElement('p');
-      p.innerHTML = tool.name;
+      const icon = document.createElement('img');
+      icon.classList.add('editor-menu-element__icon');
+      icon.src = tool.iconPath;
 
       // Append title to list item and item to list
-      li.appendChild(p);
+      li.appendChild(icon);
       ul.appendChild(li);
     });
 
-    nav.appendChild(ul);
-    return nav;
+    const resizeTool = document.createElement('li');
+    resizeTool.classList.add('editor-menu-element');
+    resizeTool.innerHTML = 'r';
+    resizeTool.addEventListener('click', () => this.notify(EditorNavEvents.GRID_SIZE_TOGGLE, null));
+
+    ul.appendChild(resizeTool);
+
+    return ul;
   }
 
   render() {
-    this.element.appendChild(this.createNav());
+    this.element.classList.add('editor-nav');
+    this.element.appendChild(this.createToolList());
   }
 }

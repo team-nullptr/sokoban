@@ -10,7 +10,6 @@ import {
 import Layer from '../models/Layer';
 import EditorNavWidget, { EditorNavEvents } from './EditorNavWidget';
 import FormWidget from './FormWidget';
-import { downloadLevel } from '../../editor/classes/LevelDownloader';
 
 export default class EditorLayer extends Layer {
   // Main element
@@ -57,14 +56,16 @@ export default class EditorLayer extends Layer {
 
     // Create form
     this.form = new FormWidget([
-      { name: 'width', type: 'number' },
-      { name: 'height', type: 'number' },
+      { name: 'width', type: 'number', min: 1 },
+      { name: 'height', type: 'number', min: 1 },
     ]);
 
     // Subscribe for form submit and change size of grid
-    this.form.subscribe<{ width: string; height: string }>(data =>
-      this.editor.updateGridSize({ x: parseInt(data.width), y: parseInt(data.height) })
-    );
+    this.form.subscribe<{ width: string; height: string }>(data => {
+      if (data.width === '') data.width = '1';
+      if (data.height === '') data.height = '1';
+      this.editor.updateGridSize({ x: parseInt(data.width), y: parseInt(data.height) });
+    });
 
     // Render form
     this.form.render();
@@ -131,13 +132,18 @@ export default class EditorLayer extends Layer {
       // Update editor's current tool
       this.editor.setCurrentTool(tool);
     });
+
+    // Allow to open navigation
+    this.editorNav.subscribe(EditorNavEvents.GRID_SIZE_TOGGLE, () => {
+      this.form.open();
+    });
   }
 
   /** Resize canvas */
   private canvasResize() {
     // Get new height and width
-    const height = innerHeight / 2;
-    const width = innerWidth;
+    const height = innerHeight;
+    const width = innerWidth - 60;
 
     // Resize canvas
     this.canvas.height = height;
@@ -150,29 +156,25 @@ export default class EditorLayer extends Layer {
   }
 
   render(): void {
+    this.element.classList.add('editor');
+
     // Set class for ui canvas
     this.uiCanvas.classList.add('event-layer');
 
     const editorContainer = document.createElement('section');
     editorContainer.classList.add('editor-container');
 
+    // Attach all widgets to parent element
+    this.element.appendChild(this.editorNav.element);
+
+    this.canvas.classList.add('editor-canvas');
+
     // Attach canvas
     editorContainer.appendChild(this.canvas);
     editorContainer.appendChild(this.uiCanvas);
     this.element.appendChild(editorContainer);
 
-    // Attach all widgets to parent element
-    this.element.appendChild(this.editorNav.element);
-
     // Attach form
     this.element.appendChild(this.form.element);
-
-    // Create download button
-    const downloadButton = document.createElement('button');
-    downloadButton.innerHTML = 'download';
-    // Allow for downloading
-    downloadButton.addEventListener('click', () => downloadLevel(this.editor.metaInfo));
-    // Attach button
-    this.element.append(downloadButton);
   }
 }

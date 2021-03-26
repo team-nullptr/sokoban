@@ -17,8 +17,8 @@ type TransferorToolHandler = (
 
 // Transferor tool class declaration
 export class TransferorTool extends Tool {
-  constructor(name: string, private handler: TransferorToolHandler) {
-    super(name);
+  constructor(name: string, iconPath: string, private handler: TransferorToolHandler) {
+    super(name, iconPath);
   }
 
   /**

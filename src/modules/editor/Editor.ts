@@ -6,6 +6,7 @@ import { getCellFromPosition, searchInLayout } from './utils/cellUtils';
 import { BuilderTool } from './classes/BuilderTool';
 import { TransferorTool, TransferorToolHandlerResult } from './classes/TransferorTool';
 import { Tool, ToolHandlerResult } from './classes/Tool';
+import Level from '../../models/Level';
 
 export default class Editor {
   // Load assests
@@ -19,16 +20,16 @@ export default class Editor {
 
   // Get cell size
   private cellSize: number = getGridSize(
-    { x: this.ctx.canvas.width, y: this.ctx.canvas.height },
+    { x: this.ctx.canvas.width / 2, y: this.ctx.canvas.height / 2 },
     this.gridSize
   );
 
   // drag cell
-  private startDragCell: Vector | undefined;
   private prevDragCell: Vector | undefined;
 
   // Ctx dimensions
   private canvasStartX: number = this.ctx.canvas.width / 2 - this.cellSize * (this.gridSize.x / 2);
+  private canvasStartY: number = this.ctx.canvas.height / 2 - this.cellSize * (this.gridSize.y / 2);
 
   // Grid layout
   private layout: LevelLayout = {
@@ -55,6 +56,18 @@ export default class Editor {
     };
   }
 
+  /** Return level in required format */
+  getLevel(): Level {
+    return {
+      width: this.gridSize.x,
+      height: this.gridSize.y,
+      boxes: this.layout.boxes,
+      start: this.layout.start,
+      walls: this.layout.walls,
+      targets: this.layout.targets,
+    };
+  }
+
   /**
    * Updates editor grid size
    * @param size Size of grid
@@ -65,7 +78,10 @@ export default class Editor {
 
     // Reset level
     this.layout = {
-      start: { x: 0, y: 0 },
+      start: {
+        x: this.layout.start.x <= this.gridSize.x ? this.layout.start.x : 0,
+        y: this.layout.start.y <= this.gridSize.y ? this.layout.start.y : 0,
+      },
       boxes: [],
       targets: [],
       walls: [],
@@ -78,12 +94,13 @@ export default class Editor {
   updateDimensions() {
     // Calc cell size
     this.cellSize = getGridSize(
-      { x: this.ctx.canvas.width, y: this.ctx.canvas.height },
+      { x: this.ctx.canvas.width / 2, y: this.ctx.canvas.height / 2 },
       this.gridSize
     );
 
     // Calculate ctx offset on x
-    this.canvasStartX = innerWidth / 2 - this.cellSize * (this.gridSize.x / 2);
+    this.canvasStartX = this.ctx.canvas.width / 2 - this.cellSize * (this.gridSize.x / 2);
+    this.canvasStartY = this.ctx.canvas.height / 2 - this.cellSize * (this.gridSize.y / 2);
 
     // Render level
     this.renderLevel();
@@ -113,17 +130,20 @@ export default class Editor {
 
     // Draw grid columns
     for (let i = 1; i < this.gridSize.x; i++) {
-      this.ctx.moveTo(this.cellSize * i + this.canvasStartX, 0);
+      this.ctx.moveTo(this.cellSize * i + this.canvasStartX, this.canvasStartY);
       this.ctx.lineTo(
         this.cellSize * i + this.canvasStartX,
-        this.cellSize * this.gridSize.y + this.canvasStartX
+        this.cellSize * this.gridSize.y + this.canvasStartY
       );
     }
 
     // draw grid rows
     for (let j = 1; j < this.gridSize.y; j++) {
-      this.ctx.moveTo(this.canvasStartX, this.cellSize * j);
-      this.ctx.lineTo(this.cellSize * this.gridSize.x + this.canvasStartX, this.cellSize * j);
+      this.ctx.moveTo(this.canvasStartX, this.cellSize * j + this.canvasStartY);
+      this.ctx.lineTo(
+        this.cellSize * this.gridSize.x + this.canvasStartX,
+        this.cellSize * j + this.canvasStartY
+      );
     }
 
     // Add stroke to draw line
@@ -138,7 +158,7 @@ export default class Editor {
     this.ctx.drawImage(
       image!,
       this.cellSize * cell.x + gap + this.canvasStartX,
-      this.cellSize * cell.y + gap,
+      this.cellSize * cell.y + gap + this.canvasStartY,
       this.cellSize - gap * 2,
       this.cellSize - gap * 2
     );
@@ -154,7 +174,7 @@ export default class Editor {
     // Render background for cell
     this.ctx.fillRect(
       this.cellSize * cell.x + this.canvasStartX,
-      this.cellSize * cell.y,
+      this.cellSize * cell.y + this.canvasStartY,
       this.cellSize,
       this.cellSize
     );
@@ -193,7 +213,7 @@ export default class Editor {
   private getCellFromPosition(pos: Vector) {
     // Run util function for getting cell from position
     return getCellFromPosition(
-      { x: this.canvasStartX, y: this.ctx.canvas.parentElement!.offsetTop },
+      { x: this.canvasStartX + this.ctx.canvas.parentElement!.offsetLeft, y: this.canvasStartY },
       { x: pos.x, y: pos.y },
       this.gridSize,
       this.cellSize
@@ -226,12 +246,17 @@ export default class Editor {
     // Get selection bounds
     const from = this.getCellFromPosition({
       x: Math.max(this.selectionStart!.x, this.canvasStartX),
-      y: this.selectionStart!.y,
+      y: Math.max(this.selectionStart!.y, this.canvasStartY),
     })!;
 
     const to = this.getCellFromPosition({
-      x: Math.min(e.clientX, this.canvasStartX + this.gridSize.x * this.cellSize),
-      y: e.clientY,
+      x: Math.min(
+        e.clientX,
+        this.canvasStartX +
+          this.ctx.canvas.parentElement!.offsetLeft +
+          this.gridSize.x * this.cellSize
+      ),
+      y: Math.min(e.clientY, this.canvasStartY + this.gridSize.y * this.cellSize),
     })!;
 
     // Generate selection based on it's bounds
@@ -265,7 +290,7 @@ export default class Editor {
     // Render rectangle
     this.uiCtx.fillRect(
       this.selectionStart!.x,
-      this.selectionStart!.y - this.ctx.canvas.parentElement!.offsetTop,
+      this.selectionStart!.y,
       e.clientX - this.selectionStart!.x,
       e.clientY - this.selectionStart!.y
     );

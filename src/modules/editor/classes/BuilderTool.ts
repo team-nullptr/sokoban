@@ -7,8 +7,8 @@ type BuilderToolHandler = (layout: LevelLayout, cell: Vector) => ToolHandlerResu
 
 // Builder tool class declaration
 export class BuilderTool extends Tool {
-  constructor(name: string, private handler: BuilderToolHandler) {
-    super(name);
+  constructor(name: string, iconPath: string, private handler: BuilderToolHandler) {
+    super(name, iconPath);
   }
 
   /**
