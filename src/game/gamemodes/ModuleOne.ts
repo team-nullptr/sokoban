@@ -13,6 +13,7 @@ import Previous from '%assets%/icons/arrow-left.svg';
 import Restart from '%assets%/icons/arrow-counterclockwise.svg';
 import Next from '%assets%/icons/arrow-right.svg';
 import Game from '../Game';
+import shuffle from '../../utils/shuffle';
 
 export default class ModuleOne {
   private readonly uimanager: UIManager;
@@ -121,13 +122,13 @@ export default class ModuleOne {
     // Fill the array with proper levels
     switch (difficulty) {
       case 0:
-        this.levels = [...LevelsNovice];
+        this.levels = shuffle(LevelsNovice.slice());
         break;
       case 1:
-        this.levels = [...LevelsAmateur];
+        this.levels = shuffle(LevelsAmateur.slice());
         break;
       case 2:
-        this.levels = [...LevelsAdvanced];
+        this.levels = shuffle(LevelsAdvanced.slice());
         break;
     }
 
