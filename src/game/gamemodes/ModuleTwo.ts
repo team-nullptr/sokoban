@@ -13,6 +13,7 @@ import RunnerLayer from '../../modules/ui-manager/views/RunnerLayer';
 import GameRunner from '../../modules/game-runner/GameRunner';
 import Storage from '../../modules/storage/Storage';
 import SavedGame from '../../modules/storage/models/SavedGame';
+import NamedIcon from '../../modules/ui-manager/models/NamedItem';
 
 // Images
 import Next from '%assets%/icons/arrow-right.svg';
@@ -23,21 +24,36 @@ import Restart from '%assets%/icons/arrow-counterclockwise.svg';
 import Reward from '%assets%/icons/award.svg';
 import Trash from '%assets%/icons/trash.svg';
 import Close from '%assets%/icons/close.svg';
+import promptFilled from '../../utils/promptFilled';
 
 export default class ModuleTwo implements Module {
+  // User interface
   private readonly uimanager: UIManager;
+
+  private readonly savedGamesList = new MultifunctionalListLayer();
+  private readonly rankingList = new MultifunctionalListLayer();
 
   constructor(private readonly gameRunner: GameRunner, private readonly game: Game) {
     this.uimanager = game.uimanager;
   }
+
+  /** Indicates what list should be shown at the moment */
+  private ranking = false;
 
   private levels: Level[] = [...LevelsNovice];
   private level = 0;
 
   /** Runs the module */
   start(): void {
-    // Prepare ui
-    this.prepare();
+    this.prepareUI();
+
+    this.ranking = false;
+    this.openMenu();
+  }
+
+  /** Prepares user interface */
+  private prepareUI(): void {
+    // Set order
     this.uimanager.order = [
       LayerType.Actions,
       LayerType.Runner,
@@ -46,81 +62,93 @@ export default class ModuleTwo implements Module {
       LayerType.Module,
     ];
 
-    // Show menu
-    this.showMenu();
-  }
-
-  private readonly savedGamesList = new MultifunctionalListLayer();
-  private readonly rankingList = new MultifunctionalListLayer();
-
-  private isRankingShown = false;
-
-  /** Prepares user interface */
-  private prepare(): void {
-    // Create a list of saved games
-    this.updateSavedGamesList();
-    this.updateRankingList();
+    // Create custom layers
     this.uimanager.create(this.savedGamesList, LayerType.Custom0);
     this.uimanager.create(this.rankingList, LayerType.Custom1);
 
-    const runnerLayer = this.uimanager.layer(LayerType.Runner) as RunnerLayer;
-    // Set pause screen action
+    const runner = this.uimanager.layer(LayerType.Runner) as RunnerLayer;
 
-    runnerLayer.set({
+    // Set pause screen action
+    runner.set({
       onclick: (option: number) => {
-        // Restart
-        if (option === 1) return this.runCurrentLevel();
+        // Restart current level
+        if (option === 1) {
+          this.playCurrent();
+          return;
+        }
 
         // Save to ranking
         if (option === 0) {
-          const confirmation = confirm(
-            'This action will remove current game from the list, and save it in ranking. Do you want to continue?'
-          );
+          const message = 'This action will save this game in ranking. Continue?';
 
+          const confirmation = confirm(message);
           if (!confirmation) return;
 
           const exit = this.saveToRanking();
-          if (exit) this.showMenu();
+          if (exit) this.openMenu();
 
           return;
         }
+
+        // Go to the next level
 
         // If current level is not finished, stop function execution
         if (!this.gameRunner.finished) return;
 
-        // If the game has just ended, save it in the ranking
-        if (this.level >= this.levels.length - 1) {
-          // If this is the last level, save to ranking
-          const save = confirm(
-            'This game has just ended. Do you want to save your progress (and save it in the ranking)?'
-          );
+        // Determines if current level is the last level
+        const last = this.level === this.levels.length - 1;
 
-          if (save) {
-            const exit = this.saveToRanking();
-            if (exit) this.showMenu();
-          }
-
+        // If current level is not the last one just go to the next level
+        if (!last) {
+          this.level++;
+          this.playCurrent();
           return;
         }
 
-        // Update level
-        this.level++; // Update index
-        this.runCurrentLevel();
+        const message = 'This game has just ended. Do you want to save your progress?';
+
+        // If the player doesn't want their progress to be saved, open the menu
+        // Or - if they want to save their progress - open the menu after successfull saving
+        if (!confirm(message) || this.saveToRanking()) {
+          this.openMenu();
+        }
+      },
+    });
+  }
+
+  /** Shows menu with saved games / ranking */
+  private openMenu(): void {
+    (this.uimanager.layer(LayerType.Actions) as ActionsLayer).set({
+      items: [
+        this.ranking ? { src: Play, title: 'saved games' } : { src: Reward, title: 'view ranking' },
+        { src: Previous, title: 'back to menu' },
+      ],
+      onclick: index => {
+        if (index === 0) {
+          // 'saved games' or 'view ranking' clicked
+          this.ranking = !this.ranking;
+          this.openMenu();
+        } else {
+          // 'back to menu' clicked
+          this.game.showMenu();
+        }
       },
     });
 
-    // Set handler for onFinish event
-    runnerLayer.onFinish = this.updateControls.bind(this);
+    // Update lists
+    if (this.ranking) this.updateRankingList();
+    else this.updateGamesList();
 
-    // Reset state
-    this.isRankingShown = false;
+    // Show proper layers
+    this.uimanager.hideAll();
+    this.uimanager.show(this.ranking ? LayerType.Custom1 : LayerType.Custom0, LayerType.Actions);
   }
 
   /** Updates a list with saved games */
-  private updateSavedGamesList(): void {
+  private updateGamesList(): void {
     const items: MultifunctionalListItem[] = [];
 
-    // Add 'Start new game' button
+    // Create highlighted 'Start new game' button
     items.push({
       title: 'Start new game',
       description: '',
@@ -148,7 +176,7 @@ export default class ModuleTwo implements Module {
             title: 'Delete this level',
             onclick: () => {
               Storage.removeGame(game.id!);
-              this.updateSavedGamesList();
+              this.updateGamesList();
             },
           },
         ],
@@ -173,31 +201,6 @@ export default class ModuleTwo implements Module {
     this.rankingList.set(items);
   }
 
-  /** Shows menu with saved games / ranking */
-  private showMenu(): void {
-    (this.uimanager.layer(LayerType.Actions) as ActionsLayer).set({
-      onclick: index => {
-        if (index === 0) {
-          this.isRankingShown = !this.isRankingShown;
-          this.showMenu();
-        } else this.game.showMenu();
-      },
-      items: [
-        this.isRankingShown
-          ? { src: Play, title: 'saved games' }
-          : { src: Reward, title: 'view ranking' },
-        { src: Previous, title: 'back to menu' },
-      ],
-    });
-
-    // Show proper layers
-    this.uimanager.hideAll();
-    this.uimanager.show(
-      this.isRankingShown ? LayerType.Custom1 : LayerType.Custom0,
-      LayerType.Actions
-    );
-  }
-
   /** If the game was saved, this variable stores its metadata (ie. level id and name)  */
   private saved?: { id?: string; name: string };
 
@@ -206,39 +209,24 @@ export default class ModuleTwo implements Module {
    * @returns If the app should proceed to next step (like close the Runner window)
    */
   private save(): boolean {
-    const saveConfirm = confirm('Do you want to save your progress?');
-
-    if (!saveConfirm) {
-      // If the player doesn't want to save their progress
-      const confirmation = confirm("Your progress won't be saved. Do you want to continue?");
-
-      if (confirmation) return true;
-      return false;
-    }
-
     let name = this.saved?.name;
     let id = this.saved?.id;
 
-    if (!name) {
-      // Ask for level name if needed
-      let input = undefined;
+    // Ask for name for current save
+    // if it was not provided, then return, that the function didn't succeed
+    const prompt = promptFilled('Enter a name for this game');
+    if (!prompt) return false;
 
-      while (!input) {
-        input = prompt('Type a name for this save');
-        if (input === null) return false;
-      }
+    name = prompt;
 
-      name = input;
-    }
-
-    // Save the game
     const finished = this.gameRunner.finished;
 
+    // Save the game
     const save: SavedGame = {
       id,
       name,
       level: Math.min(this.level + (finished ? 1 : 0), this.levels.length - 1), // ? Można by było usunąć to sprawdzenie po dodaniu zapisu do rankingu
-      points: 0, // TODO: Liczenie punktów
+      points: 0, // TODO: Calculate points
     };
 
     if (!finished) {
@@ -251,7 +239,7 @@ export default class ModuleTwo implements Module {
 
     // Save the game
     Storage.saveGame(save);
-    this.updateSavedGamesList(); // Update user interface
+    this.updateGamesList(); // Update user interface
 
     return true;
   }
@@ -264,22 +252,17 @@ export default class ModuleTwo implements Module {
     let name = this.saved?.name;
     let id = this.saved?.id;
 
-    if (!name) {
-      // Ask for level name if needed
-      let input = undefined;
+    // Ask for name for current save
+    // if it was not provided, then return, that the function didn't succeed
+    const prompt = promptFilled('Enter a name for this game');
+    if (!prompt) return false;
 
-      while (!input) {
-        input = prompt('Type a name for this save');
-        if (input === null) return false;
-      }
-
-      name = input;
-    }
+    name = prompt;
 
     Storage.saveToRanking({ name, points: 0 }); // TODO: Calculate points
 
     if (id) Storage.removeGame(id);
-    this.updateSavedGamesList();
+    this.updateGamesList();
     this.updateRankingList();
 
     return true;
@@ -287,44 +270,26 @@ export default class ModuleTwo implements Module {
 
   /** Starts new game */
   private startGame(saved?: SavedGame): void {
+    this.saved = saved;
+
     // Start new game
-    if (saved) {
-      this.level = saved.level;
-      this.saved = saved;
-    } else {
-      this.saved = undefined;
-      this.level = 0;
-    }
+    if (saved) this.level = saved.level;
+    else this.level = 0;
 
-    this.runCurrentLevel();
+    this.playCurrent();
 
+    // Load stats and level layout if object`saved` was passed
     if (saved?.saved) {
       this.gameRunner.setLayout(saved.saved);
       this.gameRunner.stats = saved.saved;
     }
 
-    // Set ActionButton contents
-    (this.uimanager.layer(LayerType.Actions) as ActionsLayer).set({
-      onclick: () => {
-        if (this.level >= this.levels.length - 1) {
-          // If this is the last level, save to ranking
-          const save = confirm(
-            'This game has just ended. Do you want to save your progress (and save it in the ranking)?'
-          );
+    const runner = this.uimanager.layer(LayerType.Runner) as RunnerLayer;
 
-          if (save) {
-            const exit = this.saveToRanking();
-            if (exit) this.showMenu();
-          }
-
-          return;
-        }
-
-        const exit = this.save();
-        if (exit) this.showMenu();
-      },
-      items: [{ src: Previous, title: 'back to menu' }],
-    });
+    // Set action buttons contents
+    this.updateRunnerActions();
+    this.updateRunnerControls();
+    runner.onFinish = this.updateRunnerControls.bind(this);
 
     // Hide all layers except GameRunner
     this.uimanager.hideAll();
@@ -333,25 +298,50 @@ export default class ModuleTwo implements Module {
     // Resize the canvas to match browser window size
     // This has to be done after showing Runner layer,
     // to correctly measure Stats widget height
-    (this.uimanager.layer(LayerType.Runner) as RunnerLayer).resize();
+    runner.resize();
+  }
+
+  /** Updates in-game action buttons */
+  private updateRunnerActions(): void {
+    const actions = this.uimanager.layer(LayerType.Actions) as ActionsLayer;
+
+    // Set action button actions
+    const items: NamedIcon[] = [{ src: Previous, title: 'back to menu' }];
+    const onclick = () => {
+      // Determines if current level is the last level
+      const last = this.level === this.levels.length - 1;
+
+      // Build confirm message
+      const prefix = last ? 'This game has just ended. ' : '';
+      const message = prefix + 'Do you want to save your progress?';
+
+      // If the player doesn't want their progress to be saved, open the menu
+      // Or - if they want to save their progress - open the menu after successfull saving
+      if (!confirm(message) || (last ? this.saveToRanking() : this.save())) {
+        this.openMenu();
+      }
+    };
+
+    actions.set({ items, onclick });
+  }
+
+  /** Updates in-game controls buttons */
+  private updateRunnerControls(): void {
+    const runner = this.uimanager.layer(LayerType.Runner) as RunnerLayer;
+
+    const items = [
+      { src: Close, title: 'stop' },
+      { src: Restart, title: 'restart' },
+      { src: Next, title: 'next', locked: !this.gameRunner.finished },
+    ];
+
+    runner.set({ items });
   }
 
   /** Runs current level */
-  private runCurrentLevel(): void {
+  private playCurrent(): void {
     (this.uimanager.layer(LayerType.Runner) as RunnerLayer).hideOverlay(); // Hide pause screen
-
     this.gameRunner.setLevel(this.levels[this.level]); // Play selected level
-    this.updateControls();
-  }
-
-  /** Updates state of controls buttons on pause screen */
-  private updateControls(): void {
-    (this.uimanager.layer(LayerType.Runner) as RunnerLayer).set({
-      items: [
-        { src: Close, title: 'stop' },
-        { src: Restart, title: 'restart' },
-        { src: Next, title: 'next', locked: !this.gameRunner.finished },
-      ],
-    });
+    this.updateRunnerControls();
   }
 }
