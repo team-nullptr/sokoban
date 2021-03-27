@@ -1,5 +1,8 @@
 import { Tool } from '../../editor/classes/Tool';
 import Layer from '../models/Layer';
+import NamedIcon from '../models/NamedItem';
+
+import Sliders from '%assets%/icons/sliders.svg';
 
 export enum EditorNavEvents {
   TOOL_SELECTION,
@@ -8,14 +11,32 @@ export enum EditorNavEvents {
 
 type ToolSubscriber = (value: Tool) => void;
 
+/** Builds list item for given tool */
+function buildTool(tool: NamedIcon, handler: (element: HTMLLIElement) => void) {
+  // Create list item
+  const li = document.createElement('li');
+  li.className = 'editor-menu-element';
+
+  // Add click event listener
+  li.addEventListener('click', () => handler(li));
+
+  // Create element for tool icon
+  const icon = document.createElement('img');
+  icon.className = 'editor-menu-element__icon';
+  icon.src = tool.src;
+
+  // Append the icon to list item
+  li.appendChild(icon);
+
+  return li;
+}
+
 export default class EditorNavWidget extends Layer {
   element = document.createElement('nav');
 
   // Subscribers
   private toolSubscribers: ToolSubscriber[] = [];
   private toggleGridSizeSubscribers: (() => {})[] = [];
-
-  // Widgets
 
   constructor(private tools: Tool[]) {
     super();
@@ -76,27 +97,16 @@ export default class EditorNavWidget extends Layer {
 
     // Create nav items for each tool
     this.tools.forEach(tool => {
-      // Create list item
-      const li = document.createElement('li');
-      li.classList.add('editor-menu-element');
-
-      // Notify all subscribers about new tool being selected
-      li.addEventListener('click', () => this.onToolClick(li, tool));
-
-      // Create element for tool name
-      const icon = document.createElement('img');
-      icon.classList.add('editor-menu-element__icon');
-      icon.src = tool.iconPath;
-
-      // Append title to list item and item to list
-      li.appendChild(icon);
+      // Build new tool
+      // and add an event listener, that notifies all subscribers about new tool being selected
+      const { name: title, iconPath: src } = tool;
+      const li = buildTool({ title, src }, li => this.onToolClick(li, tool));
       ul.appendChild(li);
     });
 
-    const resizeTool = document.createElement('li');
-    resizeTool.classList.add('editor-menu-element');
-    resizeTool.innerHTML = 'r';
-    resizeTool.addEventListener('click', () => this.notify(EditorNavEvents.GRID_SIZE_TOGGLE, null));
+    const resizeTool = buildTool({ title: 'Resize', src: Sliders }, () =>
+      this.notify(EditorNavEvents.GRID_SIZE_TOGGLE, null)
+    );
 
     ul.appendChild(resizeTool);
 

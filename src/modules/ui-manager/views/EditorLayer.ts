@@ -33,11 +33,11 @@ export default class EditorLayer extends Layer {
 
   // Widgets
   private editorNav: EditorNavWidget = new EditorNavWidget([
+    ElementsTransferor,
+    Rubber,
     BoxBuilder,
     WallBuilder,
     TargetBuilder,
-    Rubber,
-    ElementsTransferor,
   ]);
 
   constructor() {
@@ -79,8 +79,8 @@ export default class EditorLayer extends Layer {
     this.editorNav.render();
   }
 
-  /** init */
-  init() {
+  /** Init */
+  private init() {
     // Prevent opening of browser context menu
     document.addEventListener('contextmenu', e => {
       e.preventDefault();

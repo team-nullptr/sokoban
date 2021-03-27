@@ -159,10 +159,12 @@ export default class ModuleThree implements Module {
 
   /** Opens the editor for */
   private openEditor(level?: CustomLevel): void {
-    this.uimanager.hideAll();
-
     // TODO: Open the editor
-    setTimeout(this.openMenu.bind(this), 500);
+
+    this.uimanager.hideAll();
+    this.uimanager.show(LayerType.Editor);
+
+    // setTimeout(this.openMenu.bind(this), 500);
   }
 
   /** Opens the game runner */
