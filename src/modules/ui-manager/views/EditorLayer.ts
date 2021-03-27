@@ -3,10 +3,13 @@ import WallToolIcon from '%assets%/icons/bricks.svg';
 import TransferorToolIcon from '%assets%/icons/cursor.svg';
 import RubberToolIcon from '%assets%/icons/eraser.svg';
 import TargetToolIcon from '%assets%/icons/geo.svg';
-import Sliders from '%assets%/icons/sliders.svg';
+import SlidersIcon from '%assets%/icons/sliders.svg';
+import PlayIcon from '%assets%/icons/play.svg';
+import SaveIcon from '%assets%/icons/save.svg';
+import BackIcon from '%assets%/icons/back.svg';
 
+import Level from '../../../models/Level';
 import Editor from '../../editor/Editor';
-import { Tool } from '../../editor/classes/Tool';
 import {
   BoxBuilder,
   ElementsTransferor,
@@ -33,7 +36,7 @@ export default class EditorLayer extends Layer {
   private uiCtx: CanvasRenderingContext2D;
 
   // Editor
-  private editor: Editor;
+  public readonly editor: Editor;
 
   // Form
   private form: FormWidget;
@@ -41,6 +44,16 @@ export default class EditorLayer extends Layer {
   // Widgets
   private editorNav: EditorNavWidget = new EditorNavWidget([
     [
+      [
+        {
+          icon: { title: 'Transferor', src: TransferorToolIcon },
+          handler: () => this.editor.setCurrentTool(ElementsTransferor),
+        },
+        {
+          icon: { title: 'Rubber', src: RubberToolIcon },
+          handler: () => this.editor.setCurrentTool(Rubber),
+        },
+      ],
       [
         {
           icon: { title: 'Box Builder', src: BoxToolIcon },
@@ -54,32 +67,53 @@ export default class EditorLayer extends Layer {
           icon: { title: 'Target Builder', src: TargetToolIcon },
           handler: () => this.editor.setCurrentTool(TargetBuilder),
         },
-        {
-          icon: { title: 'Rubber', src: RubberToolIcon },
-          handler: () => this.editor.setCurrentTool(Rubber),
-        },
-        {
-          icon: { title: 'Transferor', src: TransferorToolIcon },
-          handler: () => this.editor.setCurrentTool(ElementsTransferor),
-        },
       ],
       [
         {
-          icon: { title: 'Transferor', src: TransferorToolIcon },
-          handler: () => this.editor.setCurrentTool(ElementsTransferor),
+          icon: { title: 'Play in editor', src: PlayIcon },
+          handler: () => this.playHandler(this.editor.getLevel()),
+          action: true,
         },
       ],
     ],
     [
       [
         {
-          icon: { title: 'Resize', src: Sliders },
+          icon: { title: 'Resize', src: SlidersIcon },
           handler: () => this.form.open(),
+          action: true,
+        },
+        {
+          icon: { title: 'Save', src: SaveIcon },
+          handler: () => this.saveHandler(this.editor.getLevel()), // TODO: Implement this
+          action: true,
+        },
+        {
+          icon: { title: 'Back to menu', src: BackIcon },
+          handler: () => this.backToMenuHandler(this.editor.getLevel()),
           action: true,
         },
       ],
     ],
   ]);
+
+  private saveHandler: (level: Level) => void = () => {};
+  private playHandler: (level: Level) => void = () => {};
+  private backToMenuHandler: (level: Level) => void = () => {};
+
+  set({
+    saveHandler,
+    playHandler,
+    backToMenuHandler,
+  }: {
+    saveHandler?: (level: Level) => void;
+    playHandler?: (level: Level) => void;
+    backToMenuHandler?: (level: Level) => void;
+  }) {
+    if (saveHandler) this.saveHandler = saveHandler;
+    if (playHandler) this.playHandler = playHandler;
+    if (backToMenuHandler) this.backToMenuHandler = backToMenuHandler;
+  }
 
   constructor() {
     super();
@@ -153,7 +187,7 @@ export default class EditorLayer extends Layer {
     this.canvas.addEventListener('mousemove', e => {
       // If user is dragging call drag handler
       if (this.isDragging) this.editor.onCellDrag(e);
-      else if (this.isSelecting) this.editor.seletionHandler(e);
+      else if (this.isSelecting) this.editor.selectionHandler(e);
     });
 
     // Remove drag handler
