@@ -41,33 +41,43 @@ export default class EditorLayer extends Layer {
   // Widgets
   private editorNav: EditorNavWidget = new EditorNavWidget([
     [
-      {
-        icon: { title: 'Box Builder', src: BoxToolIcon },
-        handler: () => this.editor.setCurrentTool(BoxBuilder),
-      },
-      {
-        icon: { title: 'Wall Builder', src: WallToolIcon },
-        handler: () => this.editor.setCurrentTool(WallBuilder),
-      },
-      {
-        icon: { title: 'Target Builder', src: TargetToolIcon },
-        handler: () => this.editor.setCurrentTool(TargetBuilder),
-      },
-      {
-        icon: { title: 'Rubber', src: RubberToolIcon },
-        handler: () => this.editor.setCurrentTool(Rubber),
-      },
-      {
-        icon: { title: 'Transferor', src: TransferorToolIcon },
-        handler: () => this.editor.setCurrentTool(ElementsTransferor),
-      },
+      [
+        {
+          icon: { title: 'Box Builder', src: BoxToolIcon },
+          handler: () => this.editor.setCurrentTool(BoxBuilder),
+        },
+        {
+          icon: { title: 'Wall Builder', src: WallToolIcon },
+          handler: () => this.editor.setCurrentTool(WallBuilder),
+        },
+        {
+          icon: { title: 'Target Builder', src: TargetToolIcon },
+          handler: () => this.editor.setCurrentTool(TargetBuilder),
+        },
+        {
+          icon: { title: 'Rubber', src: RubberToolIcon },
+          handler: () => this.editor.setCurrentTool(Rubber),
+        },
+        {
+          icon: { title: 'Transferor', src: TransferorToolIcon },
+          handler: () => this.editor.setCurrentTool(ElementsTransferor),
+        },
+      ],
+      [
+        {
+          icon: { title: 'Transferor', src: TransferorToolIcon },
+          handler: () => this.editor.setCurrentTool(ElementsTransferor),
+        },
+      ],
     ],
     [
-      {
-        icon: { title: 'Resize', src: Sliders },
-        handler: () => this.form.open(),
-        action: true,
-      },
+      [
+        {
+          icon: { title: 'Resize', src: Sliders },
+          handler: () => this.form.open(),
+          action: true,
+        },
+      ],
     ],
   ]);
 
@@ -87,8 +97,8 @@ export default class EditorLayer extends Layer {
 
     // Create form
     this.form = new FormWidget([
-      { name: 'width', type: 'number', min: 1 },
-      { name: 'height', type: 'number', min: 1 },
+      { name: 'width', type: 'number', min: 2 },
+      { name: 'height', type: 'number', min: 2 },
     ]);
 
     // Subscribe for form submit and change size of grid

@@ -1,50 +1,70 @@
-section.shown.editor {
-  display: flex;
-}
+$icon-size: 16px;
+$toolbar-width: 48px;
 
-.event-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-}
+$selected-tool-background: #007bff;
 
-.editor-nav {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  background: white;
-}
-
-.editor-canvas {
-  background: rgb(243, 243, 243);
-}
-
-.editor-menu {
-  list-style: none;
-  justify-content: center;
-  height: fit-content;
-}
-
-.editor-menu-element {
-  width: 60px;
-  height: 60px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.1s ease-in-out;
-
-  &--selected {
-    background-color: #4696ff;
-
-    & > img {
-      filter: invert(1);
-    }
+section.editor {
+  &.shown {
+    display: flex;
   }
 
-  &__icon {
-    width: 25px;
+  user-select: none;
+  background: #fff;
+
+  canvas.event-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+  }
+
+  .toolbar {
+    padding: 0 0 16px;
+    height: 100vh;
+    background: #f2f2f2;
+
+    ul {
+      display: flex;
+      flex-direction: column;
+      list-style: none;
+      height: 100%;
+      overflow-y: auto;
+
+      hr {
+        width: 60%;
+        margin: $icon-size auto;
+        border-style: solid;
+        border-color: #000;
+        border-width: 1px 0 0;
+      }
+
+      li.spacer {
+        flex-grow: 1;
+      }
+
+      li:not(.spacer) {
+        cursor: pointer;
+        height: $toolbar-width;
+
+        &:hover {
+          background: transparentize($selected-tool-background, 0.84);
+        }
+
+        img {
+          margin: ($toolbar-width - $icon-size) / 2;
+          width: $icon-size;
+          height: $icon-size;
+          object-fit: contain;
+        }
+
+        &.active {
+          background: $selected-tool-background;
+
+          img {
+            filter: invert(1);
+          }
+        }
+      }
+    }
   }
 }
