@@ -1,3 +1,10 @@
+import BoxToolIcon from '%assets%/icons/box.svg';
+import WallToolIcon from '%assets%/icons/bricks.svg';
+import TransferorToolIcon from '%assets%/icons/cursor.svg';
+import RubberToolIcon from '%assets%/icons/eraser.svg';
+import TargetToolIcon from '%assets%/icons/geo.svg';
+import Sliders from '%assets%/icons/sliders.svg';
+
 import Editor from '../../editor/Editor';
 import { Tool } from '../../editor/classes/Tool';
 import {
@@ -8,7 +15,7 @@ import {
   WallBuilder,
 } from '../../editor/models/Tools';
 import Layer from '../models/Layer';
-import EditorNavWidget, { EditorNavEvents } from './EditorNavWidget';
+import EditorNavWidget from './EditorNavWidget';
 import FormWidget from './FormWidget';
 
 export default class EditorLayer extends Layer {
@@ -33,11 +40,35 @@ export default class EditorLayer extends Layer {
 
   // Widgets
   private editorNav: EditorNavWidget = new EditorNavWidget([
-    ElementsTransferor,
-    Rubber,
-    BoxBuilder,
-    WallBuilder,
-    TargetBuilder,
+    [
+      {
+        icon: { title: 'Box Builder', src: BoxToolIcon },
+        handler: () => this.editor.setCurrentTool(BoxBuilder),
+      },
+      {
+        icon: { title: 'Wall Builder', src: WallToolIcon },
+        handler: () => this.editor.setCurrentTool(WallBuilder),
+      },
+      {
+        icon: { title: 'Target Builder', src: TargetToolIcon },
+        handler: () => this.editor.setCurrentTool(TargetBuilder),
+      },
+      {
+        icon: { title: 'Rubber', src: RubberToolIcon },
+        handler: () => this.editor.setCurrentTool(Rubber),
+      },
+      {
+        icon: { title: 'Transferor', src: TransferorToolIcon },
+        handler: () => this.editor.setCurrentTool(ElementsTransferor),
+      },
+    ],
+    [
+      {
+        icon: { title: 'Resize', src: Sliders },
+        handler: () => this.form.open(),
+        action: true,
+      },
+    ],
   ]);
 
   constructor() {
@@ -125,17 +156,6 @@ export default class EditorLayer extends Layer {
       } else {
         this.isDragging = false;
       }
-    });
-
-    // Listen for tool change
-    this.editorNav.subscribe(EditorNavEvents.TOOL_SELECTION, (tool: Tool) => {
-      // Update editor's current tool
-      this.editor.setCurrentTool(tool);
-    });
-
-    // Allow to open navigation
-    this.editorNav.subscribe(EditorNavEvents.GRID_SIZE_TOGGLE, () => {
-      this.form.open();
     });
   }
 

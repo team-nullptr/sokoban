@@ -7,13 +7,14 @@ import { BuilderTool } from './classes/BuilderTool';
 import { TransferorTool, TransferorToolHandlerResult } from './classes/TransferorTool';
 import { Tool, ToolHandlerResult } from './classes/Tool';
 import Level from '../../models/Level';
+import { BoxBuilder } from './models/Tools';
 
 export default class Editor {
   // Load assests
   private images: Map<string, HTMLImageElement> = Images.all;
 
   // Current tool
-  private currentTool: Tool | undefined = undefined;
+  private currentTool: Tool | undefined = BoxBuilder;
 
   // Grid dimensions
   private gridSize: Vector = { x: 10, y: 10 };

@@ -1,15 +1,5 @@
-import { Tool } from '../../editor/classes/Tool';
 import Layer from '../models/Layer';
 import NamedIcon from '../models/NamedItem';
-
-import Sliders from '%assets%/icons/sliders.svg';
-
-export enum EditorNavEvents {
-  TOOL_SELECTION,
-  GRID_SIZE_TOGGLE,
-}
-
-type ToolSubscriber = (value: Tool) => void;
 
 /** Builds list item for given tool */
 function buildTool(tool: NamedIcon, handler: (element: HTMLLIElement) => void) {
@@ -31,50 +21,20 @@ function buildTool(tool: NamedIcon, handler: (element: HTMLLIElement) => void) {
   return li;
 }
 
+interface EditorNavWidgetElement {
+  icon: NamedIcon;
+  handler: Function;
+  action?: boolean;
+}
+
 export default class EditorNavWidget extends Layer {
   element = document.createElement('nav');
 
-  // Subscribers
-  private toolSubscribers: ToolSubscriber[] = [];
-  private toggleGridSizeSubscribers: (() => {})[] = [];
-
-  constructor(private tools: Tool[]) {
+  constructor(private elements: EditorNavWidgetElement[][]) {
     super();
   }
 
-  /**
-   * Notifies all subscribers who subscribe specific event
-   * @param event type of event
-   */
-  private notify(event: EditorNavEvents, value: any): void {
-    switch (event) {
-      case EditorNavEvents.TOOL_SELECTION:
-        // Call all subscribers
-        this.toolSubscribers.forEach(handler => handler(value as Tool));
-        break;
-      case EditorNavEvents.GRID_SIZE_TOGGLE:
-        this.toggleGridSizeSubscribers.forEach(handler => handler());
-        break;
-    }
-  }
-
-  /**
-   * Allows to subscribe to specific event
-   * @param event type of event
-   * @param handler handler function
-   */
-  subscribe(event: EditorNavEvents, handler: Function): void {
-    switch (event) {
-      case EditorNavEvents.TOOL_SELECTION:
-        this.toolSubscribers.push(handler as ToolSubscriber);
-        break;
-      case EditorNavEvents.GRID_SIZE_TOGGLE:
-        this.toggleGridSizeSubscribers.push(handler as () => {});
-        break;
-    }
-  }
-
-  private onToolClick(element: HTMLElement, tool: Tool) {
+  private selectField(element: HTMLElement) {
     // Get nav elements
     const listElements = document.querySelectorAll('.editor-menu-element');
 
@@ -85,9 +45,6 @@ export default class EditorNavWidget extends Layer {
 
     // Add selected class list on clicked nav element
     element.classList.add('editor-menu-element--selected');
-
-    // Notify tool selection subscribers
-    this.notify(EditorNavEvents.TOOL_SELECTION, tool);
   }
 
   private createToolList() {
@@ -95,20 +52,37 @@ export default class EditorNavWidget extends Layer {
     const ul = document.createElement('ul');
     ul.classList.add('editor-menu');
 
-    // Create nav items for each tool
-    this.tools.forEach(tool => {
-      // Build new tool
-      // and add an event listener, that notifies all subscribers about new tool being selected
-      const { name: title, iconPath: src } = tool;
-      const li = buildTool({ title, src }, li => this.onToolClick(li, tool));
-      ul.appendChild(li);
+    this.elements.forEach((section, i) => {
+      section.forEach(element => {
+        // Get icon name and src
+        const { title, src } = element.icon;
+
+        if (element.action) {
+          // Generate tool
+          const li = buildTool({ title, src }, () => element.handler());
+
+          // Add li to nav
+          ul.appendChild(li);
+        } else {
+          // Generate tool li
+          const li = buildTool({ title, src }, li => {
+            // Select current tool
+            this.selectField(li);
+            // Call handler
+            element.handler();
+          });
+
+          // Append tool to nav
+          ul.appendChild(li);
+        }
+      });
+
+      if (i < this.elements.length - 1) {
+        const spacer = document.createElement('li');
+        spacer.classList.add('spacer');
+        ul.appendChild(spacer);
+      }
     });
-
-    const resizeTool = buildTool({ title: 'Resize', src: Sliders }, () =>
-      this.notify(EditorNavEvents.GRID_SIZE_TOGGLE, null)
-    );
-
-    ul.appendChild(resizeTool);
 
     return ul;
   }

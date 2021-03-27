@@ -13,7 +13,7 @@ export default class FormWidget extends Layer {
   private subscribers: FormSubscriber<any>[] = [];
 
   // State
-  private isOpen = true;
+  private isOpen = false;
 
   constructor(private values: { name: string; type: string; min: number }[]) {
     super();
