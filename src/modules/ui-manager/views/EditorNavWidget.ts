@@ -15,14 +15,12 @@ type ToolSubscriber = (value: Tool) => void;
 function buildTool(tool: NamedIcon, handler: (element: HTMLLIElement) => void) {
   // Create list item
   const li = document.createElement('li');
-  li.className = 'editor-menu-element';
 
   // Add click event listener
   li.addEventListener('click', () => handler(li));
 
   // Create element for tool icon
   const icon = document.createElement('img');
-  icon.className = 'editor-menu-element__icon';
   icon.src = tool.src;
 
   // Append the icon to list item
@@ -76,15 +74,13 @@ export default class EditorNavWidget extends Layer {
 
   private onToolClick(element: HTMLElement, tool: Tool) {
     // Get nav elements
-    const listElements = document.querySelectorAll('.editor-menu-element');
+    const listElements = document.querySelectorAll('.editor > .toolbar li');
 
     // Clear selected class on nav elements
-    listElements.forEach(element => {
-      element.classList.remove('editor-menu-element--selected');
-    });
+    listElements.forEach(element => element.classList.remove('active'));
 
     // Add selected class list on clicked nav element
-    element.classList.add('editor-menu-element--selected');
+    element.classList.add('active');
 
     // Notify tool selection subscribers
     this.notify(EditorNavEvents.TOOL_SELECTION, tool);
@@ -93,7 +89,6 @@ export default class EditorNavWidget extends Layer {
   private createToolList() {
     // Create unordered list
     const ul = document.createElement('ul');
-    ul.classList.add('editor-menu');
 
     // Create nav items for each tool
     this.tools.forEach(tool => {
@@ -114,7 +109,7 @@ export default class EditorNavWidget extends Layer {
   }
 
   render() {
-    this.element.classList.add('editor-nav');
+    this.element.classList.add('toolbar');
     this.element.appendChild(this.createToolList());
   }
 }
