@@ -202,8 +202,7 @@ export default class ModuleThree implements Module {
 
     const editor = (this.uimanager.layer(LayerType.Editor) as EditorLayer).editor;
     editor.clear(); // Clear the editor
-
-    // TODO: Load given level
+    if (level) editor.loadLevel(level);
 
     // Show editor
     this.uimanager.hideAll();
