@@ -21,6 +21,7 @@ export default class ActionsLayer extends Layer {
     const buttons = this.options.map((option, i) => {
       // Create button
       const button = document.createElement('button');
+      button.tabIndex = -1;
 
       // Add event listener
       button.addEventListener('click', () => this.onclick(i));

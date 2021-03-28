@@ -1,8 +1,16 @@
 section.actions {
+  display: block;
   top: auto;
   bottom: 0;
+  left: 50%;
+  width: auto;
 
-  display: block;
+  transition: transform 0.16s;
+  transform: translate(-50%, 100%); // Hide buttons by default
+
+  &.shown {
+    transform: translate(-50%, 0);
+  }
 
   & > .wrapper {
     background: linear-gradient(transparent, white);
@@ -11,12 +19,6 @@ section.actions {
     align-items: center;
     gap: 12px;
     padding-bottom: 32px;
-    transition: transform 0.16s;
-    transform: translateY(100%); // Hide buttons by default
-  }
-
-  &.shown > .wrapper {
-    transform: translateY(0);
   }
 
   button {
