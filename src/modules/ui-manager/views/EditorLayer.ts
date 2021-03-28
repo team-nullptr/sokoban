@@ -48,6 +48,7 @@ export default class EditorLayer extends Layer {
         {
           icon: { title: 'Transferor', src: TransferorToolIcon },
           handler: () => this.editor.setCurrentTool(ElementsTransferor),
+          default: true,
         },
         {
           icon: { title: 'Rubber', src: RubberToolIcon },
