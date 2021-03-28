@@ -13,6 +13,7 @@ import Level from '../../models/Level';
 import RunnerLayer from '../../modules/ui-manager/views/RunnerLayer';
 import { v4 as uuid } from 'uuid';
 import SavedCustomGame from '../../modules/storage/models/SavedCustomGame';
+import EditorLayer from '../../modules/ui-manager/views/EditorLayer';
 
 // Images
 import Play from '%assets%/icons/play.svg';
@@ -38,14 +39,14 @@ export default class ModuleThree implements Module {
   private games = false;
 
   start(): void {
-    this.prepareui();
+    this.prepareUI();
 
     this.games = false;
     this.openMenu();
   }
 
   /** Prepares user interface; ie. it creates custom layers etc. */
-  private prepareui(): void {
+  private prepareUI(): void {
     // Set order
     this.uimanager.order = [
       LayerType.Actions,
@@ -55,9 +56,50 @@ export default class ModuleThree implements Module {
       LayerType.Module,
     ];
 
+    // Set Editor actions
+    (this.uimanager.layer(LayerType.Editor) as EditorLayer).set({
+      playHandler: level => this.openRunner(level, true),
+      saveHandler: level => this.saveLevel(level),
+      backToMenuHandler: level => {
+        // If the player has opened an existing level, save their work
+        // Also if the player has a new level opened, ask for saving and then save it
+        if (!(this.saved || confirm('Do you want to save your work?')) || this.saveLevel(level)) {
+          this.openMenu();
+        }
+      },
+    });
+
     // Create custom layers
     this.uimanager.create(this.levelList, LayerType.Custom0);
     this.uimanager.create(this.gamesList, LayerType.Custom1);
+  }
+
+  private saved?: { id: string; name: string };
+
+  /** Saves given level to localstorage */
+  private saveLevel(level: Level): boolean {
+    let { id, name } = this.saved ?? { id: '', name: '' };
+
+    if (!this.saved) {
+      let input;
+
+      // Ask for a name for this game
+      do {
+        input = prompt('Enter a name for this game');
+        if (input === null) return false;
+      } while (!input);
+
+      // Set name and generate an id
+      name = input;
+      id = uuid();
+    }
+
+    const save: CustomLevel = { id, name, ...level };
+    Storage.append('levels', save);
+
+    this.saved = save;
+
+    return true;
   }
 
   /** Opens a menu with created levels / saved games */
@@ -94,15 +136,12 @@ export default class ModuleThree implements Module {
     // Create the highlighted 'Create new level' button
     items.push({
       title: 'Create new level',
-      onclick: this.openEditor.bind(this),
-      actions: [{ src: Plus, title: 'Start new game', onclick: this.openEditor.bind(this) }],
+      onclick: () => this.openEditor(),
+      actions: [{ src: Plus, title: 'Start new game', onclick: () => this.openEditor() }],
       highlighted: true,
     });
 
     const levels = Storage.get<CustomLevel>('levels').all;
-
-    // Open the editor
-    const edit = (id: string) => this.openEditor(Storage.get<CustomLevel>('levels').findOne(id));
 
     // Open game window
     const play = (id: string) => {
@@ -124,10 +163,10 @@ export default class ModuleThree implements Module {
         title: level.name,
         actions: [
           { src: Play, title: 'Play', onclick: () => play(level.id) },
-          { src: Pen, title: 'Edit', onclick: () => edit(level.id) },
+          { src: Pen, title: 'Edit', onclick: () => this.openEditor(level) },
           { src: Trash, title: 'Remove', onclick: () => remove(level.id, level.name) },
         ],
-        onclick: () => edit(level.id),
+        onclick: () => this.openEditor(level),
       };
 
       items.push(item);
@@ -159,12 +198,16 @@ export default class ModuleThree implements Module {
 
   /** Opens the editor for */
   private openEditor(level?: CustomLevel): void {
-    // TODO: Open the editor
+    this.saved = level;
 
+    const editor = (this.uimanager.layer(LayerType.Editor) as EditorLayer).editor;
+    editor.clear(); // Clear the editor
+
+    // TODO: Load given level
+
+    // Show editor
     this.uimanager.hideAll();
     this.uimanager.show(LayerType.Editor);
-
-    // setTimeout(this.openMenu.bind(this), 500);
   }
 
   /** Opens the game runner */
@@ -195,13 +238,10 @@ export default class ModuleThree implements Module {
    * @param inEditor Determines if the level was started from the menu, or the editor
    */
   private updateUI(inEditor: boolean, game: Level | SavedCustomGame) {
+    const actions = this.uimanager.layer(LayerType.Actions) as ActionsLayer;
     const runner = this.uimanager.layer(LayerType.Runner) as RunnerLayer;
 
     let saved = 'level' in game ? game : undefined;
-
-    if (inEditor) {
-      /* TODO: */
-    }
 
     const save = () => {
       let id = saved?.id;
@@ -240,9 +280,30 @@ export default class ModuleThree implements Module {
       return true;
     };
 
+    if (inEditor) {
+      actions.set({
+        items: [{ src: Previous, title: 'back to editor' }],
+        onclick: () => {
+          this.uimanager.hideAll();
+          this.uimanager.show(LayerType.Editor);
+        },
+      });
+
+      runner.set({
+        items: [{ src: Restart, title: 'restart' }],
+        onclick: () => {
+          this.gameRunner.reset();
+          runner.hideOverlay();
+        },
+      });
+
+      return;
+    }
+
     // If the level was run from the menu
     // Set action buttons contents
-    (this.uimanager.layer(LayerType.Actions) as ActionsLayer).set({
+    actions.set({
+      items: [{ src: Previous, title: 'back to menu' }],
       onclick: () => {
         // If the game has been just finished, remove it from the local storage
         if (this.gameRunner.finished) {
@@ -256,7 +317,6 @@ export default class ModuleThree implements Module {
           this.openMenu();
         }
       },
-      items: [{ src: Previous, title: 'back to menu' }],
     });
 
     // Set control buttons in runner

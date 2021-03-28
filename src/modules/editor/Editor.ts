@@ -57,6 +57,21 @@ export default class Editor {
     };
   }
 
+  /** Clears current  */
+  clear(): void {
+    this.layout = {
+      start: {
+        x: this.layout.start.x <= this.gridSize.x ? this.layout.start.x : 0,
+        y: this.layout.start.y <= this.gridSize.y ? this.layout.start.y : 0,
+      },
+      boxes: [],
+      targets: [],
+      walls: [],
+    };
+
+    this.updateDimensions();
+  }
+
   /** Return level in required format */
   getLevel(): Level {
     return {
@@ -312,7 +327,7 @@ export default class Editor {
    * Handles selection
    * @param e Mouse event
    */
-  seletionHandler(e: MouseEvent) {
+  selectionHandler(e: MouseEvent) {
     // Clear canvas
     this.uiCtx.clearRect(0, 0, innerWidth, innerHeight);
 
