@@ -23,6 +23,7 @@ interface EditorNavWidgetElement {
   icon: NamedIcon;
   handler: Function;
   action?: boolean;
+  default?: boolean;
 }
 
 export default class EditorNavWidget extends Layer {
@@ -50,18 +51,19 @@ export default class EditorNavWidget extends Layer {
     this.elements.forEach((section, i) => {
       section.forEach((group, j) => {
         group.forEach(element => {
+          let li: HTMLElement;
           // Get icon name and src
           const { title, src } = element.icon;
 
           if (element.action) {
             // Generate tool
-            const li = buildTool({ title, src }, () => element.handler());
+            li = buildTool({ title, src }, () => element.handler());
 
             // Add li to nav
             ul.appendChild(li);
           } else {
             // Generate tool li
-            const li = buildTool({ title, src }, li => {
+            li = buildTool({ title, src }, li => {
               // Select current tool
               this.selectField(li);
               // Call handler
@@ -71,6 +73,8 @@ export default class EditorNavWidget extends Layer {
             // Append tool to nav
             ul.appendChild(li);
           }
+
+          if (element.default) this.selectField(li);
         });
 
         // Create separator between groups
