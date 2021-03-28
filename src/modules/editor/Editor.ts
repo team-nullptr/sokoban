@@ -7,14 +7,14 @@ import { BuilderTool } from './classes/BuilderTool';
 import { TransferorTool, TransferorToolHandlerResult } from './classes/TransferorTool';
 import { Tool, ToolHandlerResult } from './classes/Tool';
 import Level from '../../models/Level';
-import { BoxBuilder } from './models/Tools';
+import { ElementsTransferor } from './models/Tools';
 
 export default class Editor {
   // Load assests
   private images: Map<string, HTMLImageElement> = Images.all;
 
   // Current tool
-  private currentTool: Tool | undefined = BoxBuilder;
+  private currentTool: Tool | undefined = ElementsTransferor;
 
   // Grid dimensions
   private gridSize: Vector = { x: 10, y: 10 };
@@ -70,6 +70,35 @@ export default class Editor {
   }
 
   /**
+   * Allows for loading levels
+   * @param level Level to load
+   */
+  loadLevel(level: Level) {
+    // Set grid size
+    this.updateGridSize({ x: level.width, y: level.height });
+
+    // Update layout
+    this.layout = {
+      start: { x: level.start.x, y: level.start.y },
+      boxes: level.boxes,
+      walls: level.walls,
+      targets: level.targets,
+    };
+
+    // Render level
+    this.renderLevel();
+  }
+
+  private fitToEditorSize(elements: Vector[]) {
+    return elements.filter(
+      element =>
+        element.x < this.gridSize.x &&
+        element.y < this.gridSize.y &&
+        (element.x !== this.layout.start.x || element.y !== this.layout.start.y)
+    );
+  }
+
+  /**
    * Updates editor grid size
    * @param size Size of grid
    */
@@ -77,16 +106,16 @@ export default class Editor {
     // Update size of grid
     this.gridSize = size;
 
-    // Reset level
-    this.layout = {
-      start: {
-        x: this.layout.start.x <= this.gridSize.x ? this.layout.start.x : 0,
-        y: this.layout.start.y <= this.gridSize.y ? this.layout.start.y : 0,
-      },
-      boxes: [],
-      targets: [],
-      walls: [],
-    };
+    // Check if current start can be unmodified
+    this.layout.start =
+      this.layout.start.x >= size.x && this.layout.start.y >= size.y
+        ? { x: 0, y: 0 }
+        : this.layout.start;
+
+    // Filter boxes
+    this.layout.boxes = this.fitToEditorSize(this.layout.boxes);
+    this.layout.walls = this.fitToEditorSize(this.layout.walls);
+    this.layout.targets = this.fitToEditorSize(this.layout.targets);
 
     this.updateDimensions();
   }
@@ -94,9 +123,12 @@ export default class Editor {
   /** Updates size of level */
   updateDimensions() {
     // Calc cell size
-    this.cellSize = getGridSize(
-      { x: this.ctx.canvas.width / 2, y: this.ctx.canvas.height / 2 },
-      this.gridSize
+    this.cellSize = Math.min(
+      getGridSize(
+        { x: this.ctx.canvas.width / 1.5, y: this.ctx.canvas.height / 1.5 },
+        this.gridSize
+      ),
+      70
     );
 
     // Calculate ctx offset on x
