@@ -253,7 +253,7 @@ export default class ModuleThree implements Module {
         stats: this.gameRunner.stats,
       };
 
-      saved = save; // TODO: Test it
+      saved = save;
       Storage.append('custom-games', save);
 
       return true;

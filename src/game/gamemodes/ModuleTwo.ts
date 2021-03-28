@@ -16,6 +16,8 @@ import { v4 as uuid } from 'uuid';
 import RankingEntry from '../../modules/storage/models/RankingEntry';
 import NamedIcon from '../../modules/ui-manager/models/NamedItem';
 import promptFilled from '../../utils/promptFilled';
+import getPoints from '../../utils/getPoints';
+import { SolvedLevel } from '../../models/SolvedLevel';
 
 // Images
 import Next from '%assets%/icons/arrow-right.svg';
@@ -41,7 +43,7 @@ export default class ModuleTwo implements Module {
   /** Indicates what list should be shown at the moment */
   private ranking = false;
 
-  private levels: Level[] = [...LevelsModuleTwo];
+  private levels: SolvedLevel[] = [...LevelsModuleTwo];
   private level = 0;
 
   /** Runs the module */
@@ -87,6 +89,9 @@ export default class ModuleTwo implements Module {
         // If current level is not finished, stop function execution
         if (!this.gameRunner.finished) return;
 
+        // Calculate points
+        this.updatePoints();
+
         // Determines if current level is the last level
         const last = this.level === this.levels.length - 1;
 
@@ -106,6 +111,14 @@ export default class ModuleTwo implements Module {
         }
       },
     });
+  }
+
+  private updatePoints(): void {
+    this.points[this.level] = getPoints(
+      this.gameRunner.stats,
+      this.levels[this.level].solution,
+      this.levels[this.level]
+    );
   }
 
   /** Shows menu with saved games / ranking */
@@ -155,24 +168,29 @@ export default class ModuleTwo implements Module {
 
     // Add saved games to the list
     items.push(
-      ...Storage.get<SavedGame>('games').all.map(game => ({
-        title: game.name,
-        description: `Level ${game.level + 1}/${this.levels.length} | ${game.points} point${
-          game.points === 1 ? '' : 's'
-        }`,
-        actions: [
-          { src: Play, title: 'Play this level', onclick: () => run(game.id!) },
-          {
-            src: Trash,
-            title: 'Delete this level',
-            onclick: () => {
-              Storage.remove('games', game.id);
-              this.updateGamesList();
+      ...Storage.get<SavedGame>('games').all.map(game => {
+        // Prepare a description
+        const sum = game.points.reduce((acc, val) => acc + val, 0);
+        const level = `Level ${game.level + 1}/${this.levels.length}`;
+        const points = `${sum} point${sum === 1 ? '' : 's'}`;
+
+        return {
+          title: game.name,
+          description: `${level} | ${points}`,
+          actions: [
+            { src: Play, title: 'Play this level', onclick: () => run(game.id!) },
+            {
+              src: Trash,
+              title: 'Delete this level',
+              onclick: () => {
+                Storage.remove('games', game.id);
+                this.updateGamesList();
+              },
             },
-          },
-        ],
-        onclick: () => run(game.id!),
-      }))
+          ],
+          onclick: () => run(game.id!),
+        };
+      })
     );
 
     this.savedGamesList.set(items);
@@ -192,6 +210,7 @@ export default class ModuleTwo implements Module {
 
   /** If the game was saved, this variable stores its metadata (ie. level id and name)  */
   private saved?: { id?: string; name: string };
+  private points: number[] = [];
 
   /**
    * Saves current game on saved games list
@@ -211,11 +230,13 @@ export default class ModuleTwo implements Module {
 
     const finished = this.gameRunner.finished;
 
+    if (finished) this.updatePoints();
+
     const save: SavedGame & { id: string } = {
       id: id ?? uuid(),
       name,
       level: Math.min(this.level + (finished ? 1 : 0), this.levels.length - 1), // ? Można by było usunąć to sprawdzenie po dodaniu zapisu do rankingu
-      points: 0, // TODO: Calculate points
+      points: this.points,
     };
 
     if (!finished) {
@@ -249,7 +270,12 @@ export default class ModuleTwo implements Module {
       name = prompt;
     }
 
-    Storage.append('ranking', { id: uuid(), name, points: 0 }); // TODO: Calculate points
+    // Calculate points sum
+    if (this.gameRunner.finished) this.updatePoints();
+    const points = this.points.reduce((acc, val) => acc + val, 0);
+
+    // Save to ranking
+    Storage.append('ranking', { id: uuid(), name, points });
 
     if (id) Storage.remove('games', id);
     this.updateGamesList();
@@ -261,6 +287,7 @@ export default class ModuleTwo implements Module {
   /** Starts new game */
   private startGame(saved?: SavedGame): void {
     this.saved = saved;
+    this.points = saved?.points ?? [];
 
     // Start new game
     if (saved) this.level = saved.level;
@@ -299,7 +326,7 @@ export default class ModuleTwo implements Module {
     const items: NamedIcon[] = [{ src: Previous, title: 'back to menu' }];
     const onclick = () => {
       // Determines if current level is the last level
-      const last = this.level === this.levels.length - 1;
+      const last = this.level === this.levels.length - 1 && this.gameRunner.finished;
 
       // Build confirm message
       const prefix = last ? 'This game has just ended. ' : '';

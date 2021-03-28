@@ -1,6 +1,6 @@
-import Level from '../../models/Level';
+import { SolvedLevel } from '../../models/SolvedLevel';
 
-export const LevelsModuleTwo: Level[] = [
+export const LevelsModuleTwo: SolvedLevel[] = [
   {
     width: 3,
     height: 7,
@@ -11,6 +11,7 @@ export const LevelsModuleTwo: Level[] = [
     boxes: [{ x: 1, y: 3 }],
     targets: [{ x: 1, y: 5 }],
     start: { x: 1, y: 1 },
+    solution: { time: 300, moves: { box: 2, player: 3 } },
   },
   {
     width: 5,
@@ -25,6 +26,7 @@ export const LevelsModuleTwo: Level[] = [
     boxes: [{ x: 2, y: 2 }],
     targets: [{ x: 0, y: 4 }],
     start: { x: 3, y: 2 },
+    solution: { time: 2500, moves: { box: 6, player: 14 } },
   },
   {
     width: 5,
@@ -44,6 +46,7 @@ export const LevelsModuleTwo: Level[] = [
       { x: 4, y: 0 },
     ],
     start: { x: 3, y: 0 },
+    solution: { time: 2750, moves: { box: 7, player: 18 } },
   },
   {
     width: 5,
@@ -66,6 +69,7 @@ export const LevelsModuleTwo: Level[] = [
       { x: 2, y: 2 },
     ],
     start: { x: 2, y: 1 },
+    solution: { time: 2000, moves: { box: 4, player: 12 } },
   },
   {
     width: 6,
@@ -86,6 +90,7 @@ export const LevelsModuleTwo: Level[] = [
       { x: 0, y: 1 },
     ],
     start: { x: 4, y: 4 },
+    solution: { time: 6800, moves: { box: 16, player: 33 } },
   },
   {
     width: 5,
@@ -107,5 +112,6 @@ export const LevelsModuleTwo: Level[] = [
       { x: 0, y: 3 },
     ],
     start: { x: 2, y: 4 },
+    solution: { time: 8800, moves: { box: 10, player: 44 } },
   },
 ];

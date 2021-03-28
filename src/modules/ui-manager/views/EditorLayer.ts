@@ -86,7 +86,7 @@ export default class EditorLayer extends Layer {
         },
         {
           icon: { title: 'Save', src: SaveIcon },
-          handler: () => this.saveHandler(this.editor.getLevel()), // TODO: Implement this
+          handler: () => this.saveHandler(this.editor.getLevel()),
           action: true,
         },
         {

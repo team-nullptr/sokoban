@@ -181,7 +181,6 @@ export default class GameRunner {
   }
 
   /**
-   * TODO: Check if it works
    * Sets new level
    */
   setLevel(level: Level): void {
