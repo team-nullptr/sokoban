@@ -23,6 +23,7 @@ import Previous from '%assets%/icons/arrow-left.svg';
 import Trash from '%assets%/icons/trash.svg';
 import Pen from '%assets%/icons/pen.svg';
 import Close from '%assets%/icons/close.svg';
+import promptFilled from '../../utils/promptFilled';
 
 export default class ModuleThree implements Module {
   // User interface
@@ -47,15 +48,6 @@ export default class ModuleThree implements Module {
 
   /** Prepares user interface; ie. it creates custom layers etc. */
   private prepareUI(): void {
-    // Set order
-    this.uimanager.order = [
-      LayerType.Actions,
-      LayerType.Runner,
-      LayerType.Custom0,
-      LayerType.Custom1,
-      LayerType.Module,
-    ];
-
     // Set Editor actions
     (this.uimanager.layer(LayerType.Editor) as EditorLayer).set({
       playHandler: level => this.openRunner(level, true),
@@ -78,23 +70,18 @@ export default class ModuleThree implements Module {
 
   /** Saves given level to localstorage */
   private saveLevel(level: Level): boolean {
-    let { id, name } = this.saved ?? { id: '', name: '' };
+    const id = this.saved?.id;
+    let name = this.saved?.name;
 
-    if (!this.saved) {
-      let input;
-
-      // Ask for a name for this game
-      do {
-        input = prompt('Enter a name for this game');
-        if (input === null) return false;
-      } while (!input);
-
-      // Set name and generate an id
-      name = input;
-      id = uuid();
+    // Ask for name for current save
+    // if it was not provided, then return, that the function didn't succeed
+    if (!name) {
+      const prompt = promptFilled('Enter a name for this level');
+      if (prompt === null) return false;
+      name = prompt;
     }
 
-    const save: CustomLevel = { id, name, ...level };
+    const save: CustomLevel = { id: id ?? uuid(), name: name ?? prompt!, ...level };
     Storage.append('levels', save);
 
     this.saved = save;
@@ -243,22 +230,15 @@ export default class ModuleThree implements Module {
     let saved = 'level' in game ? game : undefined;
 
     const save = () => {
-      let id = saved?.id;
-      let name = saved?.name;
+      const id = this.saved?.id;
+      let name = this.saved?.name;
 
-      // If the current game has not been ever saved
-      if (!saved) {
-        let input;
-
-        // Ask for a name for this game
-        do {
-          input = prompt('Enter a name for this game');
-          if (input === null) return false;
-        } while (!input);
-
-        // Set name and generate an id
-        name = input;
-        id = uuid();
+      // Ask for name for current save
+      // if it was not provided, then return, that the function didn't succeed
+      if (!name) {
+        const prompt = promptFilled('Enter a name for this game');
+        if (prompt === null) return false;
+        name = prompt;
       }
 
       // Get level

@@ -32,15 +32,7 @@ export default class ModuleOne implements Module {
   start(): void {
     // Prepare UI
     this.prepare();
-    this.uimanager.order = [
-      LayerType.Actions,
-      LayerType.Runner,
-      LayerType.Custom0,
-      LayerType.Module,
-    ];
-
-    // Show difficulty selection menu
-    this.showMenu();
+    this.showMenu(); // Show difficulty selection menu
   }
 
   /** Prepares user interface */

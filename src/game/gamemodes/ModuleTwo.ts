@@ -54,15 +54,6 @@ export default class ModuleTwo implements Module {
 
   /** Prepares user interface */
   private prepareUI(): void {
-    // Set order
-    this.uimanager.order = [
-      LayerType.Actions,
-      LayerType.Runner,
-      LayerType.Custom0,
-      LayerType.Custom1,
-      LayerType.Module,
-    ];
-
     // Create custom layers
     this.uimanager.create(this.savedGamesList, LayerType.Custom0);
     this.uimanager.create(this.rankingList, LayerType.Custom1);
@@ -207,15 +198,16 @@ export default class ModuleTwo implements Module {
    * @returns If the app should proceed to next step (like close the Runner window)
    */
   private save(): boolean {
+    const id = this.saved?.id;
     let name = this.saved?.name;
-    let id = this.saved?.id;
 
     // Ask for name for current save
     // if it was not provided, then return, that the function didn't succeed
-    const prompt = promptFilled('Enter a name for this game');
-    if (!prompt) return false;
-
-    name = prompt;
+    if (!name) {
+      const prompt = promptFilled('Enter a name for this game');
+      if (!prompt) return false;
+      name = prompt;
+    }
 
     const finished = this.gameRunner.finished;
 
@@ -246,15 +238,16 @@ export default class ModuleTwo implements Module {
    * @returns If the app should proceed to next step (like close the Runner window)
    */
   private saveToRanking(): boolean {
+    const id = this.saved?.id;
     let name = this.saved?.name;
-    let id = this.saved?.id;
 
     // Ask for name for current save
     // if it was not provided, then return, that the function didn't succeed
-    const prompt = promptFilled('Enter a name for this game');
-    if (!prompt) return false;
-
-    name = prompt;
+    if (!name) {
+      const prompt = promptFilled('Enter a name for this game');
+      if (!prompt) return false;
+      name = prompt;
+    }
 
     Storage.append('ranking', { id: uuid(), name, points: 0 }); // TODO: Calculate points
 

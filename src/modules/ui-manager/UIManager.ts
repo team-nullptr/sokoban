@@ -6,7 +6,16 @@ import MultifunctionalListLayer from './views/MultifunctionalListLayer';
 import EditorLayer from './views/EditorLayer';
 
 export default class UIManager {
-  private readonly layers = new Map<LayerType, Layer>();
+  private readonly layers = new Map<LayerType, Layer | undefined>();
+
+  private readonly order = [
+    LayerType.Actions,
+    LayerType.Module,
+    LayerType.Custom0,
+    LayerType.Custom1,
+    LayerType.Editor,
+    LayerType.Runner,
+  ];
 
   constructor(private frame: HTMLElement) {
     this.init();
@@ -37,11 +46,25 @@ export default class UIManager {
     this.frame.innerHTML = '';
 
     // Render and append all layers to the frame
-    this.layers.forEach(layer => {
-      layer.render();
-      this.frame.appendChild(layer.element);
-      layer.rendered();
-    });
+    this.order
+      .slice()
+      .reverse()
+      .forEach(type => {
+        const layer = this.layers.get(type);
+
+        if (layer) {
+          // Render the layer
+          layer.render();
+          this.frame.appendChild(layer.element);
+          layer.element.dataset.layer = type.toString();
+          layer.rendered();
+        } else {
+          // Create a placeholder
+          const placeholder = document.createElement('div');
+          placeholder.dataset.layer = type.toString();
+          this.frame.appendChild(placeholder);
+        }
+      });
   }
 
   /** Returns specific layer */
@@ -51,8 +74,18 @@ export default class UIManager {
 
   /** Creates custom layer */
   create(layer: Layer, slot: LayerType.Custom0 | LayerType.Custom1): void {
+    // Render the layer
     this.layers.set(slot, layer);
-    this.render();
+    layer.render();
+
+    // Find an element to put new layer into
+    const old = this.frame.querySelector(`[data-layer='${slot.toString()}']`);
+    const created = layer.element;
+    old?.parentElement?.replaceChild(created, old);
+
+    // Set dataset for new layer and call rendered method
+    layer.element.dataset.layer = slot.toString();
+    layer.rendered();
   }
 
   /**
@@ -65,42 +98,8 @@ export default class UIManager {
     });
   }
 
-  /**
-   * Hides specific layers
-   * @param layers Layers to be hidden
-   */
-  hide(...layers: LayerType[]): void {
-    layers.forEach(layer => {
-      this.layers.get(layer)?.hide();
-    });
-  }
-
   /** Hides all layers */
   hideAll(): void {
-    this.layers.forEach(layer => layer.hide());
-  }
-
-  /**
-   * Sets layers order
-   * @param order Order of elements
-   */
-  set order(order: LayerType[]) {
-    let before: Layer | undefined = undefined;
-
-    order.reverse().forEach(type => {
-      const current = this.layer(type);
-
-      if (!current) return;
-
-      if (before) {
-        // If current element is not the first element, append it after last element
-        before.element.after(current.element);
-      } else {
-        // If current element is the first element, set it as first children of parent
-        current?.element.parentElement?.prepend(current.element);
-      }
-
-      before = current;
-    });
+    this.layers.forEach(layer => layer?.hide());
   }
 }
