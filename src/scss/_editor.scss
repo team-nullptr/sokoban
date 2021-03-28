@@ -1,0 +1,69 @@
+$icon-size: 16px;
+$toolbar-width: 48px;
+
+$selected-tool-background: #007bff;
+
+section.editor {
+  &.shown {
+    display: flex;
+  }
+
+  user-select: none;
+  background: #fff;
+
+  canvas.event-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+  }
+
+  .toolbar {
+    height: 100vh;
+    background: #f2f2f2;
+
+    ul {
+      display: flex;
+      flex-direction: column;
+      list-style: none;
+      height: 100%;
+      overflow-y: auto;
+
+      hr {
+        width: 60%;
+        margin: $icon-size auto;
+        border-style: solid;
+        border-color: #000;
+        border-width: 1px 0 0;
+      }
+
+      li.spacer {
+        flex-grow: 1;
+      }
+
+      li:not(.spacer) {
+        cursor: pointer;
+        height: $toolbar-width;
+
+        &:hover {
+          background: transparentize($selected-tool-background, 0.84);
+        }
+
+        img {
+          margin: ($toolbar-width - $icon-size) / 2;
+          width: $icon-size;
+          height: $icon-size;
+          object-fit: contain;
+        }
+
+        &.active {
+          background: $selected-tool-background;
+
+          img {
+            filter: invert(1);
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,7 @@
+type Slot = 'games' | 'ranking' | 'levels' | 'custom-games';
+
 export default class Storage {
-  static get<T>(slot: string): StorageQuery<StorageEntry<T>> {
+  static get<T>(slot: Slot): StorageQuery<StorageEntry<T>> {
     // Get value from given slot
     const value = localStorage.getItem(slot);
 
@@ -9,7 +11,7 @@ export default class Storage {
     return new StorageQuery<StorageEntry<T>>(items);
   }
 
-  static append<T extends IdentifiableItem>(slot: string, value: T): void {
+  static append<T extends IdentifiableItem>(slot: Slot, value: T): void {
     // Get current values in given slot
     const other = Storage.get<T>(slot).all;
 
@@ -24,7 +26,7 @@ export default class Storage {
     localStorage.setItem(slot, json);
   }
 
-  static remove<T>(slot: string, id: string): StorageEntry<T> | void {
+  static remove<T>(slot: Slot, id: string): StorageEntry<T> | undefined {
     // Get current values in given slot
     const entries = Storage.get<T>(slot).all;
 

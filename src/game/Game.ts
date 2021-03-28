@@ -13,6 +13,7 @@ import Images from './Images';
 // Modules
 import ModuleOne from './gamemodes/ModuleOne';
 import ModuleTwo from './gamemodes/ModuleTwo';
+import ModuleThree from './gamemodes/ModuleThree';
 
 export default class Game {
   readonly uimanager: UIManager;
@@ -20,6 +21,7 @@ export default class Game {
   // Modules
   private readonly moduleOne: ModuleOne;
   private readonly moduleTwo: ModuleTwo;
+  private readonly moduleThree: ModuleThree;
 
   constructor() {
     // Create app frame
@@ -38,6 +40,7 @@ export default class Game {
     // Initialize modules
     this.moduleOne = new ModuleOne(runner, this);
     this.moduleTwo = new ModuleTwo(runner, this);
+    this.moduleThree = new ModuleThree(runner, this);
 
     // Load images
     this.loadImages().then(() => {
@@ -69,6 +72,7 @@ export default class Game {
   private run(module: number): void {
     if (module === 0) this.moduleOne.start();
     else if (module === 1) this.moduleTwo.start();
+    else if (module === 2) this.moduleThree.start();
   }
 
   /** Shows module selection menu */

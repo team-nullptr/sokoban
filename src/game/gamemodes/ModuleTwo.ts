@@ -7,8 +7,7 @@ import MultifunctionalListLayer, {
   MultifunctionalListItem,
 } from '../../modules/ui-manager/views/MultifunctionalListLayer';
 import Level from '../../models/Level';
-// import { LevelsModuleTwo } from '../builtin-levels/LevelsModuleTwo';
-import { LevelsNovice } from '../builtin-levels/LevelsModuleOne';
+import { LevelsModuleTwo } from '../builtin-levels/LevelsModuleTwo';
 import RunnerLayer from '../../modules/ui-manager/views/RunnerLayer';
 import GameRunner from '../../modules/game-runner/GameRunner';
 import Storage from '../../modules/storage/Storage';
@@ -42,7 +41,7 @@ export default class ModuleTwo implements Module {
   /** Indicates what list should be shown at the moment */
   private ranking = false;
 
-  private levels: Level[] = [...LevelsNovice];
+  private levels: Level[] = [...LevelsModuleTwo];
   private level = 0;
 
   /** Runs the module */
