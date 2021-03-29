@@ -81,7 +81,10 @@ export default class EditorLayer extends Layer {
       [
         {
           icon: { title: 'Resize', src: SlidersIcon },
-          handler: () => this.form.open(),
+          handler: () => {
+            const { width, height } = this.editor.getLevel();
+            this.form.open([width, height]);
+          },
           action: true,
         },
         {
@@ -132,8 +135,8 @@ export default class EditorLayer extends Layer {
 
     // Create form
     this.form = new FormWidget([
-      { name: 'width', type: 'number', min: 2 },
-      { name: 'height', type: 'number', min: 2 },
+      { name: 'width', type: 'number', min: 2, max: 30 },
+      { name: 'height', type: 'number', min: 2, max: 20 },
     ]);
 
     // Subscribe for form submit and change size of grid
@@ -141,6 +144,7 @@ export default class EditorLayer extends Layer {
       if (data.width === '') data.width = '1';
       if (data.height === '') data.height = '1';
       this.editor.updateGridSize({ x: parseInt(data.width), y: parseInt(data.height) });
+      this.form.close();
     });
 
     // Render form

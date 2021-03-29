@@ -1,10 +1,5 @@
 import Layer from '../models/Layer';
 
-interface FormValue {
-  name: string;
-  type: string;
-}
-
 type FormSubscriber<T> = (data: T) => void;
 
 export default class FormWidget extends Layer {
@@ -15,7 +10,7 @@ export default class FormWidget extends Layer {
   // State
   private isOpen = false;
 
-  constructor(private values: { name: string; type: string; min: number }[]) {
+  constructor(private values: { name: string; type: string; min: number; max: number }[]) {
     super();
 
     // Add event listener for form submition
@@ -36,9 +31,9 @@ export default class FormWidget extends Layer {
   /**
    * Allow for opening modal
    */
-  open() {
+  open(values: number[]) {
     this.isOpen = true;
-    this.render();
+    this.render(values);
   }
 
   /**
@@ -57,51 +52,58 @@ export default class FormWidget extends Layer {
     this.subscribers.push(handler);
   }
 
-  render() {
+  render(values?: number[]) {
     // Remove old content
     this.element.innerHTML = '';
 
     // Set class for main element
-    this.element.classList.add('form-modal');
+    this.element.className = 'form-modal';
 
     if (this.isOpen) this.element.classList.add('form-modal--open');
     else if (!this.isOpen) this.element.classList.remove('form-modal--open');
 
     // Create wrapper for modal
     const formWrapper = document.createElement('section');
-    formWrapper.classList.add('form-wrapper');
+    formWrapper.className = 'form-wrapper';
 
     // Form
     const form = document.createElement('form');
-    form.classList.add('form-wrapper__form');
+    form.className = 'form-wrapper__form';
 
     // Create input elements
-    this.values.forEach(value => {
+    this.values.forEach((value, index) => {
+      const label = document.createElement('label');
+      label.className = 'form-wrapper__form-label';
+      label.textContent = value.name;
+
       const input = document.createElement('input');
-      input.classList.add('form-wrapper__form-input');
+      input.className = 'form-wrapper__form-input';
 
       input.type = value.type;
       input.name = value.name;
-      input.placeholder = value.name;
       input.min = value.min.toString();
-      form.appendChild(input);
+      input.max = value.max.toString();
+      input.value = (values?.[index] ?? 0).toString();
+
+      label.appendChild(input);
+      form.appendChild(label);
     });
 
     // Create title for modal
     const modalTitle = document.createElement('h1');
-    modalTitle.classList.add('form-wrapper__title');
+    modalTitle.className = 'form-wrapper__title';
     modalTitle.innerHTML = 'Change grid size';
     formWrapper.appendChild(modalTitle);
 
     // Create cancle button
     const cancelButton = document.createElement('button');
     cancelButton.innerHTML = 'close';
-    cancelButton.classList.add('form-wrapper__close-button');
+    cancelButton.className = 'form-wrapper__close-button';
     cancelButton.addEventListener('click', () => this.close());
 
     // Create submit button
     const submit = document.createElement('button');
-    submit.classList.add('form-wrapper__form-submit');
+    submit.className = 'form-wrapper__form-submit';
     submit.type = 'submit';
     submit.innerHTML = 'submit';
 

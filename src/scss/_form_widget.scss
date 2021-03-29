@@ -29,16 +29,19 @@
   }
 
   &__form {
-    margin-bottom: 2em;
+    margin-bottom: 1.6em;
     display: grid;
     gap: 1em;
   }
 
   &__form-input {
+    margin-top: 12px;
+    display: block;
     padding: 1em 2em;
     font-size: 18px;
     border-radius: 5px;
     border: 1px solid black;
+    min-width: 256px;
   }
 
   &__form-submit {
