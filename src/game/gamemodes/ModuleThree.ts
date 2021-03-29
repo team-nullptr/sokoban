@@ -55,7 +55,10 @@ export default class ModuleThree implements Module {
       backToMenuHandler: level => {
         // If the player has opened an existing level, save their work
         // Also if the player has a new level opened, ask for saving and then save it
-        if (!(this.saved || confirm('Do you want to save your work?')) || this.saveLevel(level)) {
+        if (
+          !(this.savedLevel || confirm('Do you want to save your work?')) ||
+          this.saveLevel(level)
+        ) {
           this.openMenu();
         }
       },
@@ -66,12 +69,12 @@ export default class ModuleThree implements Module {
     this.uimanager.create(this.gamesList, LayerType.Custom1);
   }
 
-  private saved?: { id: string; name: string };
+  private savedLevel?: { id: string; name: string };
 
   /** Saves given level to localstorage */
   private saveLevel(level: Level): boolean {
-    const id = this.saved?.id;
-    let name = this.saved?.name;
+    const id = this.savedLevel?.id;
+    let name = this.savedLevel?.name;
 
     // Ask for name for current save
     // if it was not provided, then return, that the function didn't succeed
@@ -81,16 +84,18 @@ export default class ModuleThree implements Module {
       name = prompt;
     }
 
-    const save: CustomLevel = { id: id ?? uuid(), name: name ?? prompt!, ...level };
+    const save: CustomLevel = { id: id ?? uuid(), name, ...level };
     Storage.append('levels', save);
 
-    this.saved = save;
+    this.savedLevel = save;
 
     return true;
   }
 
   /** Opens a menu with created levels / saved games */
   private openMenu(): void {
+    this.savedLevel = undefined;
+
     // Set items in action buttons
     (this.uimanager.layer(LayerType.Actions) as ActionsLayer).set({
       onclick: index => {
@@ -133,7 +138,7 @@ export default class ModuleThree implements Module {
     // Open game window
     const play = (id: string) => {
       const level = Storage.get<CustomLevel>('levels').findOne(id);
-      if (level) this.openRunner(level);
+      if (level) this.openRunner(level, false, true);
     };
 
     // Remove level from localStorage
@@ -185,7 +190,7 @@ export default class ModuleThree implements Module {
 
   /** Opens the editor for */
   private openEditor(level?: CustomLevel): void {
-    this.saved = level;
+    this.savedLevel = level;
 
     const editor = (this.uimanager.layer(LayerType.Editor) as EditorLayer).editor;
     editor.clear(); // Clear the editor
@@ -197,7 +202,17 @@ export default class ModuleThree implements Module {
   }
 
   /** Opens the game runner */
-  private openRunner(game: Level | SavedCustomGame, inEditor: boolean = false): void {
+  /**
+   *
+   * @param game A game to be started
+   * @param inEditor If the game is runned in editor
+   * @param create Should this function create a new game (only available if game metadata was provided - to be more specific - id)
+   */
+  private openRunner(
+    game: Level | SavedCustomGame,
+    inEditor: boolean = false,
+    create: boolean = false
+  ): void {
     // Hide all layers except GameRunner
     this.uimanager.hideAll();
     this.uimanager.show(LayerType.Runner);
@@ -207,10 +222,9 @@ export default class ModuleThree implements Module {
     runner.resize(); // Resize the canvas to match browser window size
     runner.hideOverlay(); // Hide pause screen
 
-    this.updateUI(inEditor, game);
-
     // Set level
     this.gameRunner.setLevel('level' in game ? game.level : game);
+    this.updateUI(inEditor, game);
 
     // Set layout and stats if available (if type of the object is SavedCustomGame - not Level)
     if ('layout' in game) {
@@ -230,8 +244,7 @@ export default class ModuleThree implements Module {
     let saved = 'level' in game ? game : undefined;
 
     const save = () => {
-      const id = this.saved?.id;
-      let name = this.saved?.name;
+      let name = saved?.name;
 
       // Ask for name for current save
       // if it was not provided, then return, that the function didn't succeed
@@ -246,14 +259,13 @@ export default class ModuleThree implements Module {
 
       // Save current game
       const save: SavedCustomGame = {
-        id: id!,
-        name: name!,
+        id: saved?.id ?? uuid(),
+        name,
         level,
         layout: this.gameRunner.getLayout(),
         stats: this.gameRunner.stats,
       };
 
-      saved = save;
       Storage.append('custom-games', save);
 
       return true;
