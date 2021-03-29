@@ -79,5 +79,6 @@ export default class Game {
   showMenu(): void {
     this.uimanager.hideAll();
     this.uimanager.show(LayerType.Module);
+    (this.uimanager.layer(LayerType.Runner) as RunnerLayer).onFinish = () => {};
   }
 }
