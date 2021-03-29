@@ -166,6 +166,13 @@ export default class ModuleTwo implements Module {
       if (game) this.startGame(game);
     };
 
+    const remove = (id: string, name: string) => {
+      if (!confirm(`Delete '${name}'?`)) return;
+
+      Storage.remove('games', id);
+      this.updateGamesList();
+    };
+
     // Add saved games to the list
     items.push(
       ...Storage.get<SavedGame>('games').all.map(game => {
@@ -178,17 +185,10 @@ export default class ModuleTwo implements Module {
           title: game.name,
           description: `${level} | ${points}`,
           actions: [
-            { src: Play, title: 'Play this level', onclick: () => run(game.id!) },
-            {
-              src: Trash,
-              title: 'Delete this level',
-              onclick: () => {
-                Storage.remove('games', game.id);
-                this.updateGamesList();
-              },
-            },
+            { src: Play, title: 'Play', onclick: () => run(game.id!) },
+            { src: Trash, title: 'Delete', onclick: () => remove(game.id, game.name) },
           ],
-          onclick: () => run(game.id!),
+          onclick: () => run(game.id),
         };
       })
     );

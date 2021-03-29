@@ -177,10 +177,20 @@ export default class ModuleThree implements Module {
       this.openRunner(game!);
     };
 
+    const remove = (id: string, name: string) => {
+      if (!confirm(`Delete '${name}'?`)) return;
+
+      Storage.remove('custom-games', id);
+      this.updateGamesList();
+    };
+
     games.forEach(game =>
       items.push({
         title: game.name,
-        actions: [{ src: Play, title: 'Play', onclick: () => play(game.id) }],
+        actions: [
+          { src: Play, title: 'Play', onclick: () => play(game.id) },
+          { src: Trash, title: 'Delete', onclick: () => remove(game.id, game.name) },
+        ],
         onclick: () => play(game.id),
       })
     );
