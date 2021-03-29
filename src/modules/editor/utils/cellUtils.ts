@@ -1,4 +1,3 @@
-import Level from '../../../models/Level';
 import LevelLayout from '../../../models/LevelLayout';
 import Vector from '../../game-runner/models/Vector';
 

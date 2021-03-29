@@ -31,12 +31,12 @@ export default class ModuleOne implements Module {
   /** Runs the module */
   start(): void {
     // Prepare UI
-    this.prepare();
+    this.prepareUI();
     this.showMenu(); // Show difficulty selection menu
   }
 
   /** Prepares user interface */
-  private prepare(): void {
+  private prepareUI(): void {
     // Create difficulty selection menu
     const difficulty = new MultifunctionalListLayer('Difficulty');
     const items: MultifunctionalListItem[] = [];
@@ -54,7 +54,7 @@ export default class ModuleOne implements Module {
       onclick: (option: number) => {
         // Restart
         if (option === 1) {
-          this.runCurrentLevel();
+          this.playCurrent();
           return;
         }
 
@@ -72,7 +72,7 @@ export default class ModuleOne implements Module {
 
         // Update level
         this.level = clamped; // Update index
-        this.runCurrentLevel();
+        this.playCurrent();
       },
     });
   }
@@ -91,7 +91,7 @@ export default class ModuleOne implements Module {
   }
 
   /** Runs current level */
-  private runCurrentLevel(): void {
+  private playCurrent(): void {
     (this.uimanager.layer(LayerType.Runner) as RunnerLayer).hideOverlay(); // Hide pause screen
 
     this.gameRunner.setLevel(this.levels[this.level]); // Play selected level
@@ -136,7 +136,7 @@ export default class ModuleOne implements Module {
 
     // Start new game
     this.level = 0;
-    this.runCurrentLevel();
+    this.playCurrent();
 
     // Hide all layers except GameRunner
     this.uimanager.hideAll();

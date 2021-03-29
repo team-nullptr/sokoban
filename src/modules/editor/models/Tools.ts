@@ -4,8 +4,6 @@ import { moveSelection, checkTransform, searchInLayout } from '../utils/cellUtil
 import { BuilderTool } from '../classes/BuilderTool';
 import { TransferorTool } from '../classes/TransferorTool';
 
-const iconPath = './dist/icons';
-
 export const BoxBuilder = new BuilderTool((layout: LevelLayout, cell: Vector) => {
   // If there is something on current cell just return layout
   if (searchInLayout(layout, cell)) return { layout, wasUpdated: false };

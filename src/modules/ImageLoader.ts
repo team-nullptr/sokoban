@@ -33,11 +33,6 @@ export default class ImageLoader {
     this.queue.set(key, src);
   }
 
-  /** Removes image from the queue */
-  remove(key: string): boolean {
-    return this.queue.delete(key);
-  }
-
   /** Loads all images from the queue. Returns true if operation succeeded */
   async load(): Promise<boolean> {
     const promises = new Set<Promise<ImagePair>>();
