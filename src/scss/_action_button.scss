@@ -3,7 +3,8 @@ section.actions {
   top: auto;
   bottom: 0;
   left: 50%;
-  width: auto;
+  width: 100%;
+  pointer-events: none;
 
   transition: transform 0.16s;
   transform: translate(-50%, 100%); // Hide buttons by default
@@ -31,6 +32,7 @@ section.actions {
     font: inherit;
     padding: 16px;
     width: 416px;
+    pointer-events: all;
 
     .wrapper {
       margin: 0 auto;

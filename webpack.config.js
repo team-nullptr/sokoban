@@ -28,11 +28,20 @@ module.exports = {
         use: ['style-loader', 'css-loader', 'sass-loader'],
       },
       {
-        // Maintains png file paths
+        // Maintains paths to png files
         test: /\.png$/i,
         loader: 'file-loader',
         options: {
           outputPath: 'images',
+          name: '[name].[ext]',
+        },
+      },
+      {
+        // Maintains paths to ttf files
+        test: /\.ttf$/i,
+        loader: 'file-loader',
+        options: {
+          outputPath: 'fonts',
           name: '[name].[ext]',
         },
       },
