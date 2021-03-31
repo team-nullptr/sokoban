@@ -18,6 +18,7 @@ import NamedIcon from '../../modules/ui-manager/models/NamedItem';
 import promptFilled from '../../utils/promptFilled';
 import getPoints from '../../utils/getPoints';
 import { SolvedLevel } from '../../models/SolvedLevel';
+import SolutionLayer from '../../modules/ui-manager/views/SolutionLayer';
 
 // Images
 import Next from '%assets%/icons/arrow-right.svg';
@@ -35,6 +36,7 @@ export default class ModuleTwo implements Module {
 
   private readonly savedGamesList = new MultifunctionalListLayer('Saved games');
   private readonly rankingList = new MultifunctionalListLayer('Ranking');
+  private readonly solution = new SolutionLayer();
 
   constructor(private readonly gameRunner: GameRunner, private readonly game: Game) {
     this.uimanager = game.uimanager;
@@ -59,6 +61,7 @@ export default class ModuleTwo implements Module {
     // Create custom layers
     this.uimanager.create(this.savedGamesList, LayerType.Custom0);
     this.uimanager.create(this.rankingList, LayerType.Custom1);
+    this.uimanager.create(this.solution, LayerType.Custom2);
 
     const runner = this.uimanager.layer(LayerType.Runner) as RunnerLayer;
 
@@ -113,6 +116,7 @@ export default class ModuleTwo implements Module {
     });
   }
 
+  /** Updates point count for current level */
   private updatePoints(): void {
     this.points[this.level] = getPoints(
       this.gameRunner.stats,
@@ -310,7 +314,7 @@ export default class ModuleTwo implements Module {
 
     // Hide all layers except GameRunner
     this.uimanager.hideAll();
-    this.uimanager.show(LayerType.Runner);
+    this.uimanager.show(LayerType.Runner, LayerType.Custom2);
 
     // Resize the canvas to match browser window size
     // This has to be done after showing Runner layer,
@@ -360,5 +364,22 @@ export default class ModuleTwo implements Module {
     (this.uimanager.layer(LayerType.Runner) as RunnerLayer).hideOverlay(); // Hide pause screen
     this.gameRunner.setLevel(this.levels[this.level]); // Play selected level
     this.updateRunnerControls();
+
+    // Update solution
+    const solution = this.uimanager.layer(LayerType.Custom2) as SolutionLayer;
+    this.uimanager.show(LayerType.Custom2);
+
+    const points = this.points.reduce((acc, val) => acc + val, 0);
+
+    const {
+      time,
+      moves: { player, box },
+    } = this.levels[this.level].solution;
+    const ftime = (time / 1000).toFixed(3); // Format time
+
+    solution.set([
+      { title: 'Solution', value: [`${ftime} seconds`, `${player} moves`, `${box} box moves`] },
+      { title: 'Points', value: `${points} points in total` },
+    ]);
   }
 }

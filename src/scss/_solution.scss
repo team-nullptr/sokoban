@@ -1,0 +1,25 @@
+.solution {
+  font-weight: 500;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 32px;
+
+  top: auto;
+  bottom: 96px;
+  left: 128px;
+
+  pointer-events: none;
+
+  &.shown {
+    display: flex;
+  }
+
+  p {
+    margin-top: 4px;
+
+    &.title {
+      font-size: 0.8em;
+      margin-top: 12px;
+    }
+  }
+}

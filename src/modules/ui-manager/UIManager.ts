@@ -13,6 +13,7 @@ export default class UIManager {
     LayerType.Module,
     LayerType.Custom0,
     LayerType.Custom1,
+    LayerType.Custom2,
     LayerType.Editor,
     LayerType.Runner,
   ];
@@ -73,7 +74,7 @@ export default class UIManager {
   }
 
   /** Creates custom layer */
-  create(layer: Layer, slot: LayerType.Custom0 | LayerType.Custom1): void {
+  create(layer: Layer, slot: LayerType.Custom0 | LayerType.Custom1 | LayerType.Custom2): void {
     // Render the layer
     this.layers.set(slot, layer);
     layer.render();
