@@ -141,8 +141,8 @@ export default class EditorLayer extends Layer {
 
     // Subscribe for form submit and change size of grid
     this.form.subscribe<{ width: string; height: string }>(data => {
-      if (data.width === '') data.width = '1';
-      if (data.height === '') data.height = '1';
+      if (data.width === '') data.width = '2';
+      if (data.height === '') data.height = '2';
       this.editor.updateGridSize({ x: parseInt(data.width), y: parseInt(data.height) });
       this.form.close();
     });

@@ -11,9 +11,9 @@ import MultifunctionalListLayer, {
 import Images from './Images';
 
 // Modules
-import ModuleOne from './gamemodes/ModuleOne';
-import ModuleTwo from './gamemodes/ModuleTwo';
-import ModuleThree from './gamemodes/ModuleThree';
+import ModuleOne from './modules/ModuleOne';
+import ModuleTwo from './modules/ModuleTwo';
+import ModuleThree from './modules/ModuleThree';
 
 export default class Game {
   readonly uimanager: UIManager;

@@ -39,9 +39,9 @@ export default class GameRunner {
 
   // Level
   private level: Level | undefined; // Copy of currently played level - for reloading
+  private readonly layout: RunnerLayout = { boxes: [], targets: [], walls: [] };
 
   private readonly player: Player;
-  private readonly layout: RunnerLayout = { boxes: [], targets: [], walls: [] };
 
   // Statistics
   // ? Maybe change this to Stats object
