@@ -8,6 +8,17 @@
   transition: opacity 0.16s;
   pointer-events: none;
 
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: -128px;
+    left: 0;
+    width: 100%;
+    height: 320px;
+    background: linear-gradient(0deg, #fff, transparent);
+    pointer-events: none;
+  }
+
   &.shown {
     pointer-events: all;
     opacity: 1;
@@ -23,6 +34,7 @@
     li {
       cursor: pointer;
       min-width: 64px;
+      z-index: 1;
 
       &.locked {
         opacity: 0.08;
