@@ -1,0 +1,17 @@
+aside.authors {
+  top: auto;
+  bottom: 0;
+  padding: 32px 128px;
+  pointer-events: none;
+  font-weight: 500;
+  color: rgba(0,0,0,.24);
+
+  &.shown {
+    display: block;
+  }
+
+  a {
+    color: inherit;
+    pointer-events: all;
+  }
+}

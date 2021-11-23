@@ -4,12 +4,14 @@ import RunnerLayer from './views/RunnerLayer';
 import ActionsLayer from './views/ActionsLayer';
 import MultifunctionalListLayer from './views/MultifunctionalListLayer';
 import EditorLayer from './views/EditorLayer';
+import AuthorsLayer from './views/AuthorsLayer';
 
 export default class UIManager {
   private readonly layers = new Map<LayerType, Layer | undefined>();
 
   private readonly order = [
     LayerType.Actions,
+    LayerType.Authors,
     LayerType.Module,
     LayerType.Custom0,
     LayerType.Custom1,
@@ -25,19 +27,13 @@ export default class UIManager {
 
   /** Initializes all layers */
   private init(): void {
-    // Runner
     this.layers.set(LayerType.Runner, new RunnerLayer(this));
-
-    // Button
     this.layers.set(LayerType.Actions, new ActionsLayer());
-
-    // Editor layer
     this.layers.set(LayerType.Editor, new EditorLayer());
+    this.layers.set(LayerType.Authors, new AuthorsLayer());
 
-    // Module selection
     // Items are initialized in Game.ts
     const module = new MultifunctionalListLayer('Module');
-
     this.layers.set(LayerType.Module, module);
   }
 

@@ -3,9 +3,7 @@ import Actor from '../modules/game-runner/models/Actor';
 import { LayerType } from '../modules/ui-manager/models/LayerType';
 import UIManager from '../modules/ui-manager/UIManager';
 import RunnerLayer from '../modules/ui-manager/views/RunnerLayer';
-import MultifunctionalListLayer, {
-  MultifunctionalListItem,
-} from '../modules/ui-manager/views/MultifunctionalListLayer';
+import MultifunctionalListLayer, { MultifunctionalListItem } from '../modules/ui-manager/views/MultifunctionalListLayer';
 
 // Images
 import Images from './Images';
@@ -43,7 +41,7 @@ export default class Game {
     this.moduleThree = new ModuleThree(runner, this);
 
     // Load images
-    this.loadImages().then(() => {
+    Game.loadImages().then(() => {
       // After loading all images, show module selection menu
 
       // Build module selection menu
@@ -63,7 +61,7 @@ export default class Game {
   }
 
   /** Loads images */
-  private async loadImages(): Promise<void> {
+  private static async loadImages(): Promise<void> {
     await Images.load();
     Actor.assets = Images.all;
   }
@@ -78,7 +76,10 @@ export default class Game {
   /** Shows module selection menu */
   showMenu(): void {
     this.uimanager.hideAll();
+
+    this.uimanager.show(LayerType.Authors);
     this.uimanager.show(LayerType.Module);
+
     (this.uimanager.layer(LayerType.Runner) as RunnerLayer).onFinish = () => {};
   }
 }

@@ -1,4 +1,5 @@
 export enum LayerType {
+  Authors,
   Actions,
   Module,
   Custom0,
