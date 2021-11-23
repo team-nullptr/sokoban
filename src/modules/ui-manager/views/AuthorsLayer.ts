@@ -8,7 +8,7 @@ export default class AuthorsLayer extends Layer {
     this.element.innerHTML = '';
 
     const p = document.createElement('p');
-    p.innerHTML = 'Grę stworzyli <a href="https://github.com/bk20dev">Bartosz Bieniek&#129109;</a> oraz <a href="https://github.com/senicko">Sebastian Flajszer&#129109;</a>';
+    p.innerHTML = 'Grę stworzyli: <a href="https://github.com/bk20dev">Bartosz Bieniek&#129109;</a>, <a href="https://github.com/senicko">Sebastian Flajszer&#129109;</a>, Stanisław Szady oraz Dawid Piotrowski';
 
     this.element.appendChild(p);
   }
